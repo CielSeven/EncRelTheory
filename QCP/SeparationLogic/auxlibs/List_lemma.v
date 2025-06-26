@@ -686,142 +686,182 @@ Proof.
   - rewrite IHlen1. f_equal. f_equal. f_equal. lia.
 Qed.
 
-Lemma forall_in_cons:
-  forall {A: Type} (a: A) (l: list A) (P: A -> Prop),
-    (forall a0, In a0 (a :: l) -> P a0) <->
-    P a /\ (forall a0, In a0 l -> P a0).
-Proof.
-  intros; split; intros.
-  + split.
-    - exact (H _ (or_introl eq_refl)).
-    - intros.
-      exact (H _ (or_intror H0)).
-  + destruct H0.
-    - subst; tauto.
-    - revert a0 H0; tauto.
-Qed.
+(* copy from VSTCForm *)
 
-Lemma forall_in_app:
-  forall {A: Type} (l1 l2: list A) (P: A -> Prop),
-    (forall a, In a (l1 ++ l2) -> P a) <->
-    (forall a, In a l1 -> P a) /\
-    (forall a, In a l2 -> P a).
-Proof.
-  intros.
-  induction l1; simpl app.
-  + assert (forall a, False -> P a) by tauto.
-    tauto.
-  + rewrite !forall_in_cons.
-    tauto.
-Qed.
+From compcert.lib Require Import Coqlib.
 
-Definition prod_eq_dec {A B}
-  (eq_dec1: forall a1 a2: A, {a1 = a2} + {a1 <> a2})
-  (eq_dec2: forall b1 b2: B, {b1 = b2} + {b1 <> b2}):
-  forall p1 p2: A * B, {p1 = p2} + {p1 <> p2}.
-Proof.
-  intros [a1 b1] [a2 b2].
-  destruct (eq_dec1 a1 a2), (eq_dec2 b1 b2).
-  - left; congruence.
-  - right; congruence.
-  - right; congruence.
-  - right; congruence.
-Defined.
+Definition ident := positive.
 
-Definition list_eq_dec {A: Type} (eq_dec: forall a1 a2: A, {a1 = a2} + {a1 <> a2}):
-  forall l1 l2: list A, {l1 = l2} + {l1 <> l2}.
-Proof.
-  intros l1.
-  induction l1; destruct l2; simpl.
-  + left; auto.
-  + right; congruence.
-  + right; congruence.
-  + destruct (eq_dec a a0), (IHl1 l2).
-    - left; congruence.
-    - right; congruence.
-    - right; congruence.
-    - right; congruence.
-Defined.
-
-Definition list_eqb {A B: Type} (eqb: A -> B -> bool) (l1 : list A) (l2 : list B): bool :=
-  (fix list_eqb (l1 : list A) (l2 : list B): bool :=
-    match l1, l2 with
-    | nil, nil => true
-    | cons a1 l1', cons a2 l2' => eqb a1 a2 && list_eqb l1' l2'
-    | _, _ => false
-    end) l1 l2.
-
-Lemma list_eqb_eq_nil: forall {A B} (eqb: A -> B -> bool),
-  forall l2: list B, list_eqb eqb nil l2 = true <-> nil = l2.
-Proof.
-  intros.
-  destruct l2; simpl.
-  + tauto.
-  + split; intros; congruence.
-Qed.
-
-Lemma list_eqb_eq_cons: forall {A} eqb,
-  forall a1 l1,
-    (forall a2: A, eqb a1 a2 = true <-> a1 = a2) ->
-    (forall l2: list A, list_eqb eqb l1 l2 = true <-> l1 = l2) ->
-    (forall l2, list_eqb eqb (cons a1 l1) l2 = true <-> cons a1 l1 = l2).
-Proof.
-  intros.
-  destruct l2; simpl.
-  + split; intros; congruence.
-  + rewrite andb_true_iff, H, H0.
-    split; [intros [? ?] | intros; split]; congruence.
-Qed.
-
-
-Lemma list_eqb_eq {A} eqb (eqb_eq : forall a1 a2: A, eqb a1 a2 = true <-> a1 = a2):
-    (forall l1 l2: list A, list_eqb eqb l1 l2 = true <-> l1 = l2).
-Proof.
-  intros.
-  revert l2.
-  induction l1.
-  + apply list_eqb_eq_nil.
-  + apply list_eqb_eq_cons; auto.
-Qed.
-
-Lemma list_eqb_refl {A} eqb (eqb_refl : forall a: A, eqb a a = true):
-  forall (l: list A), list_eqb eqb l l = true.
-Proof.
-  intros.
-  induction l; simpl; auto.
-  rewrite (eqb_refl a), IHl. auto.
-Qed.
-
-Lemma list_eqb_true {A} eqb (eqb_true : forall a1 a2: A, eqb a1 a2 = true -> a1 = a2):
-  forall (l1 l2 : list A), list_eqb eqb l1 l2 = true -> l1 = l2.
-Proof.
-  induction l1; destruct l2; intros.
-  - reflexivity.
-  - simpl in H; discriminate H.
-  - simpl in H; discriminate H.
-  - simpl in H.
-    apply andb_true_iff in H as [? ?].
-    apply eqb_true in H; subst.
-    f_equal; auto.
-Qed.
-
-Definition option_eqb {A: Type} (eqb: A -> A -> bool) (o1 o2: option A): bool :=
-  match o1, o2 with
-  | Some a1, Some a2 => eqb a1 a2
-  | None, None => true
-  | _, _ => false
+Definition eqb_option {A : Type} (eqbA : A -> A -> bool) (a b : option A) :=
+  match a, b with
+    | None , None => true
+    | Some a' , Some b' => eqbA a' b'
+    | _ , _ => false
+  end.
+  
+Fixpoint Find {A : Type} (eqbA : A -> A -> bool) (l : list A) (a : A) : bool :=
+  match l with
+    | nil => false
+    | b :: l' => if (eqbA a b) then true else Find eqbA l' a
   end.
 
-Lemma option_eqb_eq:
-  forall A eqb,
-    (forall a1 a2: A, eqb a1 a2 = true <-> a1 = a2) ->
-    (forall o1 o2: option A, option_eqb eqb o1 o2 = true <-> o1 = o2).
-Proof.
-  intros.
-  destruct o1, o2; simpl.
-  + rewrite H.
-    split; intros; congruence.
-  + split; intros; congruence.
-  + split; intros; congruence.
-  + tauto.
-Qed.
+Fixpoint Find_None {A : Type} (l : list (option A)) : bool :=
+  match l with
+    | nil => false
+    | a :: l' => match a with
+                   | None => true
+                   | _ => Find_None l'
+                 end
+  end.
+
+Fixpoint Clear_option {A : Type} (l : list (option A)) : list A :=
+  match l with
+    | nil => nil
+    | a :: l' => match a with
+                   | None => Clear_option l'
+                   | Some a' => a' :: Clear_option l'
+                 end
+  end.
+
+Fixpoint Find_A_in_prodAB {A B : Type} (eqbA : A -> A -> bool) (l : list (A * B)) (a : A) :  option B :=
+  match l with
+    | nil => None
+    | (a' , b) :: l' => if (eqbA a' a) then Some b else Find_A_in_prodAB eqbA l' a
+  end.
+
+Fixpoint Find_B_in_prodAB {A B : Type} (eqbB : B -> B -> bool) (l : list (A * B)) (b : B) :  option A :=
+  match l with
+    | nil => None
+    | (a , b') :: l' => if (eqbB b b') then Some a else Find_B_in_prodAB eqbB l' b
+  end.
+
+Fixpoint remove_once {A : Type} (eqbA : A -> A -> bool) (l : list A) (a : A) : list A :=
+   match l with
+    | nil => nil
+    | b :: l' => if (eqbA a b) then l' else b :: remove_once eqbA l' a
+   end.
+
+Fixpoint Remove {A : Type} (eqbA : A -> A -> bool) (l : list A) (a : A) : list A :=
+   match l with
+    | nil => nil
+    | b :: l' => if (eqbA a b) then Remove eqbA l' a else b :: Remove eqbA l' a
+  end.
+
+Fixpoint Same_part {A : Type} (eqbA : A -> A -> bool) (l1 l2 : list A) : list A :=
+  match l1 with
+    | nil => nil
+    | a :: l => if (Find eqbA l2 a) then a :: (Same_part eqbA l (remove_once eqbA l2 a))
+                                    else Same_part eqbA l l2
+  end.
+
+Fixpoint Remove_part{A : Type} (eqbA : A -> A -> bool) (l1 l2 : list A) : list A :=
+  match l2 with
+    | nil => l1
+    | a :: l2' => Remove_part eqbA (remove_once eqbA l1 a) l2'
+  end.
+
+Fixpoint eqb_list {A : Type} (eqbA : A -> A -> bool) (l1 l2 : list A) : bool :=
+  match l1 with 
+    | nil => match l2 with
+               | nil => true
+               | _ => false
+             end
+    | s :: l => (Find eqbA l2 s) && eqb_list eqbA l (remove_once eqbA l2 s)
+  end.
+
+Definition Find_part {A : Type} (eqbA : A -> A -> bool) (l1 l2 : list A) : bool :=
+  eqb_list eqbA (Same_part eqbA l1 l2) l2.
+  
+Definition Find_val_in_Z (l : list (Z * ident)) (a : Z) : ident :=
+  match (Find_A_in_prodAB Z.eqb l a) with
+    | None => xH
+    | Some b => b
+  end.
+
+Definition Find_string (l : list (ident * string)) (a : ident) : string :=
+  match (Find_A_in_prodAB Pos.eqb l a) with
+    | None => "Cannot find the predicate"
+    | Some b => b
+  end.
+
+Definition look_up (l : list (ident * ident)) (a : ident) : option ident :=
+  Find_A_in_prodAB Pos.eqb l a.
+
+Definition look_back (l : list (ident * ident)) (a : ident) : option ident :=
+  Find_B_in_prodAB Pos.eqb l a.
+
+Fixpoint Add_ident_map (l : list ident) (a : ident) : list (ident * ident) :=
+  match l with
+    | nil => nil
+    | b :: l' => (b , (b + a)%positive) :: Add_ident_map l' a
+  end. 
+
+Fixpoint Sub_ident_map (l : list ident) (a : ident) : list (ident * ident) :=
+  match l with
+    | nil => nil
+    | b :: l' => (b , (b - a)%positive) :: Sub_ident_map l' a
+  end. 
+
+Fixpoint Rev_ident_list (l : list (ident * ident)) : list (ident * ident) :=
+  match l with
+    | nil => nil
+    | (b , c) :: l' => (c , b) :: Rev_ident_list l'
+  end. 
+
+Fixpoint Add_map_ident (l : list (ident * ident)) (a : ident) : list (ident * ident) :=
+  match l with
+    | nil => nil
+    | (b , c) :: l' => (b , (c + a)%positive) :: Add_map_ident l' a
+  end. 
+
+Fixpoint build_from_ident_list (l l1 : list (ident * ident)) : list (ident * ident) :=
+  match l with
+    | nil => nil
+    | (b , c) :: l' => match look_up l1 b with  
+                         | None => build_from_ident_list l' l1
+                         | Some d => (c , d) :: build_from_ident_list l' l1
+                       end 
+  end. 
+
+Definition Insert {A : Type} (eqbA : A -> A -> bool) (l1 l2 : list A) :=
+  concat (map (fun a => if (Find eqbA l1 a) then nil else a :: nil) l2) ++ l1.
+
+Definition Add_list (l l1 : list ident) : list ident := Insert Pos.eqb l l1.
+
+Definition Front (l : list (ident * ident)) : ident :=
+  match l with
+    | nil => xH
+    | (b , a) :: l' => a
+  end.
+
+Fixpoint Nondup_concat {A : Type} (eqbA : A -> A -> bool) (l : list (list A)) : list A :=
+  match l with
+    | nil => nil
+    | x :: l' => let A_l := Nondup_concat eqbA l' in
+                   concat (map (fun a => if (Find eqbA A_l a) then nil else a :: nil) x) ++ A_l
+  end.
+
+Fixpoint Unique {A : Type} (eqbA : A -> A -> bool) (l : list A) : list A :=
+  match l with
+    | nil => nil
+    | x :: l' => let A_l := Unique eqbA l' in
+                   if (Find eqbA A_l x) then A_l else x :: A_l
+  end.
+
+Definition Some_concat { A : Type} (l : list (option (list A))) : option (list A) :=
+  if (Find_None l) then None else Some (concat (Clear_option l)).
+
+Definition Option_move {A : Type} (l : list (option A)) : option (list A) :=
+  if (Find_None l) then None else Some (Clear_option l).
+
+Lemma NoDup_cons_1 : forall (A : Type) (x : A) (l : list A), NoDup (x :: l) -> NoDup l. Proof. intros. rewrite NoDup_cons_iff in H. destruct H; auto. Qed.
+
+Lemma NoDup_cons_2 : forall (A : Type) (x : A) (l : list A), NoDup (x :: l) -> ~ In x l. Proof. intros. rewrite NoDup_cons_iff in H. destruct H; auto. Qed.
+
+Lemma NoDup_app_r: forall (A : Type) (l1 l2 : list A), NoDup (l1 ++ l2) -> NoDup l2. Proof. induction l1; simpl; intros; auto. apply NoDup_cons_1 in H. apply IHl1. auto. Qed.
+
+
+Notation "a '+::' b" := (a ++ (b :: nil)) (at level 19).
+
+Lemma app_cons_assoc: forall {A} (l1 l2 : list A) x, l1 ++ x :: l2 = l1 +:: x ++ l2.
+Proof. intros. induction l1. simpl. auto. rewrite <- app_comm_cons. rewrite IHl1. do 2 rewrite <- app_comm_cons. auto. Qed.

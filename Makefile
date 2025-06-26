@@ -1,4 +1,6 @@
 CURRENT_DIR=.
+QCP_DIR = QCP/SeparationLogic/
+
 COQBIN=
 
 -include CONFIGURE
@@ -9,9 +11,9 @@ COQDEP=$(COQBIN)coqdep$(SUF)
 DIRS = \
 	Examples Language auxlib EncRelSeq compcert_lib sets unifysl fixedpoints monadlib 
  
-COQ_FLAG = -R sets SetsClass -R unifysl Logic -R compcert_lib compcert.lib -R auxlib AUXLib -R EncRelSeq EncRelSeq -R Language LangLib -R Examples Examples -R fixedpoints FP -R monadlib MonadLib
+COQ_FLAG = -R $(QCP_DIR)sets SetsClass -R $(QCP_DIR)unifysl Logic -R $(QCP_DIR)compcert_lib compcert.lib -R $(QCP_DIR)auxlibs AUXLib -R EncRelSeq EncRelSeq -R Language LangLib -R Examples Examples -R fixedpoints FP -R monadlib MonadLib
 
-DEP_FLAG = -R sets SetsClass -R unifysl Logic -R compcert_lib compcert.lib -R auxlib AUXLib -R EncRelSeq EncRelSeq -R Language LangLib -R Examples Examples -R fixedpoints FP -R monadlib MonadLib
+DEP_FLAG = -R $(QCP_DIR)sets SetsClass -R $(QCP_DIR)unifysl Logic -R $(QCP_DIR)compcert_lib compcert.lib -R $(QCP_DIR)auxlibs AUXLib -R EncRelSeq EncRelSeq -R Language LangLib -R Examples Examples -R fixedpoints FP -R monadlib MonadLib
 
 Compcertlib_FILES = \
   Coqlib.v Integers.v Zbits.v 
@@ -93,12 +95,12 @@ Examples_FILES = \
 
 
 FILES = \
-  $(Sets_FILES:%.v=sets/%.v) \
-	$(Compcertlib_FILES:%.v=compcert_lib/%.v) \
-  $(Auxlibs_FILES:%.v=auxlib/%.v) \
+    $(Sets_FILES:%.v=QCP/SeparationLogic/sets/%.v) \
+    $(Compcertlib_FILES:%.v=QCP/SeparationLogic/compcert_lib/%.v) \
+    $(Auxlibs_FILES:%.v=QCP/SeparationLogic/auxlibs/%.v) \
     $(FIXPOINT_FILES:%.v=fixedpoints/%.v) \
     $(MONAD_FILES) \
-  $(EncRelSeq_FILES:%.v=EncRelSeq/%.v) \
+    $(EncRelSeq_FILES:%.v=EncRelSeq/%.v) \
 # 	$(Language_FILES:%.v=Language/%.v) \
 # 	$(Examples_FILES:%.v=Examples/%.v) \
 

@@ -45,7 +45,11 @@ time-of-build-both.log
 time-of-build-pretty.log
 
 .vscode
-.depend
+*.depend
 Makefile.conf
 _CoqProject
-
+*/_CoqProject
+*/*/_CoqProject
+CONFIGURE
+*/CONFIGURE
+*/*/CONFIGURE
