@@ -1,0 +1,3 @@
+目前还只修改了Minimum Logic\ProofTheory\Minimum里所有lemma的名字,所以interface里绝大部分derived lemma还不用管；
+用户不需要知道的lemma都不以provable/derivable/derivable1等开头，这些lemma的重命名也不用管；
+interface里名字变了的其实只有minAX、minSC、minD的axioms。

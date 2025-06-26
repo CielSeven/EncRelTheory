@@ -1,0 +1,5 @@
+Require Import los_sortlink_strategy_goal los_sortlink_strategy_proof.
+
+Module los_sortlink_Strategy_Correctness : los_sortlink_Strategy_Correct.
+  Include los_sortlink_strategy_proof.
+End los_sortlink_Strategy_Correctness.

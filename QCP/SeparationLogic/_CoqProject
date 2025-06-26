@@ -1,0 +1,12 @@
+-R SeparationLogic/ SimpleC.SL
+-R unifysl/ Logic
+-R AuxiFun/ SimpleC.ASRTFUN
+-R sets/ SetsClass
+-R compcert_lib/ compcert.lib
+-R auxlibs/ AUXLib
+-R examples/ SimpleC.EE
+-R StrategyLib/ SimpleC.StrategyLib
+-R MonadLib/ StateMonad
+-R MonadLib/monadnrm StateMonad.monadnrm
+-R MonadLib/monaderror StateMonad.monaderror
+-R fixedpoints FP
