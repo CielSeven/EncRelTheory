@@ -1,0 +1,90 @@
+#include "dll_shape_def.h"
+#include "verification_list.h"
+#include "verification_stdlib.h"
+
+id : 1
+priority : core(0)
+left : dlistrep(NULL, ?x) at 0
+action : left_erase(0);
+
+id : 2
+priority : core(0)
+right : dlistrep(NULL, ?x) at 0 
+action : right_erase(0);
+
+id : 3
+priority : core(0)
+left : (?p : Z == NULL || NULL == ?p : Z) at 0
+right : dlistrep(p, ?x) at 1
+action : right_erase(1);
+
+id : 4
+priority : core(1)
+left : dlistrep(?p : Z, ?x) at 0
+       (p == NULL || NULL == p) at 1
+action : left_erase(0);
+
+id : 5
+priority : core(6)
+left : dlistrep(?p : Z, ?prev) at 0
+       (p != NULL || NULL != p) at 1
+right : (data_at(field_addr(p, dlist, data), I32, ?q : Z) || data_at(field_addr(p, dlist, next), PTR(struct dlist), ?q : Z) || data_at(field_addr(p, dlist, prev), PTR(struct dlist), ?q : Z)) at 2
+action : left_erase(0);
+         left_exist_add(x : Z);
+         left_exist_add(y : Z);
+         left_add(data_at(field_addr(p, dlist, data), I32, x));
+         left_add(data_at(field_addr(p, dlist, next), PTR(struct dlist), y));
+         left_add(data_at(field_addr(p, dlist, prev), PTR(struct dlist), prev));
+         left_add(dlistrep(y, p));
+
+id : 6 
+priority : core(6)
+left : (?p : Z != NULL || NULL != ?p : Z) at 0
+right : dlistrep(p, ?prev) at 1
+action : right_erase(1);
+         right_exist_add(x : Z);
+         right_exist_add(y : Z);
+         right_add(data_at(field_addr(p, dlist, data), I32, x));
+         right_add(data_at(field_addr(p, dlist, next), PTR(struct dlist), y));
+         right_add(data_at(field_addr(p, dlist, prev), PTR(struct dlist), prev));
+         right_add(dlistrep(y, p));
+
+id : 7
+priority : core(3)
+left : dllseg(?p : Z, ?q : Z, ?r : Z, ?s : Z) at 0
+right : dlistrep(p, ?x) at 1
+check : infer(q == x);
+action : right_erase(1);
+         left_erase(0);
+         right_add(dlistrep(s, r));
+
+id : 8
+priority : core(5)
+left : dlistrep(?p : Z, ?x) at 0
+right : dlistrep(p, ?y) at 1
+check : infer(x == y);
+action : left_erase(0);
+         right_erase(1);
+
+id : 9
+priority : core(3)
+left : dlistrep(?p : Z, ?x) at 0
+right : dllseg(p, ?q : Z, ?r : Z, ?s : Z) at 1
+check : infer(x == q);
+action : left_erase(0);
+         right_erase(1);
+         left_add(dllseg(p, r, s, q));
+
+id : 10
+priority : core(5)
+left : dllseg(?p : Z, ?q : Z, ?r : Z, ?s : Z) at 0
+check : infer(q == r);
+        infer(p == s);
+action : left_erase(0);
+
+id : 11
+priority : core(5)
+right : dllseg(?p : Z, ?q : Z, ?r : Z, ?s : Z) at 0
+check : infer(q == r);
+        infer(p == s);
+action : right_erase(0);

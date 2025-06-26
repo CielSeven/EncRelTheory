@@ -1,0 +1,58 @@
+//max rule id:30
+
+#include "char_array_def.h"
+#include "common_def.h"
+#include "verification_list.h"
+#include "verification_stdlib.h"
+
+id : 1
+priority : core(1)
+left : store_char_array(?p, ?n, ?l) at 0
+right : data_at(?p + (?i * sizeof(I8)), I8, ?v) at 1
+check : infer(0 <= i);
+        infer(i < n);
+action : right_erase(1);
+         left_erase(0);
+         left_add(store_char_array_missing_i_rec(p, i, 0, n, l));
+         right_add(v == l[i]);
+
+id : 2
+priority : post(1)
+left : store_char_array_missing_i_rec(?p, ?i, 0, ?n, ?l) at 0
+       data_at(p + i * sizeof(I8), I8, l[i]) at 1
+check : infer(0 <= i);
+        infer(i < n);
+action : left_erase(1);
+         left_erase(0);
+         left_add(store_char_array(p, n, l));
+
+id : 3
+priority : post(3)
+left : store_char_array_missing_i_rec(?p, ?i, 0, ?n, ?l) at 0
+       data_at(p + i * sizeof(I8), I8, ?v) at 1
+check : infer(0 <= i);
+        infer(i < n);
+action : left_erase(1);
+         left_erase(0);
+         left_add(store_char_array(p, n, replace_Znth{Z}(i, v, l)));
+
+id : 4
+priority : core(1)
+left : store_char_array(?p, ?n, ?l1) at 0
+right : store_char_array(p, n, ?l2) at 1
+action : right_erase(1);
+         left_erase(0);
+         right_add(l1 == l2);
+
+id : 5
+priority : core(1)
+left : store_char_array_missing_i_rec(?p, ?i, ?v, ?n, ?l) at 0
+right : store_char_array_missing_i_rec(p, i, v, n, l) at 1
+action : left_erase(0);
+         right_erase(1); 
+
+id : 6
+priority : core(1)
+left : store_char_array(?p, ?n, ?l1) at 0
+check: absense(0 <= n);
+action : left_add(0 <= n);

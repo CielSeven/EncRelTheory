@@ -1,0 +1,145 @@
+//test curent rules
+//max rule id:30
+
+#include "tool.h"
+
+id : 0
+priority : core(0)
+left : data_at(?p : Z, ?t, ?x : Z) at 0
+       (x : Z == ?y : Z) at 1
+right : data_at(p, t, y) at 2
+action: right_erase(2);
+        left_erase(0);
+
+id : 1
+priority : core(0)
+left : (?x : Z == ?y : Z) at 0
+right : (x == y) at 1
+action: right_erase(1);
+
+id : 2
+priority : core(0)
+left : (?x : Z < ?y : Z) at 0
+right : (x < y) at 1
+action: right_erase(1);
+
+id : 3
+priority : core(0)
+left : (?x : Z <= ?y : Z) at 0
+right : (x <= y) at 1
+action: right_erase(1);
+
+id : 4
+priority : core(0)
+left : (?x : Z != ?y : Z) at 0
+right : (x != y) at 1
+action: right_erase(1);
+
+id : 5
+priority : core(0)
+left : (?x : Z == ?y : Z) at 0
+right : (y == x) at 1
+action: right_erase(1);
+
+id : 6
+priority : core(0)
+left : data_at(?p : Z, ?t, ?x : Z) at 0
+      (?y : Z == x : Z) at 1
+right : data_at(p, t, y) at 2
+action: right_erase(2);
+        left_erase(0);
+
+id : 10
+priority : core(0)
+left : store_solution(?p : Z, ?x) at 0
+right : store_solution(p : Z, ?y) at 1
+action: right_add(x == y);
+        right_erase(1);
+        left_erase(0);
+
+id : 11
+priority : core(0)
+left : store_solution_aux(?p : Z, ?s, ?n : Z, ?x : Z, ?t) at 0
+right : store_solution_aux(p, s, n, x, ?o) at 1
+action: right_add(t == o);
+        right_erase(1);
+        left_erase(0);
+
+id : 12
+priority : core(0)
+left : solution_at(?s, ?n : Z, ?t) at 0
+right : solution_at(s, n, ?x) at 1
+action: right_add(t == x);
+        right_erase(1);
+        left_erase(0);
+
+id : 13
+priority : core(0)
+left : store_type(?p : Z, ?x) at 0
+right : store_type(p, ?y) at 1
+action: right_add(x == y);
+        right_erase(1);
+        left_erase(0);
+
+id : 14
+priority : core(0)
+left : repr_rel_node(?s, ?x , ?y) at 0
+right : repr_rel_node(s, ?z, y) at 1
+action: right_add(x == z);
+        right_erase(1);
+        left_erase(0);
+
+id : 15
+priority : core(0)
+left : store_solution_aux(?p : Z, ?s, ?n : Z, ?x : Z, ?t) at 0
+       (x : Z == ?z : Z) at 1
+right : store_solution_aux(p, s, n, z, ?w) at 2
+action: right_add(t == w);
+        right_erase(2);
+        left_erase(0);
+
+id : 16
+priority : core(0)
+left : repr_rel_node(?s, ?x , ?y) at 0
+right: repr_rel_node(s, ?z, ?w) at 1
+action: right_add(x == z);
+        right_add(y == w);
+        right_erase(1);
+        left_erase(0);
+
+id : 20
+priority : core(0)
+left : store_type(?p : Z, ?x) at 0
+right : store_type(p, x) at 1
+action: right_erase(1);
+        left_erase(0);
+
+id : 21
+priority : core(0)
+left : store_type_aux(?p : Z, ?x, ?y) at 0
+       (x : Z == ?z : Z) at 1
+right : store_type_aux(p, z, y) at 2
+action: right_erase(2);
+        left_erase(0);
+
+id : 22
+priority : core(0)
+left : store_type_aux(?p : Z, ?x, ?y) at 0
+right : store_type_aux(p, x, y) at 1
+action: right_erase(1);
+        left_erase(0);
+
+id : 23
+priority : core(0)
+left : store_solution(?p : Z, ?x) at 0
+right : store_solution(p, x) at 1
+action: right_erase(1);
+        left_erase(0);
+
+id : 24
+priority : core(0)
+left : store_type_aux(?p : Z, ?x, ?y) at 0
+       (?z : Z == x : Z) at 1
+right : store_type_aux(p, z, y) at 1
+action: right_erase(1);
+        left_erase(0);

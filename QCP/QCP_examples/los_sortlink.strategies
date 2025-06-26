@@ -1,0 +1,140 @@
+//test curent rules
+//max rule id:30
+
+
+#include "los_sortlink_def.h"
+#include "verification_list.h"
+#include "verification_stdlib.h"
+
+
+id : 3
+priority : core(2)
+left : store_dll{?A}(?storeA,?p, ?l0) at 0
+right : store_dll{A}(storeA, p, ?l1) at 1
+action : left_erase(0);
+         right_erase(1);
+         right_add(l0 == l1);
+
+
+
+id : 6
+priority : core(1)
+left : (?storeA : Z -> ?A -> asrt)(?p, ?x) at 0
+right : storeA(p, ?y) at 1
+action : left_erase(0);
+         right_erase(1);
+         right_add(x == y);
+
+id : 7
+priority : core(0)
+left : store_dll{?A}(?storeA, ?x, ?l0) at 0
+right : store_dll{A}(storeA, x, ?l1) at 1
+action : left_erase(0);
+         right_erase(1);
+         right_add(l0 == l1);
+
+id : 8
+priority : core(2)
+left : dllseg{?A}(?storeA, ?x, ?px, ?y, ?py, ?l0) at 0
+right : dllseg{A}(storeA, x, px, y, py, ?l1) at 1
+action : left_erase(0);
+         right_erase(1);
+         right_add(l0 == l1);
+
+//
+
+
+id : 11
+priority : core(2)
+left : store_sorted_dll{?A}(?storeA,?p, ?l0) at 0
+right : store_sorted_dll{A}(storeA, p, ?l1) at 1
+action : left_erase(0);
+         right_erase(1);
+         right_add(l0 == l1);
+
+
+id : 14
+priority : core(0)
+left : store_sorted_dll{?A}(?storeA, ?x, ?l0) at 0
+right : store_sorted_dll{A}(storeA, x, ?l1) at 1
+action : left_erase(0);
+         right_erase(1);
+         right_add(l0 == l1);
+
+id : 15
+priority : core(0)
+left : dllseg_shift{?A}(?storeA, ?px, ?py, ?l0) at 0
+right : dllseg_shift{A}(storeA, px, py, ?l1) at 1
+action : left_erase(0);
+         right_erase(1);
+         right_add(l0 == l1);
+
+id : 16
+priority : core(4)
+left : dllseg_shift{?A}(?storeA, ?px, ?py, cons{DL_Node{A}}(Build_DL_Node{A}(?a, ?x), ?l0)) at 0
+action : left_erase(0);
+         left_add(storeA(x, a));
+         left_add(data_at(field_addr(x, LOS_DL_LIST, pstPrev), PTR(struct LOS_DL_LIST), px));
+         left_add(data_at(field_addr(px, LOS_DL_LIST, pstNext), PTR(struct LOS_DL_LIST), x));
+         left_add(dllseg_shift{A}(storeA, x, py, l0));
+
+id : 17
+priority : post(1)
+left : dllseg_shift{?A}(?storeA, ?x, ?py, ?l0) at 0
+       storeA(x, ?a) at 1
+       data_at(field_addr(x, LOS_DL_LIST, pstPrev), PTR(struct LOS_DL_LIST), ?px) at 2
+       data_at(field_addr(px, LOS_DL_LIST, pstNext), PTR(struct LOS_DL_LIST), x) at 3
+action : left_erase(0);
+         left_erase(1);
+         left_erase(2);
+         left_erase(3);
+         left_add(dllseg_shift{A}(storeA, px, py, cons{DL_Node{A}}(Build_DL_Node{A}(a, x), l0)));
+
+id : 18
+priority : core(0)
+left : storesortedLinkNode{?A}(?storeA, ?x, ?a) at 0
+right : storesortedLinkNode{A}(storeA, x, a) at 1
+action : left_erase(0);
+         right_erase(1);
+
+
+
+id : 19
+priority : core(0)
+right:  cons{DL_Node{sortedLinkNode{?A}}}(?a, ?l) == cons{DL_Node{sortedLinkNode{A}}}(?b, ?l1) at 0
+action: right_erase(0);
+        right_add(a == b);
+        right_add(l == l1);
+
+
+id : 20
+priority : core(1)
+right:  ?a1 == Build_DL_Node{sortedLinkNode{?A1}}(mksortedLinkNode{A1}(?b1, ?t), ?x) at 0
+action: right_erase(0);
+        right_add(x == ptr{sortedLinkNode{A1}}(a1));
+        right_add(b1 == sl_data{A1}(data{sortedLinkNode{A1}}(a1)));
+        right_add(t == responseTime{A1}(data{sortedLinkNode{A1}}(a1)));
+
+
+id : 21
+priority : core(1)
+left:   field_addr(?rt, SortLinkList, sortLinkNode) == ?h at 0
+        data_at(field_addr(field_addr(rt, SortLinkList, sortLinkNode), LOS_DL_LIST, pstNext), PTR(struct LOS_DL_LIST), ?px) at 1
+right:  data_at(field_addr(h, LOS_DL_LIST, pstNext), PTR(struct LOS_DL_LIST), ?v) at 2
+action: left_erase(0);
+        left_erase(1);
+        right_erase(2);
+        right_add(v == px);
+
+
+
+
+id : 22
+priority : core(1)
+left:   data_at(?sa, PTR(struct SortLinkAttribute), ?sp) at 0
+        data_at(?la, PTR(struct SortLinkList), ?re) at 1
+        dllseg_shift_rev{sortedLinkNode{?A}}(storesortedLinkNode{A}(?storeA), ?h, field_addr(sp, SortLinkAttribute, sortLink), ?l) at 2
+right:  dllseg_shift_rev{sortedLinkNode{A}}(storesortedLinkNode{A}(storeA), field_addr(re, SortLinkList, sortLinkNode), field_addr(sp, SortLinkAttribute, sortLink), l) at 3
+action: right_add(h == field_addr(re, SortLinkList, sortLinkNode));
+        left_erase(2);
+        right_erase(3);
