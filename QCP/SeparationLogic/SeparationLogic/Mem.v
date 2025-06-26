@@ -13,7 +13,7 @@ Local Open Scope Z.
 (**********************************************************************************)
 (*                                                                                *)
 (*                   this memory model is based on Imp_RO.Mem                     *)
-(*                        but mem: addr -> option int64                           *)
+(*                        but mem: addr -> mem_var                                *)
 (*                                                                                *)
 (**********************************************************************************)
 
@@ -43,7 +43,7 @@ Definition byte_eqb : byte -> byte -> bool := Z.eqb.
 Inductive mem_var :=
   | Noperm (* No permission *)
   | Noninit (* Non-initialized *)
-  | value : byte -> mem_var (* assign to a byte *)
+  | value (b: byte) (* assign to a byte *)
 .    
 
 Definition mem_var_eqb (a b : mem_var) : bool := 
@@ -119,6 +119,9 @@ Proof.
     [left | right ; left | right ; right ; left | right ; right ; right; left; exists n | right; right; right; right; exists n];
     repeat split; congruence).
 Qed.
+
+Definition mem_incl (m1 m2 : mem) : Prop :=
+  forall p, m1 p <> Noperm -> m2 p = m1 p.
 
 Lemma empty_mem_empty : mem_empty empty_mem.
 Proof.
@@ -440,6 +443,26 @@ Proof.
     try tauto.
     + do 3 right. left. exists n. tauto.
     + do 4 right. exists n. tauto.
+Qed.
+
+Lemma mem_join_incl_l : forall m1 m2 m,
+  mem_join m1 m2 m ->
+  mem_incl m1 m.
+Proof.
+  unfold mem_join, mem_incl. intros.
+  specialize (H p).
+  destruct H as [ [ ? [? ?]] | [ [ ? [ ? ? ]] | [ [ ? [ ? ? ]] | [ [n [? [? ?]]] | [n [? [? ?]]] ]]]].
+  all: try tauto; congruence.
+Qed.
+
+Lemma mem_join_incl_r : forall m1 m2 m,
+  mem_join m1 m2 m ->
+  mem_incl m2 m.
+Proof.
+  unfold mem_join, mem_incl. intros.
+  specialize (H p).
+  destruct H as [ [ ? [? ?]] | [ [ ? [ ? ? ]] | [ [ ? [ ? ? ]] | [ [n [? [? ?]]] | [n [? [? ?]]] ]]]];
+  try tauto; congruence.
 Qed.
 
 Lemma mem_update_N_in : forall m p v n p',

@@ -9,10 +9,11 @@ Require Import Permutation.
 
 From AUXLib Require Import int_auto Axioms Feq Idents List_lemma VMap.
 Require Import SetsClass.SetsClass. Import SetsNotation.
-From compcert.lib Require Import Integers.
+From compcert.lib Require Import Coqlib Integers.
 
 From SimpleC.SL Require Import Mem.
-From SimpleC.SL Require Export IntLib ListLib.
+From SimpleC.SL Require Export IntLib.
+From AUXLib Require Export ListLib.
 From SimpleC.SL Require Export CNotation.
 
 Require Import Logic.LogicGenerator.demo932.Interface.
@@ -104,11 +105,90 @@ Definition merge_int64 (x1 x2 x3 x4 x5 x6 x7 x8 y: Z): Prop :=
   x7 mod (2^8) * (2^8) +
   x8 mod (2^8).
 
+Theorem merge_int_equiv : 
+forall (x1 x2 x3 x4 : Z) (v1 v2 v3 v4 : Z), forall z, 
+-128 <= x1 < 128 -> -128 <= x2 < 128 ->
+-128 <= x3 < 128 -> -128 <= x4 < 128 ->
+-128 <= v1 < 128 -> -128 <= v2 < 128 ->
+-128 <= v3 < 128 -> -128 <= v4 < 128 ->
+merge_int x1 x2 x3 x4 z -> merge_int v1 v2 v3 v4 z ->
+x1 = v1 /\ x2 = v2 /\ x3 = v3 /\ x4 = v4.
+Proof.
+  intros.
+  unfold merge_int in *. 
+  replace (2 ^ 8) with 256 in * by (unfold Z.pow; simpl; auto).
+  rewrite H7 in H8. clear H7.
+  rewrite <-! Z.add_assoc in H8.
+  pose proof (Z.mod_pos_bound v2 256 (ltac : (lia))) as valid_v2.
+  pose proof (Z.mod_pos_bound v3 256 (ltac : (lia))) as valid_v3.
+  pose proof (Z.mod_pos_bound v4 256 (ltac : (lia))) as valid_v4.
+  pose proof (Z.mod_pos_bound x2 256 (ltac : (lia))) as valid_x2.
+  pose proof (Z.mod_pos_bound x3 256 (ltac : (lia))) as valid_x3.
+  pose proof (Z.mod_pos_bound x4 256 (ltac : (lia))) as valid_x4.
+  assert (x1 mod 256 = v1 mod 256).
+  {
+    assert ((x1 mod 256 * 2 ^ 24 + (x2 mod 256 * 2 ^ 16 + (x3 mod 256 * 256 + x4 mod 256))) / 2 ^ 24 = (v1 mod 256 * 2 ^ 24 + (v2 mod 256 * 2 ^ 16 + (v3 mod 256 * 256 + v4 mod 256))) / 2 ^ 24) by (rewrite H8 ; reflexivity).
+    rewrite !Z.div_add_l in H7 ; try lia.
+  }
+  assert (x1 = v1).
+  { 
+    rewrite Zmod_eq_full in H7 ; try lia.
+    rewrite Zmod_eq_full in H7 ; try lia.
+  }
+  subst.
+  apply Z.add_reg_l in H8. clear H7.
+  assert (x2 mod 256 = v2 mod 256).
+  {
+    assert ((x2 mod 256 * 2 ^ 16 + (x3 mod 256 * 256 + x4 mod 256)) / 2 ^ 16 = (v2 mod 256 * 2 ^ 16 + (v3 mod 256 * 256 + v4 mod 256)) / 2 ^ 16) by (rewrite H8 ; reflexivity).
+    rewrite !Z.div_add_l in H7 ; try lia.
+  }
+  assert (x2 = v2).
+  { 
+    rewrite Zmod_eq_full in H7 ; try lia.
+    rewrite Zmod_eq_full in H7 ; try lia.
+  }
+  subst.
+  apply Z.add_reg_l in H8. clear H7.
+  assert (x3 mod 256 = v3 mod 256).
+  {
+    assert ((x3 mod 256 * 256 + x4 mod 256) / 256 = (v3 mod 256 * 256 + v4 mod 256) / 256) by (rewrite H8 ; reflexivity).
+    rewrite !Z.div_add_l in H7 ; try lia.
+  }
+  assert (x3 = v3).
+  { 
+    rewrite Zmod_eq_full in H7 ; try lia.
+    rewrite Zmod_eq_full in H7 ; try lia.
+  }
+  subst.
+  apply Z.add_reg_l in H8. clear H7.
+  repeat split ; try lia.
+  rewrite Zmod_eq_full in H8 ; try lia.
+  rewrite Zmod_eq_full in H8 ; try lia.
+Qed.
+
+Theorem merge_uint_equiv : 
+forall (x1 x2 x3 x4 : Z) (v1 v2 v3 v4 : Z), forall z, 
+0 <= x1 < 256 -> 0 <= x2 < 256 ->
+0 <= x3 < 256 -> 0 <= x4 < 256 ->
+0 <= v1 < 256 -> 0 <= v2 < 256 ->
+0 <= v3 < 256 -> 0 <= v4 < 256 ->
+merge_int x1 x2 x3 x4 z -> merge_int v1 v2 v3 v4 z ->
+x1 = v1 /\ x2 = v2 /\ x3 = v3 /\ x4 = v4.
+Proof.
+  intros.
+  unfold merge_int in *. 
+  replace (2 ^ 8) with 256 in * by (unfold Z.pow; simpl; auto).
+  rewrite H7 in H8. clear H7.
+  rewrite <-! Z.add_assoc in H8.
+  rewrite ! Z.mod_small in H8 ; try lia.
+Qed.
+
 Module Type DerivedPredSig (CRules: SeparationLogicSig). 
 
 Arguments CRules.exp {A}.
 
 Definition store_byte : addr -> Z -> CRules.expr := CRules.mstore.
+
 Definition store_2byte (x : addr) (v : Z) : CRules.expr := 
   CRules.exp (fun z1 => 
   CRules.exp (fun z2 =>
@@ -566,6 +646,15 @@ Proof.
     do 2 eexists. split;eauto.
 Qed.
 
+Lemma exp_exp_right: forall {A: Type} P (Q : A -> expr),
+  (exists x, P |-- Q x) -> 
+  P |-- EX x, Q x.
+Proof.
+  intros.
+  unfold exp, derivable1 in *.
+  destruct H. intros.
+  exists x. auto.
+Qed.
 
 Lemma exp_allp_left: forall {A: Type} (P: A -> expr) Q,
   (exists x, P x |-- Q) -> 
@@ -593,6 +682,87 @@ Qed.
 Definition derivable1_wand_sepcon_adjoint := derivable1s_wand_sepcon_adjoint.
 
 (* The following are ltac to simplify proof *)
+
+Inductive all_list : Type :=
+  | norm_asrt : expr -> all_list
+  | dependent_asrt : forall (A : Type), (A -> expr) -> all_list.
+
+Ltac All_listasrts_rec P L :=
+  match P with 
+  | ?A ** ?B => let L1  :=  (All_listasrts_rec A (@nil all_list)) in 
+                let L2 :=  (All_listasrts_rec B L) in
+                let l:= eval cbn [List.app] in (List.app L1  L2) in
+                  constr:(l)
+  | ?A && ?B => let L1  :=  (All_listasrts_rec A (@nil all_list)) in
+                let L2 :=  (All_listasrts_rec B L) in
+                let l:= eval cbn [List.app] in (List.app L1  L2) in
+                  constr:(l)
+  | ?A -* ?B => let L1  :=  (All_listasrts_rec A (@nil all_list)) in
+                let L2 :=  (All_listasrts_rec B L) in
+                let l:= eval cbn [List.app] in (List.app L1  L2) in
+                  constr:(l)
+  | ?A || ?B => let L1  :=  (All_listasrts_rec A (@nil all_list)) in
+                let L2 :=  (All_listasrts_rec B L) in
+                let l:= eval cbn [List.app] in (List.app L1  L2) in
+                  constr:(l)
+  | @exp ?t ?A => constr:(cons (dependent_asrt t A) L)
+  | @allp ?t ?A => constr:(L)
+  | TT => constr:(L)
+  | emp => constr:(L)
+  | ?x => constr:(cons (norm_asrt x) L)
+  end.
+
+Ltac All_listasrts P :=
+  let l:= (All_listasrts_rec P (@nil all_list)) in 
+  constr:(l).
+
+Ltac Rename_rec l Tac :=
+  match l with 
+  | nil => Tac 
+  | ?x :: ?l' => 
+    let a := fresh "v" in
+    match x with 
+      | norm_asrt ([| ?B |]) => pose (a := B) ; change B with a
+      | norm_asrt ?v => pose (a := v) ; change v with a
+      | dependent_asrt _ ?B => pose (a := B) ; change B with a
+    end; Rename_rec l' Tac ; subst a
+  end. 
+
+Ltac Rename Tac:= 
+  match goal with 
+  | |- ?P |-- ?Q => 
+    let L1 := All_listasrts P in 
+    let L2 := All_listasrts Q in
+    let l := eval cbn [List.app] in (List.app L1 L2) in
+      Rename_rec l Tac
+  | |- ?P --||-- ?Q => 
+    let L1 := All_listasrts P in 
+    let L2 := All_listasrts Q in
+    let l := eval cbn [List.app] in (List.app L1 L2) in
+      Rename_rec l Tac
+  | _ => idtac 
+  end.
+
+Ltac pure_Rename_rec l :=
+  match l with 
+  | nil => idtac 
+  | ?x :: ?l' => 
+    let a := fresh "v" in
+    match x with 
+      | norm_asrt ([| ?B |]) => pose (a := B) ; change B with a
+      | norm_asrt ?v => pose (a := v) ; change v with a
+      | dependent_asrt _ ?B => pose (a := B) ; change B with a
+    end; pure_Rename_rec l'
+  end. 
+
+Ltac pure_Rename := 
+  match goal with 
+  | |- ?P |-- ?Q => 
+    let L1 := All_listasrts P in 
+    let L2 := All_listasrts Q in
+    let l := eval cbn [List.app] in (List.app L1 L2) in
+      pure_Rename_rec l
+  end.
 
 Ltac sepcon_lift'' p :=
   match goal with 
@@ -700,18 +870,26 @@ Ltac poly_store_unfold :=
     | |- _ => idtac
     end.
 
-Ltac TT_simpl := try poly_store_unfold;
-  repeat rewrite truep_andp_left_equiv; repeat rewrite truep_andp_right_equiv.
+Ltac TT_simpl := repeat rewrite truep_andp_left_equiv; repeat rewrite truep_andp_right_equiv.
 
-Ltac asrt_easysimpl := TT_simpl; 
+Ltac andp_assoc_change := 
   repeat progress match goal with 
-  | |- context [ (?x && ?y) && ?z] => rewrite (logic_equiv_andp_assoc x y z)
-  | |- context [ ?P ** ?Q ** ?R ] => rewrite <- (logic_equiv_sepcon_assoc P Q R)
+  | |- context [ (?P && ?Q) && ?R ] => rewrite (logic_equiv_andp_assoc P Q R)
+  end.
+
+Ltac sepcon_assoc_change :=
+  repeat progress match goal with 
+    | |- context [ ?P ** ?Q ** ?R ] => rewrite <- (logic_equiv_sepcon_assoc P Q R)
+  end.
+
+Ltac coq_prop_lift :=
+  repeat progress match goal with 
   | |- context [ ([| ?P |] && ?Q) ** ?R ] => rewrite (logic_equiv_coq_prop_andp_sepcon P Q R)
   | |- context [ ?P ** ([| ?Q |] && ?R) ] => rewrite (logic_equiv_sepcon_coq_prop_andp P Q R)
   | |- context [ ?P ** [| ?Q |] ] => rewrite (sepcon_prop_equiv P Q)
   end.
 
+Ltac asrt_easysimpl := TT_simpl; andp_assoc_change; coq_prop_lift.
 
 Ltac andp_lift'' p :=
   match goal with 
@@ -735,24 +913,34 @@ Ltac andp_lift' p := andp_lift'' p ;
 Ltac andp_lift p := asrt_easysimpl; try (sepcon_lift p);
 match goal with 
   | |- ?P |-- ?Q => andp_lift' p
-  | |- ?P ?st => eapply (derivable1_imp _ _ st);[ andp_lift' p; derivable1_refl_tac | ]
 end.
 
-Ltac asrt_simpl := asrt_easysimpl;
-    repeat progress match goal with 
+Ltac asrt_complex_simpl :=
+  repeat progress match goal with 
     | |- context [ (_ ** _ ) && ?P ] => andp_lift P
     | |- context [ ?P ** emp ] => rewrite (sepcon_emp_equiv P)
     | |- context [ emp ** ?P ] => rewrite (logic_equiv_sepcon_comm emp P); rewrite (sepcon_emp_equiv P)
     | |- context [( [| ?B |] && ?Q) && ?R] => rewrite (logic_equiv_andp_assoc ([| B |]) Q R )
     | |- context [( [| ?B |] && ?Q) ** ?R] => rewrite (logic_equiv_coq_prop_andp_sepcon B Q R )
+    | |- context [( ?P && [| ?B |]) && ?R] => 
+      rewrite (logic_equiv_andp_comm P ([| B |])) ;
+      rewrite (logic_equiv_andp_assoc ([| B |]) P R)
+    | |- context [( ?P && [| ?B |]) ** ?R] =>
+      rewrite (logic_equiv_andp_comm P ([| B |])) ; 
+      rewrite (logic_equiv_coq_prop_andp_sepcon B P R )
     | |- context [?P ** ([| ?B |] && ?R)] => rewrite (logic_equiv_sepcon_coq_prop_andp P B R)
     | |- context [?P ** ([| ?B |]) ] => rewrite (sepcon_prop_equiv P B)
     | |- context [([| ?B |]) ** ?P ] => rewrite (logic_equiv_sepcon_comm ([| B |]) P)
     | |- context [ (@exp ?t ?P) && ?Q ] => rewrite (ex_logic_equiv_andp _ Q)
     | |- context [ (@exp ?t ?P) ** ?Q ] => rewrite (ex_logic_equiv_sepcon _ Q)
-    | |- context [ @exp ?t ?P ] => try andp_lift (@exp t P); try sepcon_lift (@exp t P)
-    | |- context [ [| ?B |] ] => try andp_lift ( [| B |] )
+    | |- context [ @exp ?t ?P ] => try andp_lift (@exp t P) ; try sepcon_lift (@exp t P)
+    | |- context [ (?P || ?Q) ** ?R ] => rewrite (orp_sepcon_left P Q R)
+    | |- context [ ?P ** (?Q || ?R) ] => rewrite (orp_sepcon_right P Q R)
     end.
+
+Ltac asrt_simpl_pure := asrt_easysimpl; asrt_complex_simpl.
+
+Ltac asrt_simpl := try poly_store_unfold ; Rename asrt_simpl_pure.
 
 Ltac andp_cancel' P := 
   match P with 
@@ -769,7 +957,10 @@ Ltac andp_cancel'' :=
   | |- _ |-- ?P => andp_cancel' P
   end.
 
-Ltac andp_cancel := asrt_simpl;
+Ltac solve_auto B := 
+  solve [try subst B ; auto] || idtac.
+
+Ltac andp_cancel := asrt_simpl_pure;
     match goal with 
    | |- ?P |-- ?Q || ?R => idtac 
    | |- ?P || ?Q |-- ?R => idtac
@@ -777,21 +968,23 @@ Ltac andp_cancel := asrt_simpl;
                       | context [ [| ?B |]] => try andp_lift ( [| B |]); eapply coq_prop_andp_left; intros; andp_cancel
                       end
    | |- ?P |-- ?Q  => match Q with 
-                      | context [ [| ?B |]] => try andp_lift ( [| B |]); simple eapply (coq_prop_andp_right);[  andp_cancel | auto]
+                      | context [ [| ?B |]] => try andp_lift ( [| B |]); simple eapply (coq_prop_andp_right);[  andp_cancel | solve_auto B ]
                       end
-   | |- [| ?P |] |-- [| ?Q |] => apply coq_prop_imply ; auto
-   | |- _ |-- [| ?Q |] => apply (derivable1s_coq_prop_r Q);auto
+   | |- [| ?P |] |-- [| ?Q |] => apply coq_prop_imply ; solve_auto Q
+   | |- _ |-- [| ?Q |] => apply (derivable1s_coq_prop_r Q); solve_auto Q
    | |- [| ?P |] |-- ?Q => eapply derivable1s_coq_prop_l; intros; andp_cancel
    | |- _ |-- TT => apply derivable1_truep_intros ; auto
    | |- _ => andp_cancel''
     end.
 
-Ltac pureIntros := asrt_simpl;
+Ltac pureIntros_without_rename := asrt_simpl_pure;
 repeat progress (match goal with 
 | |- ?P |-- ?Q => (match P with 
                     | context [ [| ?B |]] => apply (coq_prop_andp_left B); intros
                   end)
-end).
+end) ; sepcon_assoc_change .
+
+Ltac pureIntros := try poly_store_unfold ; Rename pureIntros_without_rename.
 
 Ltac left_intro v:=
   asrt_simpl;
@@ -812,6 +1005,12 @@ Ltac right_intro_any:=
   asrt_simpl;
   eapply derivable1s_allp_r;
   intros.
+
+Ltac reexists :=
+  match goal with 
+    | |- ?P |-- (@exp ?T ?Q) => eapply exp_exp_right
+    | _ => eapply exp_exp_right
+  end.
 
 Ltac rexists v:=
   match goal with 
@@ -834,15 +1033,17 @@ Ltac simpl_entail := match goal with
   | |- ?Q /\ ?R => split;[simpl_entail| simpl_entail]
   | |-  _ =>  simpl_auto || idtac  end.
 
-Tactic Notation "cancel" := sepcon_cancel.
-Tactic Notation "entailer!"  := asrt_simpl;andp_cancel;simpl_entail.
+Ltac entailer_pure := asrt_simpl_pure; sepcon_assoc_change; andp_cancel.
+
+Tactic Notation "cancel" := Rename sepcon_cancel.
+Tactic Notation "entailer!"  := try poly_store_unfold ; Rename entailer_pure; simpl_entail.
 Tactic Notation "Intros" := pureIntros. 
-Tactic Notation "Intro_any" := left_intro_any ; pureIntros.
-Tactic Notation "Intros" simple_intropattern(x0):= left_intro x0;pureIntros.
-Tactic Notation "Intros" simple_intropattern(x0) simple_intropattern(x1) := left_intro x0; left_intro x1;pureIntros.
-Tactic Notation "Intros" simple_intropattern(x0) simple_intropattern(x1) simple_intropattern(x2) := left_intro x0; left_intro x1; left_intro x2;pureIntros.
-Tactic Notation "Intros" simple_intropattern(x0) simple_intropattern(x1) simple_intropattern(x2) simple_intropattern(x3) := left_intro x0; left_intro x1; left_intro x2; left_intro x3;pureIntros.
-Tactic Notation "Intros" simple_intropattern(x0) simple_intropattern(x1) simple_intropattern(x2) simple_intropattern(x3) simple_intropattern(x4) := left_intro x0; left_intro x1; left_intro x2; left_intro x3; left_intro x4;pureIntros.
+Tactic Notation "Intro_any" := pureIntros ; left_intro_any ; pureIntros.
+Tactic Notation "Intros" simple_intropattern(x0):= pureIntros ;  left_intro x0;pureIntros.
+Tactic Notation "Intros" simple_intropattern(x0) simple_intropattern(x1) := pureIntros ; left_intro x0; left_intro x1;pureIntros.
+Tactic Notation "Intros" simple_intropattern(x0) simple_intropattern(x1) simple_intropattern(x2) := pureIntros ; left_intro x0; left_intro x1; left_intro x2;pureIntros.
+Tactic Notation "Intros" simple_intropattern(x0) simple_intropattern(x1) simple_intropattern(x2) simple_intropattern(x3) := pureIntros ; left_intro x0; left_intro x1; left_intro x2; left_intro x3;pureIntros.
+Tactic Notation "Intros" simple_intropattern(x0) simple_intropattern(x1) simple_intropattern(x2) simple_intropattern(x3) simple_intropattern(x4) := pureIntros ; left_intro x0; left_intro x1; left_intro x2; left_intro x3; left_intro x4;pureIntros.
 Tactic Notation "Intros_r_any" := right_intro_any; pureIntros.
 Tactic Notation "Intros_r" simple_intropattern(x0):= right_intro x0;pureIntros.
 Tactic Notation "Intros_r" simple_intropattern(x0) simple_intropattern(x1) := right_intro x0; right_intro x1;pureIntros.
@@ -854,6 +1055,7 @@ Tactic Notation "Intros_r" simple_intropattern(x0) simple_intropattern(x1)
   right_intro x0; right_intro x1;right_intro x2; right_intro x3;right_intro x4; right_intro x5;
   right_intro x6; right_intro x7;right_intro x8; pureIntros.
 
+Tactic Notation "eExists" := asrt_simpl; reexists ; eexists.  
 Tactic Notation "Exists" uconstr(x0) := asrt_simpl;rexists x0.
 Tactic Notation "Exists" uconstr(x0) uconstr(x1) := asrt_simpl;rexists x0;asrt_simpl;rexists x1.
 Tactic Notation "Exists" uconstr(x0) uconstr(x1) uconstr(x2) := asrt_simpl;rexists x0;asrt_simpl;rexists x1;asrt_simpl;rexists x2.
@@ -873,24 +1075,6 @@ Tactic Notation "Right" := rewrite <- derivable1_orp_intros2.
 Tactic Notation "Split" := apply derivable1_orp_elim.
 
 Notation "'Assertion'" := (expr) (at level 1).
-
-Ltac refl := refine (derivable1_refl _ ).
-
-Ltac asrt_get_after_n p n :=
-    match n with
-      | 0%nat => constr:(Some p)
-      | S ?n' =>
-        match p with
-          | ?p' ** ?q' => asrt_get_after_n q' n'
-          | _ => constr:(@None)
-        end
-    end.
-
-Ltac sep_remember y p a:=
-      match asrt_get_after_n p y with
-        | @None => fail 1
-        | Some ?p' => remember p' as a
-      end.
 
 Ltac L_sepcon_lift'' p :=
   match goal with 
@@ -912,26 +1096,11 @@ Ltac sep_lift_L_aux L :=
 Ltac sep_lift_L L :=
   let revl := eval cbn [List.rev List.app] in (List.rev L) in sep_lift_L_aux revl.
 
-Ltac sep_remember_L  L :=
-  let n := eval compute in (List.length L) in 
-  match n with 
-  | O => fail "nil list"
-  | _ => asrt_simpl; sep_lift_L L; 
-        let a:= fresh "P" in 
-        match goal with 
-        | |- ?P |-- _ =>  sep_remember n P a end;
-        try (L_sepcon_lift' a)
-  end.
-
 Ltac sep_apply_L L h:=
   let n := eval compute in (List.length L) in 
   match n with 
   | O => fail "nil list"
-  | _ => asrt_simpl; sep_lift_L L; try rewrite !derivable1_sepcon_assoc1; (rewrite h ||
-        let a:= fresh "P" in 
-        match goal with 
-        | |- ?P |-- _ =>  sep_remember n P a end;
-        try (L_sepcon_lift' a);rewrite h; subst a)
+  | _ => asrt_simpl; sep_lift_L L; try rewrite !derivable1_sepcon_assoc1; rewrite h
   end.
 
 Ltac prop_rewrite h:= rewrite (prop_add_left _ _ h) at 1.
@@ -940,11 +1109,7 @@ Ltac prop_apply_L L h:=
   let n := eval compute in (List.length L) in 
   match n with 
   | O => fail "nil list"
-  | _ => asrt_simpl; sep_lift_L L; try rewrite !derivable1_sepcon_assoc1; ( prop_rewrite h ||
-        let a:= fresh "P" in 
-        match goal with 
-        | |- ?P |-- _ =>  sep_remember n P a end;
-        try (L_sepcon_lift' a); prop_rewrite h; subst a)
+  | _ => asrt_simpl; sep_lift_L L; try rewrite !derivable1_sepcon_assoc1; prop_rewrite h
   end.
 
 Ltac unify_asrt x Q :=
@@ -980,7 +1145,7 @@ Ltac sepconlistasrts P :=
   constr:(l).
 
 Ltac sep_apply H :=
-  let h:= fresh "Hlemma" in pose proof H as h;
+  (let h:= fresh "Hlemma" in pose proof H as h;
   let rec find_lemmapre_rec h :=
    (lazymatch type of h with
   | forall x:?T, _ => lazymatch type of T with
@@ -998,10 +1163,10 @@ Ltac sep_apply H :=
                   | ?P |-- _ =>  let L:= (sepconlistasrts P) in sep_apply_L L h;clear  h
                   end
   | ?P --||-- ?Q => find_lemmapre_rec (P |-- Q)
-  end) in find_lemmapre_rec h.
+  end) in find_lemmapre_rec h) ; sepcon_assoc_change.
 
 Ltac prop_apply H :=
-  let h:= fresh "Hlemma" in pose proof H as h;
+  (let h:= fresh "Hlemma" in pose proof H as h;
   try repeat rewrite <- logic_equiv_coq_prop_and in h;
   let rec find_lemmapre_rec h :=
    (lazymatch type of h with
@@ -1019,7 +1184,7 @@ Ltac prop_apply H :=
                   match type of h with 
                   | ?P |-- _ =>  let L:= (sepconlistasrts P) in prop_apply_L L h;clear  h
                   end
-  end) in find_lemmapre_rec h.
+  end) in find_lemmapre_rec h) ; sepcon_assoc_change.
     
 Ltac Unfold :=
 match goal with
@@ -1060,16 +1225,23 @@ Proof.
     apply derivable1_wand_elim1.
 Qed.
 
-Ltac pre_process :=
-  try Unfold;
-  intros;
-  Intros; 
+Ltac wand_elim := 
   repeat progress (
     try rewrite <- elim_wand_emp_emp;
     elim_emp;
     try apply_sepcon_adjoint;
     try Intros_R
-  );
+  ).
+
+Ltac pre_process_pure :=
+  pureIntros_without_rename ;
+  wand_elim;
+  asrt_simpl_pure.
+
+Ltac pre_process :=
+  try Unfold;
+  intros; poly_store_unfold;
+  Rename pre_process_pure ; 
   try (solve [entailer!]).
 
 Tactic Notation "pre_process_default" := pre_process.

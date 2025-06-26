@@ -12,7 +12,8 @@ Require Import SetsClass.SetsClass. Import SetsNotation.
 From compcert.lib Require Export Integers.
 
 From SimpleC.SL Require Import Mem.
-From SimpleC.SL Require Export IntLib ListLib.
+From SimpleC.SL Require Export IntLib.
+From AUXLib Require Export ListLib.
 From SimpleC.SL Require Export CommonAssertion.
 
 Require Import Logic.LogicGenerator.demo932.Interface.

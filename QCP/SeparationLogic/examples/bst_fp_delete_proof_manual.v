@@ -109,7 +109,7 @@ Proof.
   entailer!.
 Qed.
 
-Lemma proof_of_Delete_entail_wit_2 : Delete_entail_wit_2.
+Lemma proof_of_Delete_entail_wit_2_1 : Delete_entail_wit_2_1.
 Proof.
   pre_process.
   Exists
@@ -127,7 +127,7 @@ Proof.
     first [reflexivity | Key.order].
 Qed.
 
-Lemma proof_of_Delete_entail_wit_3 : Delete_entail_wit_3.
+Lemma proof_of_Delete_entail_wit_2_2 : Delete_entail_wit_2_2.
 Proof.
   pre_process.
   Exists

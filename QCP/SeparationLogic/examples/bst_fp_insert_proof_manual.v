@@ -28,7 +28,7 @@ Proof.
   entailer!.
 Qed.
 
-Lemma proof_of_insert_entail_wit_2 : insert_entail_wit_2.
+Lemma proof_of_insert_entail_wit_2_1 : insert_entail_wit_2_1.
 Proof.
   pre_process.
   sep_apply (store_ptb_LH b b_v_2); [ | try tauto .. ].
@@ -46,7 +46,7 @@ Proof.
     first [reflexivity | Key.order].
 Qed.
 
-Lemma proof_of_insert_entail_wit_3 : insert_entail_wit_3.
+Lemma proof_of_insert_entail_wit_2_2 : insert_entail_wit_2_2.
 Proof.
   pre_process.
   sep_apply (store_ptb_RH b b_v_2); [ | try tauto .. ].

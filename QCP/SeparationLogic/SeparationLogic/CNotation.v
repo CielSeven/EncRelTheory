@@ -166,6 +166,20 @@ Ltac csimpl :=
 Axiom addr_of_arrow_field_inv : forall x y F, 
   eval_addr_expr (RE_addr_of (LE_arrow_field x F)) = eval_addr_expr (RE_addr_of (LE_arrow_field y F)) -> x = y.
     
+Axiom addr_of_LE_var_not_zero : forall x, eval_addr_expr (RE_addr_of (LE_var x)) <> 0.
+
+Axiom RE_add_pi_inv_l : forall x y i, 
+  RE_add_pi x i = RE_add_pi y i -> x = y.
+
+Axiom RE_add_pi_inv_r : forall x a b,
+  RE_add_pi x a = RE_add_pi x b -> a = b.  
+
+Axiom RE_sub_pi_inv_l : forall x y i, 
+  RE_sub_pi x i = RE_sub_pi y i -> x = y.
+
+Axiom RE_sub_pi_inv_r : forall x a b,
+  RE_sub_pi x a = RE_sub_pi x b -> a = b.
+
 Inductive struct_or_union : Type := Struct | Union.
 
 Inductive composite_definition : Type :=

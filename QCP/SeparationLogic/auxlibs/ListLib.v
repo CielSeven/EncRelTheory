@@ -7,8 +7,9 @@ Require Import Coq.Classes.Morphisms.
 Require Import Coq.micromega.Psatz.
 Require Import Coq.Sorting.Permutation.
 From AUXLib Require Import int_auto Axioms Feq Idents List_lemma VMap.
-
+Require Import SetsClass.SetsClass. Import SetsNotation.
 Local Open Scope Z_scope.
+Local Open Scope sets.
 Import ListNotations.
 Local Open Scope list.
 
@@ -206,25 +207,6 @@ Proof.
     - simpl.
       rewrite IHl.
       reflexivity.
-Qed.
-
-Lemma Znth_replace_Znth: forall {A} n l (v a0: A),
-  0 <= n < Zlength l ->
-  Znth n (replace_Znth n v l) a0 = v.
-Proof.
-  intros.
-  rewrite Zlength_correct in H.
-  unfold Znth, replace_Znth.
-  assert (Z.to_nat n < length l)%nat by lia. clear H.
-  set (m := Z.to_nat n) in *; clearbody m; clear n.
-  revert dependent l.
-  induction m;intros.
-  + destruct l; simpl in *; auto. lia.
-  + destruct l;simpl in *.
-    - lia.
-    - rewrite IHm.
-      reflexivity.
-      lia.
 Qed.
 
 Lemma replace_Znth_nothing : forall {A} n (l: list A) (a: A),
@@ -681,3 +663,209 @@ Proof.
   replace (Z.to_nat (n - 1) - Z.to_nat (m - 1))%nat with (Z.to_nat n - Z.to_nat m)%nat by lia.
   reflexivity.
 Qed.
+
+Inductive interval_list (pace lo hi : Z): list Z -> Prop :=
+  | interval_list_nil: interval_list pace lo hi []
+  | interval_list_cons: forall l x,
+      interval_list pace lo hi l ->
+      lo <= x -> x + pace <= hi -> 
+      Forall (fun x' => x + pace < x' \/ x' + pace < x) l ->
+      interval_list pace lo hi (x :: l).
+
+Theorem interval_list_valid1:  forall l pace lo hi , interval_list pace lo hi l -> pace > 0 ->
+  Forall (fun x => lo <= x < hi) l.
+Proof.
+  intros.
+  induction H; simpl; auto.
+  constructor; auto. lia.
+Qed.
+
+Theorem interval_list_valid2:  forall l pace lo hi , interval_list pace lo hi l -> pace > 0 -> NoDup l.
+Proof.
+  intros.
+  induction H; simpl; constructor; auto.
+  rewrite Forall_forall in H3.
+  intro. 
+  apply H3 in H4.
+  lia. 
+Qed.
+
+Theorem interval_list_valid3:  forall l pace lo hi , interval_list pace lo hi l -> Forall (fun x => lo <= x /\ x + pace <= hi) l.
+Proof.
+  intros.
+  induction H; simpl; constructor; auto.
+Qed.
+
+Definition Zlist_max (l: list Z) (lo : Z) : Z :=
+  fold_right Z.max lo l.
+
+Theorem interval_perm_keep: forall l l1 pace lo hi, interval_list pace lo hi l -> Permutation l l1 -> interval_list pace lo hi l1.
+Proof.
+  intros.
+  induction H0; auto.
+  - inversion H; subst.
+    constructor; auto.
+    rewrite <- H0. auto.
+  - pose proof (interval_list_valid3 _ _ _ _ H).
+    assert (Permutation (x :: y :: l) (y :: x :: l)).
+    { constructor; auto. }
+    rewrite <- H1 in H0.
+    inversion H0. subst.
+    inversion H ; subst.
+    inversion H5 ; subst.
+    inversion H6 ; subst.
+    inversion H9 ; subst.
+    constructor ; auto ; try lia.
+    + constructor ; auto ; try lia.
+    + constructor ; auto ; try lia.
+Qed.
+
+Inductive increasing : list Z -> Prop :=
+  | increasing_nil: increasing []
+  | increasing_cons: forall x l',
+      increasing l' ->
+      Forall (fun x' => x <= x') l' ->
+      increasing (x :: l').
+
+Fixpoint list_insert (i : Z) (l : list Z) :=
+  match l with
+  | [] => [i]
+  | h :: t => if Z_le_gt_dec i h then i :: h :: t else h :: list_insert i t
+  end.
+
+Fixpoint sort (l : list Z) : list Z :=
+  match l with
+  | [] => []
+  | h :: t => list_insert h (sort t)
+  end.      
+
+Lemma list_insert_In : forall x a l, In x (list_insert a l) <-> In x l \/ x = a.
+Proof.
+  intros.
+  induction l; simpl in * ; split ; intros.
+  - destruct H ; auto.
+  - destruct H ; auto.
+  - destruct (Z_le_gt_dec a a0).
+    + destruct H ; auto.
+    + destruct H ; auto. rewrite IHl in H.
+      destruct H ; auto.
+  - destruct (Z_le_gt_dec a a0) ; simpl.
+    + destruct H as [ [? | ?] | ?]; auto.
+    + rewrite IHl. 
+      destruct H as [[? |?] | ?] ; auto.
+Qed. 
+
+Theorem sort_list_increasing : forall l, increasing (sort l).
+Proof.
+  intros.
+  induction l ; simpl in *; auto.
+  - constructor.
+  - remember (sort l) as l1.
+    clear Heql1 l. rename l1 into l. 
+    induction l; simpl in * ; auto.
+    + constructor ; auto.
+    + destruct (Z_le_gt_dec a a0).
+      * constructor ; auto.
+        inversion IHl ; subst.
+        constructor ; auto.
+        rewrite Forall_forall in *.
+        intros.
+        specialize (H2 _ H).
+        lia.
+      * inversion IHl ; subst.
+        constructor ; auto.
+        rewrite Forall_forall in *.
+        intros.
+        rewrite list_insert_In in H.
+        destruct H ; auto.
+        lia.
+Qed.
+
+Lemma list_insert_perm : forall x l, Permutation (x :: l) (list_insert x l).
+Proof.
+  intros.
+  induction l; simpl in * ; auto.
+  destruct (Z_le_gt_dec x a).
+  - constructor ; auto.
+  - rewrite perm_swap. constructor ; auto.
+Qed.
+
+Theorem sort_list_perm : forall l, Permutation l (sort l).
+Proof.
+  intros.
+  induction l ; simpl in * ; auto.
+  apply perm_trans with (l' := a :: sort l) ; auto.
+  apply list_insert_perm.
+Qed.
+
+Lemma interval_list_compress : forall l pace lo1 hi1 lo2 hi2, interval_list pace lo1 hi1 l -> lo1 <= lo2 -> hi2 <= hi1 -> 
+  Forall (fun x => lo2 <= x /\ x + pace <= hi2) l -> interval_list pace lo2 hi2 l.
+Proof.
+  intros.
+  revert dependent lo2. revert dependent hi2.
+  induction H; intros ; simpl.
+  - constructor.
+  - constructor ; auto.
+    + apply IHinterval_list ; auto.
+      inversion H5 ; auto.
+    + inversion H5 ; lia.
+    + inversion H5 ; lia.
+Qed.   
+
+Theorem increasing_interval_list_range : forall l pace lo hi, pace > 0 ->
+lo <= hi -> 
+interval_list pace lo hi l -> increasing l ->
+lo + (Zlength l) * (pace + 1) <= hi + pace + 1.
+Proof.
+  intros. revert dependent lo. 
+  induction l; simpl ; intros; auto.
+  - lia.
+  - inversion H2 ; subst.
+    inversion H1 ; subst.
+    apply Zle_lt_or_eq in H9.
+    destruct H9.
+    + specialize (IHl H5 (a + pace + 1) (ltac:(lia))).
+      rewrite Zlength_cons.
+      assert (interval_list pace (a + pace + 1) hi l).
+      {  
+        apply interval_list_compress with (lo1 := lo) (hi1 := hi) ; auto ; try lia.
+        pose proof (interval_list_valid3 _ _ _ _ H7).
+        rewrite Forall_forall in *.
+        intros. 
+        specialize (H10 _ H9).
+        specialize (H4 _ H9).
+        specialize (H6 _ H9).
+        lia. 
+      }
+      specialize (IHl H4).
+      lia.
+    + destruct l. 
+      * replace (Zlength [a]) with 1 by auto.
+        lia.
+      * exfalso. 
+        inversion H7; subst.
+        inversion H10; subst.
+        inversion H6 ; subst.
+        lia.
+Qed.
+
+Theorem interval_list_range : forall l pace lo hi, pace > 0 ->
+lo <= hi -> 
+interval_list pace lo hi l -> 
+lo + (Zlength l) * (pace + 1) <= hi + pace + 1.
+Proof.
+  intros.
+  pose proof (sort_list_perm l).
+  assert (Zlength l = Zlength (sort l)).
+  {
+     rewrite !Zlength_correct.
+     rewrite (Permutation_length H2) ; auto.
+  }
+  rewrite H3.
+  apply (increasing_interval_list_range (sort l) pace lo hi) ; auto.
+  + apply (interval_perm_keep l) ; auto.
+  + apply sort_list_increasing.
+Qed. 
+    
+
+  

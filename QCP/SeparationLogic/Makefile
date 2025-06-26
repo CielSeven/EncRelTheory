@@ -7,30 +7,27 @@ COQC=$(COQBIN)coqc$(SUF)
 COQDEP=$(COQBIN)coqdep$(SUF)
 
 DIRS = \
-	AuxiFun auxlibs compcert_lib SeparationLogic sets unifysl StrategyLib fixedpoints
+	auxlibs compcert_lib SeparationLogic sets unifysl StrategyLib fixedpoints
  
-COQ_FLAG = -R SeparationLogic SimpleC.SL -R unifysl Logic -R AuxiFun SimpleC.ASRTFUN -R sets SetsClass -R compcert_lib compcert.lib -R auxlibs AUXLib -R examples SimpleC.EE -R StrategyLib SimpleC.StrategyLib
+COQ_FLAG = -R SeparationLogic SimpleC.SL -R unifysl Logic -R sets SetsClass -R compcert_lib compcert.lib -R auxlibs AUXLib -R examples SimpleC.EE -R StrategyLib SimpleC.StrategyLib
 
-DEP_FLAG = -R SeparationLogic SimpleC.SL -R unifysl Logic -R AuxiFun SimpleC.ASRTFUN -R sets SetsClass -R compcert_lib compcert.lib -R auxlibs AUXLib -R examples SimpleC.EE -R StrategyLib SimpleC.StrategyLib
+DEP_FLAG = -R SeparationLogic SimpleC.SL -R unifysl Logic -R sets SetsClass -R compcert_lib compcert.lib -R auxlibs AUXLib -R examples SimpleC.EE -R StrategyLib SimpleC.StrategyLib
 
 Compcertlib_FILES = \
   Coqlib.v Integers.v Zbits.v
 
 Auxlibs_FILES = \
-  int_auto.v Idents.v Feq.v Axioms.v VMap.v List_lemma.v relations.v \
-  OrdersDecFact.v BinaryTree.v 
+  int_auto.v Idents.v Feq.v Axioms.v VMap.v List_lemma.v relations.v ListLib.v \
+  OrdersDecFact.v BinaryTree.v EqDec.v Tactics.v
 
 Sets_FILES = \
   SetsClass.v SetsClass_AxiomFree.v SetsDomain.v SetElement.v SetElementProperties.v RelsDomain.v SetProd.v SetsDomain_Classic.v
-
-AuxiFun_FILES = \
-  list_lemma.v
 
 Unify_FILES = \
    Interface.v 
 
 SL_FILES = \
-  CommonAssertion.v Assertion.v Mem.v ListLib.v ConAssertion.v \
+  CommonAssertion.v Assertion.v Mem.v ConAssertion.v \
   NestedCriticalSTS.v CriticalSTS.v \
   IntLib.v ArrayLib.v StoreAux.v pocv02.v SeparationLogic.v CNotation.v
 
@@ -88,15 +85,11 @@ EXAMPLE = \
 	$(SL_FILES:%.v=SeparationLogic/%.v) \
 	$(Sets_FILES:%.v=sets/%.v) \
 	$(Unify_FILES:%.v=unifysl/LogicGenerator/demo932/%.v) \
-	$(MonadNrm_Files:%.v=MonadLib/monadnrm/%.v) \
-	$(MonadError_Files:%.v=MonadLib/monaderror/%.v) \
 	$(Examples_FILES:%.v=examples/%.v) \
 	$(StrategyProof_FILES:%.v=examples/%.v) \
 	$(Auto_Examples_FILES:%.v=examples/%.v) \
 	$(Compcertlib_FILES:%.v=compcert_lib/%.v) \
-	$(AuxiFun_FILES:%.v=AuxiFun/%.v) \
 	$(Auxlibs_FILES:%.v=auxlibs/%.v) \
-	$(FIXPOINT_FILES:%.v=fixedpoints/%.v) \
 
 AUXFILES = \
 

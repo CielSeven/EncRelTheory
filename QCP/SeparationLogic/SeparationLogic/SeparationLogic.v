@@ -12,7 +12,8 @@ Require Import SetsClass.SetsClass. Import SetsNotation.
 From compcert.lib Require Export Integers.
 
 From SimpleC.SL Require Import Mem.
-From SimpleC.SL Require Export IntLib ListLib ArrayLib StoreAux.
+From SimpleC.SL Require Export IntLib ArrayLib StoreAux.
+From AUXLib Require Export ListLib.
 From SimpleC.SL Require Export CommonAssertion.
 From SimpleC.SL Require Assertion ConAssertion CriticalSTS.
 

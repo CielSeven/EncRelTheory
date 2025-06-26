@@ -7,10 +7,11 @@ Require Import Coq.Classes.RelationClasses.
 Require Import Coq.Classes.Morphisms.
 Require Import Coq.micromega.Psatz.
 Require Import Coq.Sorting.Permutation.
-From AUXLib Require Import int_auto Axioms Feq Idents List_lemma VMap.
+Require Coq.Vectors.Vector.
+From AUXLib Require Import int_auto Axioms Feq Idents List_lemma VMap ListLib.
 Require Import SetsClass.SetsClass. Import SetsNotation.
-From SimpleC.SL Require Import Mem CommonAssertion ListLib.
-From compcert.lib Require Import Integers.
+From SimpleC.SL Require Import Mem CommonAssertion.
+From compcert.lib Require Import Coqlib Integers.
 Require Import Logic.LogicGenerator.demo932.Interface.
 Local Open Scope Z_scope.
 Local Open Scope sets.
@@ -32,6 +33,310 @@ Proof.
   unfold store_byte; intros.
   apply mstore_eqm; auto.
 Qed.
+
+Lemma eqm_iff_mod_eq x y : Byte.eqm x y <-> x mod 256 = y mod 256.
+Proof.
+  split; intros.
+  - apply Byte.eqm_mod_eq. exact H.
+  - unfold Byte.eqm. apply Zbits.eqmod_trans with (x mod 256).
+    + apply Zbits.eqmod_mod. lia.
+    + apply Zbits.eqmod_trans with (y mod 256).
+      * apply Zbits.eqmod_refl2. auto.
+      * apply Zbits.eqmod_sym. apply Zbits.eqmod_mod. lia.
+Qed.
+
+Section generic_n_bytes.
+
+Import Vector.VectorNotations.
+Close Scope vector_scope.
+
+Notation byte := Z.
+
+Fixpoint bytes_eqm (n : nat) : forall (v1 v2 : Vector.t byte n), Prop :=
+  match n with 
+  | O => fun _ _ => True
+  | S n => fun v1 v2 => 
+      Vector.caseS' v1 (fun _ => Prop) (fun hd1 tl1 =>
+        Vector.caseS' v2 (fun _ => Prop) (fun hd2 tl2 =>
+          Byte.eqm hd1 hd2 /\ bytes_eqm n tl1 tl2
+        )
+      )
+  end.
+
+Fixpoint n_bytes_to_Z n (v : Vector.t byte n) : Z :=
+  match v with 
+  | Vector.nil => 0
+  | Vector.cons b n v' =>
+      (b mod 2^8) * 2 ^ (8 * Z.of_nat n) + n_bytes_to_Z n v'
+  end.
+
+Lemma n_bytes_to_Z_cons b n v :
+  n_bytes_to_Z (S n) (b :: v)%vector =
+  (b mod 2^8) * 2 ^ (8 * Z.of_nat n) + n_bytes_to_Z n v.
+Proof. reflexivity. Qed.
+
+Lemma eqm_bytes_to_Z_eq n v1 v2 :
+  bytes_eqm n v1 v2 -> n_bytes_to_Z n v1 = n_bytes_to_Z n v2.
+Proof.
+  induction n.
+  - revert v1. refine (Vector.case0 _ _).
+    revert v2. refine (Vector.case0 _ _).
+    cbn. reflexivity.
+  - apply (Vector.caseS' v1). clear v1. intros hd1 tl1.
+    apply (Vector.caseS' v2). clear v2. intros hd2 tl2.
+    simpl (bytes_eqm _ _). cbn. intros [Hhd H].
+    apply eqm_iff_mod_eq in Hhd. rewrite <- Hhd. clear Hhd.
+    rewrite (IHn tl1 tl2); auto.
+Qed.
+
+Fixpoint Z_to_n_bytes (v : Z) (length : nat) : Vector.t byte length :=
+  match length with 
+    | O => Vector.nil _
+    | S n =>
+        (v / 2 ^ (8 * Z.of_nat n) mod 2^8 :: Z_to_n_bytes v n)%vector
+  end.
+
+Lemma Z_to_n_bytes_succ v length :
+  Z_to_n_bytes v (S length) = 
+  (v / 2 ^ (8 * Z.of_nat length) mod 2^8 :: Z_to_n_bytes v length)%vector.
+Proof. reflexivity. Qed.
+
+Lemma Z_to_n_bytes_to_Z length v :
+  n_bytes_to_Z length (Z_to_n_bytes v length) = v mod (2 ^ (8 * Z.of_nat length)).
+Proof.
+  induction length.
+  - simpl. rewrite Z.mod_1_r. reflexivity.
+  - rewrite Z_to_n_bytes_succ, n_bytes_to_Z_cons.
+    rewrite Z.mod_mod. 2: lia.
+    rewrite IHlength.
+    replace (8 * (Z.of_nat (S length))) with (8 + 8 * Z.of_nat length) by lia.
+    rewrite Z.pow_add_r. 2-3: lia.
+    rewrite Zmod_recombine. 2-3: lia.
+    reflexivity.
+Qed.
+
+
+Definition merge_n_bytes n (v : Vector.t byte n) (x : Z) : Prop :=
+  x mod (2 ^ (8 * Z.of_nat n)) = n_bytes_to_Z n v.
+
+
+Lemma merge_short_equiv_merge_n_bytes:
+  forall x1 x2 y,
+    merge_short x1 x2 y <->
+    merge_n_bytes 2 [x1; x2]%vector y.
+Proof.
+  intros.
+  unfold merge_short, merge_n_bytes. cbn.
+  rewrite Z.add_0_r, Z.mul_1_r.
+  reflexivity.
+Qed.
+
+Lemma merge_int_equiv_merge_n_bytes:
+  forall x1 x2 x3 x4 y,
+    merge_int x1 x2 x3 x4 y <->
+    merge_n_bytes 4 [x1; x2; x3; x4]%vector y.
+Proof.
+  intros.
+  unfold merge_int, merge_n_bytes. cbn.
+  rewrite Z.add_0_r, Z.mul_1_r, !Z.add_assoc.
+  reflexivity.
+Qed.
+
+Lemma merge_int64_equiv_merge_n_bytes:
+  forall x1 x2 x3 x4 x5 x6 x7 x8 y,
+    merge_int64 x1 x2 x3 x4 x5 x6 x7 x8 y <->
+    merge_n_bytes 8 [x1; x2; x3; x4; x5; x6; x7; x8]%vector y.
+Proof.
+  intros.
+  unfold merge_int64, merge_n_bytes. cbn.
+  rewrite Z.add_0_r, Z.mul_1_r, !Z.add_assoc.
+  reflexivity.
+Qed.
+
+
+Fixpoint store_n_bytes (x : addr) n : Vector.t byte n -> CRules.expr :=
+  match n with
+    | O => fun _ => CRules.emp
+    | S n' => fun v =>
+        CRules.sepcon (CRules.mstore x (Vector.hd v)) (store_n_bytes (x + 1) n' (Vector.tl v))
+  end.
+  (* match v with 
+    | Vector.nil => CRules.emp
+    | Vector.cons b n v' =>
+        CRules.sepcon (CRules.mstore x b) (store_n_bytes (x + 1) n v')
+  end. *)
+
+Definition store_n_bytes_Z (x : addr) n (v : Z) : CRules.expr :=
+  CRules.exp (fun bytes : Vector.t byte n =>
+    CRules.andp
+      (CRules.coq_prop (merge_n_bytes n bytes v))
+      (store_n_bytes x n bytes)
+  ).
+
+Fixpoint store_n_bytes_noninit (x : addr) n (v : Vector.t byte n) : CRules.expr :=
+  match v with 
+    | Vector.nil => CRules.emp
+    | Vector.cons b n v' =>
+        CRules.sepcon (CRules.mstore_noninit x) (store_n_bytes_noninit (x + 1) n v')
+  end.
+
+(* Lemma byte_repr_mod_eq x :
+    Byte.repr (x mod 256) = Byte.repr x.
+Proof.
+  apply Byte.eqm_samerepr.
+  unfold Byte.eqm.
+  apply Zbits.eqmod_sym.
+  apply Zbits.eqmod_mod.
+  lia.
+Qed. *)
+
+Lemma store_byte_equiv_store_n_bytes_Z a v :
+    (store_byte a v) --||-- (store_n_bytes_Z a 1 v).
+Proof.
+  unfold store_byte, store_n_bytes_Z, merge_n_bytes.
+  cbn.
+  split.
+  - Exists [v]%vector. cbn.
+    entailer!.
+  - Intros bytes.
+    revert H.
+    apply (Vector.caseS' bytes). clear bytes. intros z1.
+    refine (Vector.case0 _ _).
+    intros H.
+    cbn.
+    unfold n_bytes_to_Z in H. cbn in H.
+    replace (z1 mod 256 * 1 + 0) with (z1 mod 256) in H by lia.
+    apply mstore_eqm. apply eqm_iff_mod_eq. auto.
+Qed.
+
+Lemma store_2byte_equiv_store_n_bytes_Z a v :
+    (store_2byte a v) --||-- (store_n_bytes_Z a 2 v).
+Proof.
+  unfold store_2byte, store_n_bytes_Z.
+  cbn.
+  split.
+  - Intros z1 z2.
+    Exists [z1; z2]%vector.
+    apply merge_short_equiv_merge_n_bytes in H.
+    entailer!.
+  - Intros bytes.
+    revert H.
+    apply (Vector.caseS' bytes). clear bytes. intros z1 bytes.
+    apply (Vector.caseS' bytes). clear bytes. intros z2.
+    refine (Vector.case0 _ _).
+    intros H.
+    rewrite <- merge_short_equiv_merge_n_bytes in H.
+    cbn.
+    Exists z1 z2.
+    entailer!.
+Qed.
+
+Lemma store_4byte_equiv_store_n_bytes_Z a v :
+    (store_4byte a v) --||-- (store_n_bytes_Z a 4 v).
+Proof.
+  cbn.
+  split.
+  - Intros z1 z2 z3 z4.
+    Exists [z1; z2; z3; z4]%vector.
+    apply merge_int_equiv_merge_n_bytes in H.
+    cbn.
+    repeat (rewrite <- Z.add_assoc; cbn).
+    entailer!.
+  - Intros bytes.
+    revert H.
+    apply (Vector.caseS' bytes). clear bytes. intros z1 bytes.
+    apply (Vector.caseS' bytes). clear bytes. intros z2 bytes.
+    apply (Vector.caseS' bytes). clear bytes. intros z3 bytes.
+    apply (Vector.caseS' bytes). clear bytes. intros z4.
+    refine (Vector.case0 _ _).
+    intros H.
+    rewrite <- merge_int_equiv_merge_n_bytes in H.
+    cbn.
+    repeat (rewrite <- Z.add_assoc; cbn).
+    Exists z1 z2 z3 z4.
+    entailer!.
+Qed.
+
+Lemma store_8byte_equiv_store_n_bytes_Z a v :
+    (store_8byte a v) --||-- (store_n_bytes_Z a 8 v).
+Proof.
+  cbn.
+  split.
+  - Intros z1 z2 z3 z4. Intros z5 z6 z7 z8.
+    Exists [z1; z2; z3; z4; z5; z6; z7; z8]%vector.
+    apply merge_int64_equiv_merge_n_bytes in H.
+    cbn.
+    repeat (rewrite <- Z.add_assoc; cbn).
+    entailer!.
+  - Intros bytes.
+    revert H.
+    apply (Vector.caseS' bytes). clear bytes. intros z1 bytes.
+    apply (Vector.caseS' bytes). clear bytes. intros z2 bytes.
+    apply (Vector.caseS' bytes). clear bytes. intros z3 bytes.
+    apply (Vector.caseS' bytes). clear bytes. intros z4 bytes.
+    apply (Vector.caseS' bytes). clear bytes. intros z5 bytes.
+    apply (Vector.caseS' bytes). clear bytes. intros z6 bytes.
+    apply (Vector.caseS' bytes). clear bytes. intros z7 bytes.
+    apply (Vector.caseS' bytes). clear bytes. intros z8.
+    refine (Vector.case0 _ _).
+    intros H.
+    rewrite <- merge_int64_equiv_merge_n_bytes in H.
+    cbn.
+    repeat (rewrite <- Z.add_assoc; cbn).
+    Exists (z1) (z2) (z3) (z4).
+    Exists (z5) (z6) (z7) (z8).
+    entailer!.
+Qed.
+
+
+(* Definition isvalidptr_n_bytes (n: nat) (x: addr) : Prop :=
+  x >= 0 /\ x + Z.of_nat n - 1 <= Int.max_unsigned /\ x mod Z.of_nat n = 0.
+
+Definition store_unsigned_integer_n_bytes (x: addr) n (v: Z) : CRules.expr :=
+  CRules.andp
+    (CRules.coq_prop (isvalidptr_n_bytes n x /\ v >= 0 /\ v < 2 ^ (8 * Z.of_nat n)))
+    (store_n_bytes_Z x n v).
+
+Lemma store_uchar_equiv_store_unsigned_integer_n_bytes a v :
+    (store_uchar a v) --||-- (store_unsigned_integer_n_bytes a 1 v).
+Proof.
+  unfold store_uchar, isvalidptr_char, store_unsigned_integer_n_bytes, isvalidptr_n_bytes.
+  cbn. split.
+  - entailer!.
+    + apply store_byte_equiv_store_n_bytes_Z.
+    + apply Z.mod_1_r.
+  - entailer!. apply store_byte_equiv_store_n_bytes_Z.
+Qed.
+
+Lemma store_ushort_equiv_store_unsigned_integer_n_bytes a v :
+    (store_ushort a v) --||-- (store_unsigned_integer_n_bytes a 2 v).
+Proof.
+  unfold store_ushort, isvalidptr_short, store_unsigned_integer_n_bytes, isvalidptr_n_bytes.
+  cbn. split.
+  - entailer!. apply store_2byte_equiv_store_n_bytes_Z.
+  - entailer!. apply store_2byte_equiv_store_n_bytes_Z.
+Qed.
+
+Lemma store_uint_equiv_store_unsigned_integer_n_bytes a v :
+    (store_uint a v) --||-- (store_unsigned_integer_n_bytes a 4 v).
+Proof.
+  unfold store_uint, isvalidptr_int, store_unsigned_integer_n_bytes, isvalidptr_n_bytes.
+  cbn. split.
+  - entailer!. apply store_4byte_equiv_store_n_bytes_Z.
+  - entailer!. apply store_4byte_equiv_store_n_bytes_Z.
+Qed.
+
+Lemma store_uint64_equiv_store_unsigned_integer_n_bytes a v :
+    (store_uint64 a v) --||-- (store_unsigned_integer_n_bytes a 8 v).
+Proof.
+  unfold store_uint64, isvalidptr_int64, store_unsigned_integer_n_bytes, isvalidptr_n_bytes.
+  cbn. split.
+  - entailer!. (* Wrong! *)
+Abort. *)
+
+End generic_n_bytes.
+
+
 
 Lemma store_int_store_char: forall p v,
   store_int p v --||--
@@ -1009,6 +1314,13 @@ Proof.
   pose proof interval_list_range l 3 0 4294967295 (ltac:(lia)) (ltac:(lia)) H0.
   simpl in *.
   lia.
+Qed.
+
+Lemma store_ptr_store_uint : forall x v, x # Ptr |-> v |-- x # UInt |-> v.
+Proof.
+  intros.
+  unfold store_ptr, store_uint.
+  entailer!.
 Qed.
 
 End StoreLibSig.

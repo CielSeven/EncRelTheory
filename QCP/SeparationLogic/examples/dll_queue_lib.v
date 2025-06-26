@@ -20,6 +20,17 @@ Local Open Scope string.
 Import naive_C_Rules.
 Local Open Scope sac.
 
+Fixpoint dlistrep (x prev: addr) (l: list Z): Assertion :=
+  match l with
+    | nil     => [| x = NULL |] && emp
+    | a :: l0 => [| x <> NULL |] && 
+                 EX y: addr,
+                   &(x # "list" ->ₛ "data") # Int |-> a **
+                   &(x # "list" ->ₛ "next") # Ptr |-> y **
+                   &(x # "list" ->ₛ "prev") # Ptr |-> prev **
+                   dlistrep y x l0
+  end.
+
 Fixpoint dllseg (x y px py: addr) (l: list Z): Assertion :=
   match l with
     | nil     => [| x = y |] && [| px = py |] && emp
@@ -114,7 +125,6 @@ Proof.
   + rewrite <- derivable1_orp_intros2.
     Intros z.
     sep_apply IHl.
-    rewrite <- !logic_equiv_sepcon_assoc.
     rewrite derivable1_wand_sepcon_adjoint.
     apply derivable1_orp_elim; rewrite <- derivable1_wand_sepcon_adjoint.
     - Intros.
@@ -148,4 +158,48 @@ Proof.
   + Intros.
     tauto.
   + entailer!.
+Qed.
+
+Lemma dll_zero : forall (x prev : addr) (l : list Z),
+  x = NULL ->
+  dlistrep x prev l |-- [| l = nil|] && emp.
+Proof.
+  intros.
+  destruct l.
+  + entailer!.
+  + simpl.
+    Intros. Intros x0.
+    entailer!.
+Qed.
+
+Lemma dll_not_zero: forall x prev l,
+  x <> NULL ->
+  dlistrep x prev l |--
+    EX y a l0,
+      [| l = a :: l0 |] &&
+      &(x # "list" ->ₛ "data") # Int |-> a **
+      &(x # "list" ->ₛ "next") # Ptr |-> y **
+      &(x # "list" ->ₛ "prev") # Ptr |-> prev **
+      dlistrep y x l0.
+Proof.
+  intros.
+  destruct l.
+  + simpl.
+    Intros.
+    tauto.
+  + simpl. Intros.
+    Intros y.
+    Exists y z l.
+    entailer!.
+Qed.
+
+Lemma dllseg_dlistrep : forall x y px py l1 l2,
+  dllseg x y px py l1 ** dlistrep y py l2 |-- dlistrep x px (l1 ++ l2).
+Proof.
+  intros.
+  revert x y px py l2.
+  induction l1 ; simpl in * ; intros ; auto.
+  - entailer!. subst. entailer!.
+  - Intros z. 
+    Exists z. entailer!.
 Qed.

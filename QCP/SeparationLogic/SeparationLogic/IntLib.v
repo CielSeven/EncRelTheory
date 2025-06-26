@@ -868,3 +868,38 @@ Proof.
   - rewrite Ztestbits_signed_high_lt ; try lia.
 Qed.
   
+Theorem unsigned_last_nbits_land_distr : forall x y n, 0 <= n -> unsigned_last_nbits (Z.land x y) n = Z.land (unsigned_last_nbits x n) (unsigned_last_nbits y n).
+Proof.
+  intros.
+  apply Z.bits_inj'.
+  intros.
+  rewrite Z.land_spec.
+  destruct (n0 <? n) eqn: lt.
+  - repeat rewrite Ztestbits_unsigned_eq ; try lia.
+    rewrite Z.land_spec. reflexivity.
+  - repeat rewrite Ztestbits_unsigned_high ; try lia.
+Qed.
+
+Theorem unsigned_last_nbits_lor_distr : forall x y n, 0 <= n -> unsigned_last_nbits (Z.lor x y) n = Z.lor (unsigned_last_nbits x n) (unsigned_last_nbits y n).
+Proof.
+  intros.
+  apply Z.bits_inj'.
+  intros.
+  rewrite Z.lor_spec.
+  destruct (n0 <? n) eqn: lt.
+  - repeat rewrite Ztestbits_unsigned_eq ; try lia.
+    rewrite Z.lor_spec. reflexivity.
+  - repeat rewrite Ztestbits_unsigned_high ; try lia.
+Qed.
+
+Theorem unsigned_last_nbits_ldiff_distr : forall x y n, 0 <= n -> unsigned_last_nbits (Z.ldiff x y) n = Z.ldiff (unsigned_last_nbits x n) (unsigned_last_nbits y n).
+Proof.
+  intros.
+  apply Z.bits_inj'.
+  intros.
+  rewrite Z.ldiff_spec.
+  destruct (n0 <? n) eqn: lt.
+  - repeat rewrite Ztestbits_unsigned_eq ; try lia.
+    rewrite Z.ldiff_spec. reflexivity.
+  - repeat rewrite Ztestbits_unsigned_high ; try lia.
+Qed.

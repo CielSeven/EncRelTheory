@@ -74,7 +74,7 @@ Proof.
   - split; intros; simpl; tauto.
 Qed.
 
-Lemma proof_of_eliminate_entail_wit_3 : eliminate_entail_wit_3.
+Lemma proof_of_eliminate_entail_wit_3_1 : eliminate_entail_wit_3_1.
 Proof.
   pre_process.
   set (re := x::re_2) in *.
@@ -97,7 +97,7 @@ Proof.
 Qed.
 
 (* similar to wit_3_1 *)
-Lemma proof_of_eliminate_entail_wit_4 : eliminate_entail_wit_4.
+Lemma proof_of_eliminate_entail_wit_3_2 : eliminate_entail_wit_3_2.
 Proof.
   pre_process.
   set (lo := x::lo_2) in *.
@@ -119,7 +119,7 @@ Proof.
 Qed.
 
 (* similar to wit_3_1 *)
-Lemma proof_of_eliminate_entail_wit_5 : eliminate_entail_wit_5.
+Lemma proof_of_eliminate_entail_wit_3_3 : eliminate_entail_wit_3_3.
 Proof.
   pre_process.
   set (up := x::up_2) in *.
@@ -623,7 +623,7 @@ Proof.
   - apply self_LP_implies.
 Qed.
 
-Lemma proof_of_real_shadow_entail_wit_2 : real_shadow_entail_wit_2.
+Lemma proof_of_real_shadow_entail_wit_2_1 : real_shadow_entail_wit_2_1.
 Proof. 
   pre_process.
   Exists l3.
@@ -641,7 +641,7 @@ Proof.
     constructor; tauto.
 Qed. 
 
-Lemma proof_of_real_shadow_entail_wit_3 : real_shadow_entail_wit_3.
+Lemma proof_of_real_shadow_entail_wit_2_2 : real_shadow_entail_wit_2_2.
 Proof. 
   pre_process.
   Exists l3.

@@ -18,12 +18,12 @@ Import naive_C_Rules.
 Require Import sll_lib.
 Require Import sll_queue_lib.
 Local Open Scope sac.
-From SimpleC.EE Require Import common_strategy_goal.
-From SimpleC.EE Require Import common_strategy_proof.
-From SimpleC.EE Require Import sll_strategy_goal.
-From SimpleC.EE Require Import sll_strategy_proof.
-From SimpleC.EE Require Import sll_queue_strategy_goal.
-From SimpleC.EE Require Import sll_queue_strategy_proof.
+Require Import common_strategy_goal.
+Require Import common_strategy_proof.
+Require Import sll_strategy_goal.
+Require Import sll_strategy_proof.
+Require Import sll_queue_strategy_goal.
+Require Import sll_queue_strategy_proof.
 
 (*----- Function enqueue -----*)
 

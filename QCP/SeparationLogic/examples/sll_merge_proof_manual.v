@@ -29,7 +29,7 @@ Proof.
   unfold merge_steps. reflexivity.
 Qed.
 
-Lemma proof_of_merge_entail_wit_2 : merge_entail_wit_2.
+Lemma proof_of_merge_entail_wit_2_1 : merge_entail_wit_2_1.
 Proof.
   pre_process.
   Exists l1_new (y_data :: l2_new) (l3_2 ++ (x_data :: nil))%list.
@@ -45,7 +45,7 @@ Proof.
     - apply merge_step_l. lia.
 Qed.
 
-Lemma proof_of_merge_entail_wit_3 : merge_entail_wit_3.
+Lemma proof_of_merge_entail_wit_2_2 : merge_entail_wit_2_2.
 Proof.
   pre_process.
   Exists (x_data :: l1_new) l2_new (l3_2 ++ (y_data :: nil))%list.
@@ -172,7 +172,7 @@ Proof.
   unfold merge_steps. reflexivity.
 Qed.
 
-Lemma proof_of_merge_malloc_entail_wit_2 : merge_malloc_entail_wit_2.
+Lemma proof_of_merge_malloc_entail_wit_2_1 : merge_malloc_entail_wit_2_1.
 Proof.
   pre_process.
   Exists x_next.
@@ -188,7 +188,7 @@ Proof.
     - apply merge_step_l. lia.
 Qed.
 
-Lemma proof_of_merge_malloc_entail_wit_3 : merge_malloc_entail_wit_3.
+Lemma proof_of_merge_malloc_entail_wit_2_2 : merge_malloc_entail_wit_2_2.
 Proof.
   pre_process.
   Exists y_next.

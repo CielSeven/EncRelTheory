@@ -4,7 +4,7 @@ Require Import Coq.Classes.RelationClasses.
 Require Import Coq.Lists.List.
 From SetsClass Require Import SetsClass.
 From AUXLib Require Import relations Axioms. 
-From StateMonad.monadnrm Require Import monadbasic safeexec_lib.
+From StateRelMonad Require Import StateRelBasic safeexec_lib.
 
 Import SetsNotation.
 Local Open Scope sets.
@@ -81,7 +81,7 @@ Section  highlevel_monad.
 End  highlevel_monad.
 
 Import MonadNotation.
-Local Open Scope stmonad. 
+Local Open Scope monad. 
 Module HighMonadNotation.
 
   Notation " 'ATOM' o " := (atomic_step o) (at level 60, no associativity) : stmonad_scope.

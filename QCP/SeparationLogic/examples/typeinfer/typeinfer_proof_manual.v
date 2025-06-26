@@ -178,7 +178,7 @@ Proof.
   unfold store_solution.
   Exists L.
   sep_apply H8.
-  rewrite (store_array_merge (store_type_addr s) &( "res") n 100 tp L).
+  sep_apply (store_array_merge (store_type_addr s) &( "res") n 100 tp L).
   2: auto.
   entailer!.
   + assert(
@@ -190,7 +190,7 @@ Proof.
       simpl store_type.
       entailer!.
     }
-    sep_apply H9.
+    sep_apply H10.
     entailer!.
     assert (L = replace_Znth n tp L). {
       subst.
@@ -198,7 +198,7 @@ Proof.
       rewrite replace_Znth_Znth.
       tauto.
     }
-    rewrite H10 at 2.
+    rewrite H11 at 2.
     entailer!.
   + assert(repr_rel_id s n (TVar n)). {
       eapply repr_rel_var; eauto.
@@ -334,7 +334,7 @@ Proof.
   unfold store_solution.
   Exists L.
   sep_apply H8.
-  rewrite (store_array_merge (store_type_addr s) &( "res") n 100 tp L).
+  sep_apply (store_array_merge (store_type_addr s) &( "res") n 100 tp L).
   2: auto.
   entailer!.
   + assert(
@@ -346,7 +346,7 @@ Proof.
       simpl store_type.
       entailer!.
     }
-    sep_apply H9.
+    sep_apply H10.
     entailer!.
     assert (L = replace_Znth n tp L). {
       subst.
@@ -354,7 +354,7 @@ Proof.
       rewrite replace_Znth_Znth.
       tauto.
     }
-    rewrite H10 at 2.
+    rewrite H11 at 2.
     entailer!.
   + assert(repr_rel_id s n (TVar n)). {
       eapply repr_rel_var; eauto.

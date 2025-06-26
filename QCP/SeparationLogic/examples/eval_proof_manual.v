@@ -44,7 +44,9 @@ Proof.
   pre_process.
   subst.
   simpl.
+  Exists v_2 v.
   entailer!.
+  destruct op ; try discriminate ; auto.
 Qed.
 
 Lemma proof_of_eval_return_wit_2 : eval_return_wit_2.
@@ -52,153 +54,171 @@ Proof.
   pre_process.
   subst.
   simpl.
+  Exists v_2 v.
   entailer!.
+  destruct op ; try discriminate ; auto.
 Qed.
 
 Lemma proof_of_eval_return_wit_3 : eval_return_wit_3.
 Proof.
   pre_process.
   subst.
-  rewrite H5.
-  simpl store_expr.
+  simpl.
   Exists v_2 v.
   entailer!.
-  get_bin_op_from_id op.
-  simpl.
-  destruct ((expr_eval e1 l =? 0)%Z) eqn : I1; 
-    [ | destruct ((expr_eval e2 l =? 0)%Z) eqn : I2]; 
-      auto; [ destruct H1 | destruct H]; apply Z.eqb_eq; auto.
+  destruct op ; try discriminate ; auto.
 Qed. 
 
 Lemma proof_of_eval_return_wit_4 : eval_return_wit_4.
 Proof.
   pre_process.
   subst.
-  rewrite H5.
-  simpl store_expr.
+  simpl.
   Exists v_2 v.
   entailer!.
-  get_bin_op_from_id op.
-  simpl.
-  destruct ((expr_eval e1 l =? 0)%Z) eqn : I1; 
-      [ | destruct ((expr_eval e2 l =? 0)%Z) eqn : I2]; auto.
-  destruct H0.
-  rewrite Z.eqb_neq in I2.
-  contradiction.
+  destruct op ; try discriminate ; auto.
 Qed.
 
 Lemma proof_of_eval_return_wit_5 : eval_return_wit_5.
+Proof.
   pre_process.
   subst.
-  rewrite H3.
-  simpl store_expr.
-  Exists v_2 v.  
+  simpl. 
+  Exists v_2 v.
   entailer!.
-  get_bin_op_from_id op.
-  simpl.
-  destruct ((expr_eval e1 l =? 0)%Z) eqn : I1; 
-    [ | destruct ((expr_eval e2 l =? 0)%Z) eqn : I2]; auto.
-  destruct H0.
-  rewrite Z.eqb_neq in I1.
-  contradiction.
+  destruct op ; try discriminate ; auto.
 Qed. 
 
-Lemma proof_of_eval_return_wit_6 : eval_return_wit_6.
+Lemma proof_of_eval_return_wit_6_1 : eval_return_wit_6_1.
 Proof.
   pre_process.
-  subst.
-  rewrite H4.
-  simpl store_expr.
-  Exists v_2 v.  
-  entailer!.
-  get_bin_op_from_id op.
+  subst. 
   simpl.
-  destruct ((expr_eval e1 l =? 0)%Z) eqn : I1; auto.
-  destruct ((expr_eval e2 l =? 0)%Z) eqn : I2; auto.
-  destruct H.
-  rewrite Z.eqb_eq in I1.
-  exact I1.
+  Exists v_2 v.
+  entailer!.
+  destruct op; try discriminate; auto.
+  destruct (expr_eval e1 l <? expr_eval e2 l)%Z eqn : I; lia.
 Qed.
 
-Lemma proof_of_eval_return_wit_7 : eval_return_wit_7.
+Lemma proof_of_eval_return_wit_6_2 : eval_return_wit_6_2.
 Proof.
   pre_process.
-  subst.
-  rewrite H6.
-  simpl store_expr.
-  Exists v_2 v.  
-  entailer!.
-  get_bin_op_from_id op.
+  subst. 
   simpl.
-  destruct ((expr_eval e1 l =? 0)%Z) eqn : I1; auto.
-  destruct ((expr_eval e2 l =? 0)%Z) eqn : I2; auto.
-  destruct H.
-  rewrite Z.eqb_eq in I2.
-  exact I2.
+  Exists v_2 v.
+  entailer!.
+  destruct op; try discriminate; auto.
+  destruct (expr_eval e1 l <? expr_eval e2 l)%Z eqn : I; lia.
 Qed.
 
-Lemma proof_of_eval_return_wit_8 : eval_return_wit_8.
+Lemma proof_of_eval_return_wit_7_1 : eval_return_wit_7_1.
+Proof.
+  pre_process.
+  subst. simpl.
+  Exists v_2 v.
+  entailer!.
+  destruct op; try discriminate; auto.
+  destruct (expr_eval e1 l >? expr_eval e2 l)%Z eqn : I; lia.
+Qed.
+
+Lemma proof_of_eval_return_wit_7_2 : eval_return_wit_7_2.
+Proof.
+  pre_process.
+  subst. simpl.
+  Exists v_2 v.
+  entailer!.
+  destruct op; try discriminate; auto.
+  destruct (expr_eval e1 l >? expr_eval e2 l)%Z eqn : I; lia.
+Qed.
+
+Lemma proof_of_eval_return_wit_8_1 : eval_return_wit_8_1.
 Proof. 
   pre_process.
-  subst.
-  rewrite H6.
-  simpl store_expr.
+  subst. simpl.
   Exists v_2 v.
   entailer!.
-  get_bin_op_from_id op.
+  destruct op; try discriminate; auto.
+  destruct (expr_eval e1 l <=? expr_eval e2 l)%Z eqn : I; lia.
+Qed.
+
+Lemma proof_of_eval_return_wit_8_2 : eval_return_wit_8_2.
+Proof. 
+  pre_process.
+  subst. simpl.
+  Exists v_2 v.
+  entailer!.
+  destruct op; try discriminate; auto.
+  destruct (expr_eval e1 l <=? expr_eval e2 l)%Z eqn : I; lia.
+Qed.
+
+Lemma proof_of_eval_return_wit_9_1 : eval_return_wit_9_1.
+Proof.
+  pre_process.
+  subst. simpl.
+  Exists v_2 v.
+  entailer!.
+  destruct op; try discriminate; auto.
+  destruct (expr_eval e1 l >=? expr_eval e2 l)%Z eqn : I; lia.
+Qed.
+
+Lemma proof_of_eval_return_wit_9_2 : eval_return_wit_9_2.
+Proof.
+  pre_process.
+  subst. simpl.
+  Exists v_2 v.
+  entailer!.
+  destruct op; try discriminate; auto.
+  destruct (expr_eval e1 l >=? expr_eval e2 l)%Z eqn : I; lia.
+Qed.
+
+Lemma proof_of_eval_return_wit_10_1 : eval_return_wit_10_1.
+Proof.
+  pre_process.
+  subst.
+  simpl. 
+  Exists v_2 v.
+  entailer!.
+  destruct op; try discriminate; auto.
+  destruct (expr_eval e1 l =? expr_eval e2 l)%Z eqn : I; lia.
+Qed.
+
+Lemma proof_of_eval_return_wit_10_2 : eval_return_wit_10_2.
+Proof.
+  pre_process.
+  subst.
+  simpl. 
+  Exists v_2 v.
+  entailer!.
+  destruct op; try discriminate; auto.
+  destruct (expr_eval e1 l =? expr_eval e2 l)%Z eqn : I; lia.
+Qed.
+
+Lemma proof_of_eval_return_wit_11_1 : eval_return_wit_11_1.
+Proof.
+  pre_process.
+  subst.
   simpl.
-  destruct ((expr_eval e1 l =? 0)%Z) eqn : I1; auto.
-  - destruct ((expr_eval e2 l =? 0)%Z) eqn : I2; auto.
-    destruct H0.
-    rewrite Z.eqb_neq in I2.
-    contradiction.
-  - destruct H0.
-    rewrite Z.eqb_neq in I1.
-    rewrite <- H2 in I1.
-    contradiction.
+  Exists v_2 v.
+  entailer!.
+  destruct op; try discriminate; auto.
+  destruct (expr_eval e1 l =? expr_eval e2 l)%Z eqn : I; lia.
 Qed.
 
-Lemma proof_of_eval_return_wit_9 : eval_return_wit_9.
+Lemma proof_of_eval_return_wit_11_2 : eval_return_wit_11_2.
 Proof.
   pre_process.
   subst.
-  rewrite H5.
-  get_bin_op_from_id op.
-  simpl store_expr.
+  simpl.
   Exists v_2 v.
   entailer!.
+  destruct op; try discriminate; auto.
+  destruct (expr_eval e1 l =? expr_eval e2 l)%Z eqn : I; lia.
 Qed.
-
-Lemma proof_of_eval_return_wit_10 : eval_return_wit_10.
-Proof.
-  pre_process.
-  subst.
-  rewrite H6.
-  get_bin_op_from_id op.
-  simpl store_expr.
-  Exists v_2 v.
-  entailer!.
-Qed.
-
-Lemma proof_of_eval_return_wit_11 : eval_return_wit_11.
-Proof.
-  pre_process.
-  subst.
-  rewrite H7.
-  get_bin_op_from_id op.
-  simpl store_expr.
-  Exists v_2 v.
-  entailer!.
-Qed. 
 
 Lemma proof_of_eval_return_wit_12 : eval_return_wit_12.
 Proof.
   pre_process.
   subst.
-  rewrite H8.
-  get_bin_op_from_id op.
-  simpl store_expr.
-  Exists v_2 v.
   entailer!.
 Qed.
 
@@ -206,194 +226,70 @@ Lemma proof_of_eval_return_wit_13 : eval_return_wit_13.
 Proof.
   pre_process.
   subst.
-  rewrite H9.
-  get_bin_op_from_id op.
-  simpl store_expr.
-  Exists v_2 v.
   entailer!.
 Qed.
 
-Lemma proof_of_eval_return_wit_14_1 : eval_return_wit_14_1.
+Lemma proof_of_eval_return_wit_14 : eval_return_wit_14.
 Proof.
   pre_process.
-  subst.
-  rewrite H11.
-  get_bin_op_from_id op.
-  simpl store_expr.
+  subst. simpl. rewrite <- H5.
   Exists v_2 v.
   entailer!.
-  simpl.
-  destruct ((expr_eval e1 l <? expr_eval e2 l)%Z) eqn: I; auto.
-  rewrite Z.ltb_lt in I.
-  lia.
+  destruct op; try discriminate; auto.
+  destruct (expr_eval e1 l =? 0)%Z eqn : I; try lia.
+  destruct (expr_eval e2 l =? 0)%Z eqn : J; try lia.
 Qed.
 
-Lemma proof_of_eval_return_wit_14_2 : eval_return_wit_14_2.
+Lemma proof_of_eval_return_wit_15 : eval_return_wit_15.
 Proof.
   pre_process.
-  subst.
-  rewrite H11.
-  get_bin_op_from_id op.
-  simpl store_expr.
+  subst. simpl.
+  rewrite <- H5. rewrite <- H0.
   Exists v_2 v.
   entailer!.
-  simpl.
-  destruct ((expr_eval e1 l <? expr_eval e2 l)%Z) eqn: I; auto.
-  rewrite Z.ltb_nlt in I.
-  lia.
-Qed.
-
-Lemma proof_of_eval_return_wit_15_1 : eval_return_wit_15_1.
-Proof.
-  pre_process.
-  subst.
-  rewrite H12.
-  get_bin_op_from_id op.
-  simpl store_expr.
-  Exists v_2 v.
-  entailer!.
-  simpl.
-  destruct ((expr_eval e1 l >? expr_eval e2 l)%Z) eqn: I; auto.
-  rewrite Z.gtb_lt in I.
-  lia.
+  destruct op; try discriminate; auto.
+  destruct (expr_eval e1 l =? 0)%Z eqn : I; try lia.
+  simpl. lia.
 Qed. 
 
-Lemma proof_of_eval_return_wit_15_2 : eval_return_wit_15_2.
+Lemma proof_of_eval_return_wit_16 : eval_return_wit_16.
 Proof.
   pre_process.
-  subst.
-  rewrite H12.
-  get_bin_op_from_id op.
-  simpl store_expr.
+  subst. simpl.
+  rewrite <- H3. rewrite <- H0.
   Exists v_2 v.
   entailer!.
-  simpl.
-  destruct ((expr_eval e1 l >? expr_eval e2 l)%Z) eqn: I; auto.
-  rewrite Z.gtb_ltb in I.
-  rewrite Z.ltb_nlt in I.
-  lia.
-Qed. 
-
-Lemma proof_of_eval_return_wit_16_1 : eval_return_wit_16_1.
-Proof.
-  pre_process.
-  subst.
-  rewrite H13.
-  get_bin_op_from_id op.
-  simpl store_expr.
-  Exists v_2 v.
-  entailer!.
-  simpl.
-  destruct ((expr_eval e1 l <=? expr_eval e2 l)%Z) eqn: I; auto.
-  rewrite Z.leb_le in I.
-  lia.
+  destruct op; try discriminate; auto.
 Qed.
 
-Lemma proof_of_eval_return_wit_16_2 : eval_return_wit_16_2.
+Lemma proof_of_eval_return_wit_17 : eval_return_wit_17.
 Proof.
   pre_process.
-  subst.
-  rewrite H13.
-  get_bin_op_from_id op.
-  simpl store_expr.
+  subst. simpl. rewrite <- H4.
   Exists v_2 v.
   entailer!.
-  simpl.
-  destruct ((expr_eval e1 l <=? expr_eval e2 l)%Z) eqn: I; auto.
-  rewrite Z.leb_gt in I.
-  lia.
-Qed. 
+  destruct op; try discriminate; auto.
+  destruct (expr_eval e1 l =? 0)%Z eqn : I; try lia.
+Qed.
 
-Lemma proof_of_eval_return_wit_17_1 : eval_return_wit_17_1.
+Lemma proof_of_eval_return_wit_18 : eval_return_wit_18.
 Proof.
   pre_process.
-  subst.
-  rewrite H14.
-  get_bin_op_from_id op.
-  simpl store_expr.
+  subst. simpl. rewrite <- H6. rewrite <- H2.
   Exists v_2 v.
   entailer!.
-  simpl.
-  destruct ((expr_eval e1 l >=? expr_eval e2 l)%Z) eqn: I; auto.
-  rewrite Z.geb_le in I.
-  lia.
+  destruct op; try discriminate; auto. simpl.
+  destruct (expr_eval e2 l =? 0)%Z eqn : I; try lia.
 Qed.
 
-Lemma proof_of_eval_return_wit_17_2 : eval_return_wit_17_2.
-Proof. 
-  pre_process.
-  subst.
-  rewrite H14.
-  get_bin_op_from_id op.
-  simpl store_expr.
-  Exists v_2 v.
-  entailer!.
-  simpl.
-  destruct ((expr_eval e1 l >=? expr_eval e2 l)%Z) eqn: I; auto.
-  rewrite Z.geb_leb in I.
-  rewrite Z.leb_gt in I.
-  lia.
-Qed.
-
-Lemma proof_of_eval_return_wit_18_1 : eval_return_wit_18_1.
+Lemma proof_of_eval_return_wit_19 : eval_return_wit_19.
 Proof.
   pre_process.
-  subst.
-  rewrite H15.
-  get_bin_op_from_id op.
-  simpl store_expr.
+  subst. simpl. rewrite <- H6 , <- H0, <- H2. 
   Exists v_2 v.
   entailer!.
-  simpl.
-  destruct ((expr_eval e1 l =? expr_eval e2 l)%Z) eqn: I; auto.
-  rewrite Z.eqb_eq in I.
-  lia.
+  destruct op; try discriminate; auto.
 Qed.
-
-Lemma proof_of_eval_return_wit_18_2 : eval_return_wit_18_2.
-Proof. 
-  pre_process.
-  subst.
-  rewrite H15.
-  get_bin_op_from_id op.
-  simpl store_expr.
-  Exists v_2 v.
-  entailer!.
-  simpl.
-  destruct ((expr_eval e1 l =? expr_eval e2 l)%Z) eqn: I; auto.
-  rewrite Z.eqb_neq in I.
-  lia.
-Qed.
-
-Lemma proof_of_eval_return_wit_19_1 : eval_return_wit_19_1.
-Proof.
-  pre_process.
-  subst.
-  rewrite H16.
-  get_bin_op_from_id op.
-  simpl store_expr.
-  Exists v_2 v.
-  entailer!.
-  simpl.
-  destruct ((expr_eval e1 l =? expr_eval e2 l)%Z) eqn: I; auto.
-  rewrite Z.eqb_neq in I.
-  lia.
-Qed.
-
-Lemma proof_of_eval_return_wit_19_2 : eval_return_wit_19_2.
-Proof.
-  pre_process.
-  subst.
-  rewrite H16.
-  get_bin_op_from_id op.
-  simpl store_expr.
-  Exists v_2 v.
-  entailer!.
-  simpl.
-  destruct ((expr_eval e1 l =? expr_eval e2 l)%Z) eqn: I; auto.
-  rewrite Z.eqb_eq in I.
-  lia.
-Qed. 
 
 Lemma proof_of_eval_return_wit_20_1 : eval_return_wit_20_1.
 Proof.
@@ -442,7 +338,7 @@ Proof.
   subst.
   rewrite H2.
   get_bin_op_from_id op.
-  inversion H6; subst.
+  inversion H3; subst.
   entailer!.
 Qed.
 
@@ -452,7 +348,7 @@ Proof.
   subst.
   rewrite H3.
   get_bin_op_from_id op.
-  inversion H7; subst.
+  inversion H4; subst.
   entailer!.
 Qed. 
 
@@ -462,7 +358,7 @@ Proof.
   subst.
   rewrite H3.
   get_bin_op_from_id op.
-  inversion H7; subst.
+  inversion H4; subst.
   entailer!.
 Qed.
 
@@ -472,7 +368,7 @@ Proof.
   subst.
   rewrite H4.
   get_bin_op_from_id op.
-  inversion H8; subst.
+  inversion H5; subst.
   entailer!.
 Qed.
 
@@ -480,7 +376,7 @@ Lemma proof_of_eval_partial_solve_wit_10_pure : eval_partial_solve_wit_10_pure.
 Proof.
   pre_process.
   subst.
-  inversion H7.
+  inversion H4.
   entailer!.
 Qed.
 
@@ -488,7 +384,7 @@ Lemma proof_of_eval_partial_solve_wit_11_pure : eval_partial_solve_wit_11_pure.
 Proof.
   pre_process.
   subst.
-  inversion H7.
+  inversion H4.
   entailer!.
 Qed.
 
@@ -496,7 +392,7 @@ Lemma proof_of_eval_partial_solve_wit_13_pure : eval_partial_solve_wit_13_pure.
 Proof.
   pre_process.
   subst.
-  inversion H7.
+  inversion H3.
   entailer!.
 Qed.
 
@@ -504,7 +400,7 @@ Lemma proof_of_eval_partial_solve_wit_14_pure : eval_partial_solve_wit_14_pure.
 Proof.
   pre_process.
   subst.
-  inversion H7.
+  inversion H3.
   entailer!.
 Qed.
 
@@ -592,59 +488,47 @@ Lemma proof_of_eval_safety_wit_13 : eval_safety_wit_13.
 Proof.
   pre_process.
   subst.
-  get_bin_op_from_id op.
-  inversion H9; subst.
-  unfold bin_safe_cond in H11.
-  entailer!.
+  destruct op ; try discriminate ; auto.
+  inversion H5. entailer! ; simpl in * ; try lia.
 Qed.
 
 Lemma proof_of_eval_safety_wit_15 : eval_safety_wit_15.
 Proof.
   pre_process.
   subst.
-  get_bin_op_from_id op.
-  inversion H10; subst.
-  unfold bin_safe_cond in H12.
-  entailer!.
+  destruct op ; try discriminate ; auto.
+  inversion H5. entailer! ; simpl in * ; try lia.
 Qed.
 
 Lemma proof_of_eval_safety_wit_17 : eval_safety_wit_17.
 Proof.
   pre_process.
   subst.
-  get_bin_op_from_id op.
-  inversion H11; subst.
-  unfold bin_safe_cond in H13.
-  entailer!.
+  destruct op ; try discriminate ; auto.
+  inversion H5. entailer! ; simpl in * ; try lia.
 Qed.
 
 Lemma proof_of_eval_safety_wit_19 : eval_safety_wit_19.
 Proof.
   pre_process.
   subst.
-  get_bin_op_from_id op.
-  inversion H12; subst.
-  unfold bin_safe_cond in H14.
-  entailer!.
+  destruct op ; try discriminate ; auto.
+  inversion H5. entailer! ; simpl in * ; try lia.
 Qed.
 
 Lemma proof_of_eval_safety_wit_21 : eval_safety_wit_21.
 Proof.
   pre_process.
   subst.
-  get_bin_op_from_id op.
-  inversion H13; subst.
-  unfold bin_safe_cond in H15.
-  entailer!.
+  destruct op ; try discriminate ; auto.
+  inversion H5. entailer! ; simpl in * ; try lia.
 Qed.
 
 Lemma proof_of_eval_safety_wit_30 : eval_safety_wit_30.
 Proof.
   pre_process.
   subst.
-  destruct op.
-  1: { unfold UnOpID in H0. contradiction. }
-  inversion H7; subst.
-  unfold un_safe_cond in H8.
-  entailer!.
+  destruct op ; try discriminate ; auto.
+  inversion H3 ;  entailer! ; simpl in * ; try lia.
+  inversion H3 ;  entailer! ; simpl in * ; try lia.
 Qed.

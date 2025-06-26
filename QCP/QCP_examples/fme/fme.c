@@ -1,5 +1,5 @@
-#include "../verification_stdlib.h"
-#include "../verification_list.h"
+#include "verification_stdlib.h"
+#include "verification_list.h"
 #include "fme_def.h"
 
 //链表的每一个节点是一个不等式
@@ -81,7 +81,7 @@ struct InequList* NilInequList()
 
 struct InequList* ConsInequList(int * c, struct InequList * l)
   /*@ With n c0 l0
-      Require coef_array(c, n, c0) * InequList(l, n, l0)
+      Require c != 0 && coef_array(c, n, c0) * InequList(l, n, l0)
       Ensure InequList(__return, n, cons(c0, l0))
     */
 {
@@ -154,7 +154,8 @@ void eliminate(struct InequList* r, int num)
     while(cur != (void *)0){
         /*@ exists l2, InequList(cur, n, l2) && cur != 0
             which implies
-            exists x l3, l2 == cons(x, l3) && coef_array(cur->coef, n, x) * InequList(cur->next, n, l3) 
+            exists x l3, l2 == cons(x, l3) && cur->coef != 0 &&
+            coef_array(cur->coef, n, x) * InequList(cur->next, n, l3) 
         */
         cur_next = cur -> next;
         if(cur->coef[num] != 0){
@@ -187,7 +188,7 @@ int* generate_new_constr(int* r1, int* r2, int num, int cur_num)
   /*@ With c1 c2
       Require 0 <= cur_num &&
               cur_num < num + 1 &&
-              num + 1 <= INT_MAX &&
+              num + 1 <= INT_MAX && r1 != 0 && r2 != 0 &&
               coef_Znth(cur_num, c1, 0) > 0 && coef_Znth(cur_num, c1, 0) <= INT_MAX &&
               coef_Znth(cur_num, c2, 0) < 0 && -coef_Znth(cur_num, c2, 0) <= INT_MAX &&
               coef_array(r1, num + 1, c1) *
@@ -315,7 +316,7 @@ struct InequList* generate_new_constraint_list(struct InequList* r1, struct Ineq
         /*@ exists l11 l12, p1 != 0 && InequList_seg(r1, p1, n, l11) * InequList(p1, n, l12)
             which implies
             exists x l13,
-              l12 == cons(x, l13) &&
+              l12 == cons(x, l13) && p1->coef != 0 &&
               InequList_seg(r1, p1, n, l11) *
               coef_array(p1->coef, n, x) *
               InequList(p1->next, n, l13)
@@ -337,7 +338,7 @@ struct InequList* generate_new_constraint_list(struct InequList* r1, struct Ineq
                     r2 == r2@pre &&
                     num == num@pre &&
                     cur_num == cur_num@pre &&
-                    init == init@pre &&
+                    init == init@pre && p1->coef != 0 &&
                     InequList_seg(r1, p1, n, l11) *
                     coef_array(p1->coef, n, x1) *
                     InequList(p1->next, n, l12) *
@@ -349,7 +350,7 @@ struct InequList* generate_new_constraint_list(struct InequList* r1, struct Ineq
             /*@ exists l21 l22, p2 != 0 && InequList_seg(r2, p2, n, l21) * InequList(p2, n, l22)
                 which implies
                 exists x l23,
-                l22 == cons(x, l23) &&
+                l22 == cons(x, l23) && p2->coef != 0 &&
                 InequList_seg(r2, p2, n, l21) *
                 coef_array(p2->coef, n, x) *
                 InequList(p2->next, n, l23)

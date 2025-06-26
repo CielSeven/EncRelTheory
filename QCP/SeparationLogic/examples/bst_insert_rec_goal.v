@@ -18,10 +18,10 @@ Require Import bst_lib.
 Import get_right_most.
 Import naive_C_Rules.
 Local Open Scope sac.
-From SimpleC.EE Require Import bst_strategy_goal.
-From SimpleC.EE Require Import bst_strategy_proof.
-From SimpleC.EE Require Import common_strategy_goal.
-From SimpleC.EE Require Import common_strategy_proof.
+Require Import bst_strategy_goal.
+Require Import bst_strategy_proof.
+Require Import common_strategy_goal.
+Require Import common_strategy_proof.
 
 (*----- Function insert -----*)
 
