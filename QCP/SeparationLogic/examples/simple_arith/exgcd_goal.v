@@ -464,7 +464,7 @@ forall (y_pre: Z) (x_pre: Z) (b_pre: Z) (a_pre: Z) (retval: Z) ,
   &&  ((x_pre) # Int  |-> (-1))
   **  ((y_pre) # Int  |-> 0)
 |--
-  (EX y_pre_v x_pre_v,
+  (EX (y_pre_v: Z)  (x_pre_v: Z) ,
   [| (retval = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (((a_pre * x_pre_v ) + (b_pre * y_pre_v ) ) = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (b_pre = 0) |] 
@@ -473,7 +473,7 @@ forall (y_pre: Z) (x_pre: Z) (b_pre: Z) (a_pre: Z) (retval: Z) ,
   &&  ((x_pre) # Int  |-> x_pre_v)
   **  ((y_pre) # Int  |-> y_pre_v))
   ||
-  (EX y_pre_v_2 x_pre_v_2,
+  (EX (y_pre_v_2: Z)  (x_pre_v_2: Z) ,
   [| (retval = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (((a_pre * x_pre_v_2 ) + (b_pre * y_pre_v_2 ) ) = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (b_pre <> 0) |] 
@@ -483,7 +483,7 @@ forall (y_pre: Z) (x_pre: Z) (b_pre: Z) (a_pre: Z) (retval: Z) ,
   &&  ((x_pre) # Int  |-> x_pre_v_2)
   **  ((y_pre) # Int  |-> y_pre_v_2))
   ||
-  (EX y_pre_v_3 x_pre_v_3,
+  (EX (y_pre_v_3: Z)  (x_pre_v_3: Z) ,
   [| (retval = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (((a_pre * x_pre_v_3 ) + (b_pre * y_pre_v_3 ) ) = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (b_pre <> 0) |] 
@@ -507,7 +507,7 @@ forall (y_pre: Z) (x_pre: Z) (b_pre: Z) (a_pre: Z) (retval: Z) ,
   &&  ((x_pre) # Int  |-> 0)
   **  ((y_pre) # Int  |-> 0)
 |--
-  (EX y_pre_v x_pre_v,
+  (EX (y_pre_v: Z)  (x_pre_v: Z) ,
   [| (retval = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (((a_pre * x_pre_v ) + (b_pre * y_pre_v ) ) = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (b_pre = 0) |] 
@@ -516,7 +516,7 @@ forall (y_pre: Z) (x_pre: Z) (b_pre: Z) (a_pre: Z) (retval: Z) ,
   &&  ((x_pre) # Int  |-> x_pre_v)
   **  ((y_pre) # Int  |-> y_pre_v))
   ||
-  (EX y_pre_v_2 x_pre_v_2,
+  (EX (y_pre_v_2: Z)  (x_pre_v_2: Z) ,
   [| (retval = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (((a_pre * x_pre_v_2 ) + (b_pre * y_pre_v_2 ) ) = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (b_pre <> 0) |] 
@@ -526,7 +526,7 @@ forall (y_pre: Z) (x_pre: Z) (b_pre: Z) (a_pre: Z) (retval: Z) ,
   &&  ((x_pre) # Int  |-> x_pre_v_2)
   **  ((y_pre) # Int  |-> y_pre_v_2))
   ||
-  (EX y_pre_v_3 x_pre_v_3,
+  (EX (y_pre_v_3: Z)  (x_pre_v_3: Z) ,
   [| (retval = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (((a_pre * x_pre_v_3 ) + (b_pre * y_pre_v_3 ) ) = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (b_pre <> 0) |] 
@@ -550,7 +550,7 @@ forall (y_pre: Z) (x_pre: Z) (b_pre: Z) (a_pre: Z) (retval: Z) ,
   &&  ((x_pre) # Int  |-> 1)
   **  ((y_pre) # Int  |-> 0)
 |--
-  (EX y_pre_v x_pre_v,
+  (EX (y_pre_v: Z)  (x_pre_v: Z) ,
   [| (retval = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (((a_pre * x_pre_v ) + (b_pre * y_pre_v ) ) = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (b_pre = 0) |] 
@@ -559,7 +559,7 @@ forall (y_pre: Z) (x_pre: Z) (b_pre: Z) (a_pre: Z) (retval: Z) ,
   &&  ((x_pre) # Int  |-> x_pre_v)
   **  ((y_pre) # Int  |-> y_pre_v))
   ||
-  (EX y_pre_v_2 x_pre_v_2,
+  (EX (y_pre_v_2: Z)  (x_pre_v_2: Z) ,
   [| (retval = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (((a_pre * x_pre_v_2 ) + (b_pre * y_pre_v_2 ) ) = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (b_pre <> 0) |] 
@@ -569,7 +569,7 @@ forall (y_pre: Z) (x_pre: Z) (b_pre: Z) (a_pre: Z) (retval: Z) ,
   &&  ((x_pre) # Int  |-> x_pre_v_2)
   **  ((y_pre) # Int  |-> y_pre_v_2))
   ||
-  (EX y_pre_v_3 x_pre_v_3,
+  (EX (y_pre_v_3: Z)  (x_pre_v_3: Z) ,
   [| (retval = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (((a_pre * x_pre_v_3 ) + (b_pre * y_pre_v_3 ) ) = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (b_pre <> 0) |] 
@@ -596,7 +596,7 @@ forall (y_pre: Z) (x_pre: Z) (b_pre: Z) (a_pre: Z) (y_pre_v_4: Z) (x_pre_v_4: Z)
   &&  ((y_pre) # Int  |-> (x_pre_v_4 - ((a_pre ÷ b_pre ) * y_pre_v_4 ) ))
   **  ((x_pre) # Int  |-> y_pre_v_4)
 |--
-  (EX y_pre_v x_pre_v,
+  (EX (y_pre_v: Z)  (x_pre_v: Z) ,
   [| (retval = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (((a_pre * x_pre_v ) + (b_pre * y_pre_v ) ) = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (b_pre = 0) |] 
@@ -605,7 +605,7 @@ forall (y_pre: Z) (x_pre: Z) (b_pre: Z) (a_pre: Z) (y_pre_v_4: Z) (x_pre_v_4: Z)
   &&  ((x_pre) # Int  |-> x_pre_v)
   **  ((y_pre) # Int  |-> y_pre_v))
   ||
-  (EX y_pre_v_2 x_pre_v_2,
+  (EX (y_pre_v_2: Z)  (x_pre_v_2: Z) ,
   [| (retval = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (((a_pre * x_pre_v_2 ) + (b_pre * y_pre_v_2 ) ) = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (b_pre <> 0) |] 
@@ -615,7 +615,7 @@ forall (y_pre: Z) (x_pre: Z) (b_pre: Z) (a_pre: Z) (y_pre_v_4: Z) (x_pre_v_4: Z)
   &&  ((x_pre) # Int  |-> x_pre_v_2)
   **  ((y_pre) # Int  |-> y_pre_v_2))
   ||
-  (EX y_pre_v_3 x_pre_v_3,
+  (EX (y_pre_v_3: Z)  (x_pre_v_3: Z) ,
   [| (retval = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (((a_pre * x_pre_v_3 ) + (b_pre * y_pre_v_3 ) ) = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (b_pre <> 0) |] 
@@ -642,7 +642,7 @@ forall (y_pre: Z) (x_pre: Z) (b_pre: Z) (a_pre: Z) (y_pre_v_4: Z) (x_pre_v_4: Z)
   &&  ((y_pre) # Int  |-> (x_pre_v_4 - ((a_pre ÷ b_pre ) * y_pre_v_4 ) ))
   **  ((x_pre) # Int  |-> y_pre_v_4)
 |--
-  (EX y_pre_v x_pre_v,
+  (EX (y_pre_v: Z)  (x_pre_v: Z) ,
   [| (retval = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (((a_pre * x_pre_v ) + (b_pre * y_pre_v ) ) = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (b_pre = 0) |] 
@@ -651,7 +651,7 @@ forall (y_pre: Z) (x_pre: Z) (b_pre: Z) (a_pre: Z) (y_pre_v_4: Z) (x_pre_v_4: Z)
   &&  ((x_pre) # Int  |-> x_pre_v)
   **  ((y_pre) # Int  |-> y_pre_v))
   ||
-  (EX y_pre_v_2 x_pre_v_2,
+  (EX (y_pre_v_2: Z)  (x_pre_v_2: Z) ,
   [| (retval = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (((a_pre * x_pre_v_2 ) + (b_pre * y_pre_v_2 ) ) = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (b_pre <> 0) |] 
@@ -661,7 +661,7 @@ forall (y_pre: Z) (x_pre: Z) (b_pre: Z) (a_pre: Z) (y_pre_v_4: Z) (x_pre_v_4: Z)
   &&  ((x_pre) # Int  |-> x_pre_v_2)
   **  ((y_pre) # Int  |-> y_pre_v_2))
   ||
-  (EX y_pre_v_3 x_pre_v_3,
+  (EX (y_pre_v_3: Z)  (x_pre_v_3: Z) ,
   [| (retval = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (((a_pre * x_pre_v_3 ) + (b_pre * y_pre_v_3 ) ) = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (b_pre <> 0) |] 
@@ -687,7 +687,7 @@ forall (y_pre: Z) (x_pre: Z) (b_pre: Z) (a_pre: Z) (y_pre_v_4: Z) (x_pre_v_4: Z)
   &&  ((y_pre) # Int  |-> (x_pre_v_4 - ((a_pre ÷ b_pre ) * y_pre_v_4 ) ))
   **  ((x_pre) # Int  |-> y_pre_v_4)
 |--
-  (EX y_pre_v x_pre_v,
+  (EX (y_pre_v: Z)  (x_pre_v: Z) ,
   [| (retval = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (((a_pre * x_pre_v ) + (b_pre * y_pre_v ) ) = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (b_pre = 0) |] 
@@ -696,7 +696,7 @@ forall (y_pre: Z) (x_pre: Z) (b_pre: Z) (a_pre: Z) (y_pre_v_4: Z) (x_pre_v_4: Z)
   &&  ((x_pre) # Int  |-> x_pre_v)
   **  ((y_pre) # Int  |-> y_pre_v))
   ||
-  (EX y_pre_v_2 x_pre_v_2,
+  (EX (y_pre_v_2: Z)  (x_pre_v_2: Z) ,
   [| (retval = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (((a_pre * x_pre_v_2 ) + (b_pre * y_pre_v_2 ) ) = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (b_pre <> 0) |] 
@@ -706,7 +706,7 @@ forall (y_pre: Z) (x_pre: Z) (b_pre: Z) (a_pre: Z) (y_pre_v_4: Z) (x_pre_v_4: Z)
   &&  ((x_pre) # Int  |-> x_pre_v_2)
   **  ((y_pre) # Int  |-> y_pre_v_2))
   ||
-  (EX y_pre_v_3 x_pre_v_3,
+  (EX (y_pre_v_3: Z)  (x_pre_v_3: Z) ,
   [| (retval = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (((a_pre * x_pre_v_3 ) + (b_pre * y_pre_v_3 ) ) = (Zgcd (a_pre) (b_pre))) |] 
   &&  [| (b_pre <> 0) |] 

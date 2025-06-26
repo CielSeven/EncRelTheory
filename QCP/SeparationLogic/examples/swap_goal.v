@@ -26,13 +26,13 @@ Definition swap_entail_wit_1 :=
 forall (py_pre: Z) (px_pre: Z) (para: swap_para) ,
   (swap_pre px_pre py_pre para )
 |--
-  (EX x,
+  (EX (x: Z) ,
   [| (px_pre = py_pre) |] 
   &&  [| (px_pre = py_pre) |] 
   &&  [| (para = (swap_eq_para (x))) |]
   &&  ((px_pre) # Int  |-> x))
   ||
-  (EX y x_2,
+  (EX (y: Z)  (x_2: Z) ,
   [| (para = (swap_neq_para (x_2) (y))) |]
   &&  ((px_pre) # Int  |-> x_2)
   **  ((py_pre) # Int  |-> y))
@@ -106,7 +106,7 @@ forall (y_pre: Z) (x_pre: Z) (x_pre_v_2: Z) (y_pre_v_2: Z) ,
   &&  ((x_pre) # Int  |-> y_pre_v_2)
   **  ((y_pre) # Int  |-> x_pre_v_2)
 |--
-  EX x_pre_v y_pre_v,
+  EX (x_pre_v: Z)  (y_pre_v: Z) ,
   [| (y_pre_v = 1) |] 
   &&  [| (x_pre_v = 2) |]
   &&  ((y_pre) # Int  |-> y_pre_v)
@@ -136,7 +136,7 @@ forall (y_pre: Z) (x_pre: Z) (x_pre_v: Z) ,
   &&  [| (x_pre_v = 1) |]
   &&  ((y_pre) # Int  |-> x_pre_v)
 |--
-  EX y_pre_v,
+  EX (y_pre_v: Z) ,
   [| (y_pre_v = 1) |]
   &&  ((y_pre) # Int  |-> y_pre_v)
 .

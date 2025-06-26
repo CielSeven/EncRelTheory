@@ -38,7 +38,7 @@ Definition reverse_entail_wit_1 :=
 forall (A: Type) (p_pre: Z) (l: (@list A)) (storeA: (Z -> (A -> Assertion))) ,
   (sll storeA p_pre l )
 |--
-  EX l1 l2,
+  EX (l1: (@list A))  (l2: (@list A)) ,
   [| (l = (app ((rev (l1))) (l2))) |] 
   &&  [| (sll_para storeA ) |]
   &&  (sll storeA 0 l1 )
@@ -57,7 +57,7 @@ forall (A: Type) (l: (@list A)) (storeA: (Z -> (A -> Assertion))) (v: Z) (w: Z) 
   **  (sll storeA v_next xs )
   **  (sll storeA w l1_2 )
 |--
-  EX l1 l2,
+  EX (l1: (@list A))  (l2: (@list A)) ,
   [| (l = (app ((rev (l1))) (l2))) |] 
   &&  [| (sll_para storeA ) |]
   &&  (sll storeA v l1 )
@@ -112,7 +112,7 @@ forall (A: Type) (storeA: (Z -> (A -> Assertion))) (l2: (@list A)) (v: Z) ,
   [| (v <> 0) |]
   &&  (sll storeA v l2 )
 |--
-  EX v_next v_data x xs,
+  EX (v_next: Z)  (v_data: Z)  (x: A)  (xs: (@list A)) ,
   [| (l2 = (cons (x) (xs))) |]
   &&  ((&((v)  # "list" ->ₛ "data")) # Ptr  |-> v_data)
   **  (storeA v_data x )

@@ -50,7 +50,7 @@ forall (node_pre: Z) (p_pre: Z) (a: Z) (l: (@list Z)) ,
   **  (sll p_pre l )
   **  ((&((node_pre)  # "list" ->ₛ "next")) # Ptr  |->_)
 |--
-  EX l1 l2,
+  EX (l1: (@list Z))  (l2: (@list Z)) ,
   [| (l = (app (l1) (l2))) |] 
   &&  [| (strict_upperbound a l1 ) |] 
   &&  [| (node_pre <> 0) |]
@@ -61,10 +61,10 @@ forall (node_pre: Z) (p_pre: Z) (a: Z) (l: (@list Z)) ,
 .
 
 Definition insertion_entail_wit_2 := 
-forall (node_pre: Z) (a: Z) (l: (@list Z)) (p2_v_2: Z) (p2: Z) (l1_2: (@list Z)) (l2_2: (@list Z)) (x_81: Z) (l0_82: (@list Z)) (p2_v_next: Z) (p2_v_data: Z) (l3: (@list Z)) ,
-  [| ((cons (x_81) (l0_82)) = (cons (p2_v_data) (l3))) |] 
-  &&  [| (x_81 < a) |] 
-  &&  [| (l2_2 = (cons (x_81) (l0_82))) |] 
+forall (node_pre: Z) (a: Z) (l: (@list Z)) (p2_v_2: Z) (p2: Z) (l1_2: (@list Z)) (l2_2: (@list Z)) (x: Z) (l0: (@list Z)) (p2_v_next: Z) (p2_v_data: Z) (l3: (@list Z)) ,
+  [| ((cons (x) (l0)) = (cons (p2_v_data) (l3))) |] 
+  &&  [| (x < a) |] 
+  &&  [| (l2_2 = (cons (x) (l0))) |] 
   &&  [| (p2_v_2 <> 0) |] 
   &&  [| (l = (app (l1_2) (l2_2))) |] 
   &&  [| (strict_upperbound a l1_2 ) |] 
@@ -77,7 +77,7 @@ forall (node_pre: Z) (a: Z) (l: (@list Z)) (p2_v_2: Z) (p2: Z) (l1_2: (@list Z))
   **  (sllbseg ( &( "res" ) ) p2 l1_2 )
   **  ((&((node_pre)  # "list" ->ₛ "next")) # Ptr  |->_)
 |--
-  EX p2_v l1 l2,
+  EX (p2_v: Z)  (l1: (@list Z))  (l2: (@list Z)) ,
   [| (l = (app (l1) (l2))) |] 
   &&  [| (strict_upperbound a l1 ) |] 
   &&  [| (node_pre <> 0) |]
@@ -99,27 +99,27 @@ forall (node_pre: Z) (a: Z) (l: (@list Z)) (p2_v: Z) (l1: (@list Z)) (l2: (@list
   **  (sll p2_v l2 )
   **  ((&((node_pre)  # "list" ->ₛ "next")) # Ptr  |-> p2_v)
 |--
-  EX l0,
+  EX (l0: (@list Z)) ,
   [| (l0 = (insert (a) (l))) |]
   &&  (sll res l0 )
 .
 
 Definition insertion_return_wit_1_2 := 
-forall (node_pre: Z) (a: Z) (l: (@list Z)) (p2_v: Z) (l1: (@list Z)) (l2: (@list Z)) (x_81: Z) (l0_82: (@list Z)) (y_83: Z) (res: Z) ,
-  [| (x_81 >= a) |] 
-  &&  [| (l2 = (cons (x_81) (l0_82))) |] 
+forall (node_pre: Z) (a: Z) (l: (@list Z)) (p2_v: Z) (l1: (@list Z)) (l2: (@list Z)) (x: Z) (l0_2: (@list Z)) (y: Z) (res: Z) ,
+  [| (x >= a) |] 
+  &&  [| (l2 = (cons (x) (l0_2))) |] 
   &&  [| (p2_v <> 0) |] 
   &&  [| (l = (app (l1) (l2))) |] 
   &&  [| (strict_upperbound a l1 ) |] 
   &&  [| (node_pre <> 0) |]
   &&  (sllseg res node_pre l1 )
-  **  ((&((p2_v)  # "list" ->ₛ "data")) # Int  |-> x_81)
-  **  (sll y_83 l0_82 )
-  **  ((&((p2_v)  # "list" ->ₛ "next")) # Ptr  |-> y_83)
+  **  ((&((p2_v)  # "list" ->ₛ "data")) # Int  |-> x)
+  **  (sll y l0_2 )
+  **  ((&((p2_v)  # "list" ->ₛ "next")) # Ptr  |-> y)
   **  ((&((node_pre)  # "list" ->ₛ "data")) # Int  |-> a)
   **  ((&((node_pre)  # "list" ->ₛ "next")) # Ptr  |-> p2_v)
 |--
-  EX l0,
+  EX (l0: (@list Z)) ,
   [| (l0 = (insert (a) (l))) |]
   &&  (sll res l0 )
 .
@@ -136,15 +136,15 @@ forall (node_pre: Z) (a: Z) (l: (@list Z)) (p2_v: Z) (p2: Z) (l1: (@list Z)) (l2
   **  (sll p2_v l2 )
   **  ((&((node_pre)  # "list" ->ₛ "next")) # Ptr  |->_)
 |--
-  EX y_83 l0_82 x_81,
-  [| (l2 = (cons (x_81) (l0_82))) |] 
+  EX (y: Z)  (l0: (@list Z))  (x: Z) ,
+  [| (l2 = (cons (x) (l0))) |] 
   &&  [| (p2_v <> 0) |] 
   &&  [| (l = (app (l1) (l2))) |] 
   &&  [| (strict_upperbound a l1 ) |] 
   &&  [| (node_pre <> 0) |]
-  &&  ((&((p2_v)  # "list" ->ₛ "data")) # Int  |-> x_81)
-  **  (sll y_83 l0_82 )
-  **  ((&((p2_v)  # "list" ->ₛ "next")) # Ptr  |-> y_83)
+  &&  ((&((p2_v)  # "list" ->ₛ "data")) # Int  |-> x)
+  **  (sll y l0 )
+  **  ((&((p2_v)  # "list" ->ₛ "next")) # Ptr  |-> y)
   **  ((&((node_pre)  # "list" ->ₛ "data")) # Int  |-> a)
   **  (sllbseg ( &( "res" ) ) p2 l1 )
   **  ((p2) # Ptr  |-> p2_v)
@@ -152,16 +152,16 @@ forall (node_pre: Z) (a: Z) (l: (@list Z)) (p2_v: Z) (p2: Z) (l1: (@list Z)) (l2
 .
 
 Definition insertion_partial_solve_wit_2_pure := 
-forall (node_pre: Z) (p_pre: Z) (a: Z) (l: (@list Z)) (p2_v: Z) (p2: Z) (l1: (@list Z)) (l2: (@list Z)) (x_81: Z) (l0_82: (@list Z)) (y_83: Z) ,
-  [| (x_81 < a) |] 
-  &&  [| (l2 = (cons (x_81) (l0_82))) |] 
+forall (node_pre: Z) (p_pre: Z) (a: Z) (l: (@list Z)) (p2_v: Z) (p2: Z) (l1: (@list Z)) (l2: (@list Z)) (x: Z) (l0: (@list Z)) (y: Z) ,
+  [| (x < a) |] 
+  &&  [| (l2 = (cons (x) (l0))) |] 
   &&  [| (p2_v <> 0) |] 
   &&  [| (l = (app (l1) (l2))) |] 
   &&  [| (strict_upperbound a l1 ) |] 
   &&  [| (node_pre <> 0) |]
-  &&  ((&((p2_v)  # "list" ->ₛ "data")) # Int  |-> x_81)
-  **  (sll y_83 l0_82 )
-  **  ((&((p2_v)  # "list" ->ₛ "next")) # Ptr  |-> y_83)
+  &&  ((&((p2_v)  # "list" ->ₛ "data")) # Int  |-> x)
+  **  (sll y l0 )
+  **  ((&((p2_v)  # "list" ->ₛ "next")) # Ptr  |-> y)
   **  ((( &( "node" ) )) # Ptr  |-> node_pre)
   **  ((&((node_pre)  # "list" ->ₛ "data")) # Int  |-> a)
   **  ((( &( "p2" ) )) # Ptr  |-> p2)
@@ -174,30 +174,30 @@ forall (node_pre: Z) (p_pre: Z) (a: Z) (l: (@list Z)) (p2_v: Z) (p2: Z) (l1: (@l
 .
 
 Definition insertion_partial_solve_wit_2_aux := 
-forall (node_pre: Z) (a: Z) (l: (@list Z)) (p2_v: Z) (p2: Z) (l1: (@list Z)) (l2: (@list Z)) (x_81: Z) (l0_82: (@list Z)) (y_83: Z) ,
-  [| (x_81 < a) |] 
-  &&  [| (l2 = (cons (x_81) (l0_82))) |] 
+forall (node_pre: Z) (a: Z) (l: (@list Z)) (p2_v: Z) (p2: Z) (l1: (@list Z)) (l2: (@list Z)) (x: Z) (l0: (@list Z)) (y: Z) ,
+  [| (x < a) |] 
+  &&  [| (l2 = (cons (x) (l0))) |] 
   &&  [| (p2_v <> 0) |] 
   &&  [| (l = (app (l1) (l2))) |] 
   &&  [| (strict_upperbound a l1 ) |] 
   &&  [| (node_pre <> 0) |]
-  &&  ((&((p2_v)  # "list" ->ₛ "data")) # Int  |-> x_81)
-  **  (sll y_83 l0_82 )
-  **  ((&((p2_v)  # "list" ->ₛ "next")) # Ptr  |-> y_83)
+  &&  ((&((p2_v)  # "list" ->ₛ "data")) # Int  |-> x)
+  **  (sll y l0 )
+  **  ((&((p2_v)  # "list" ->ₛ "next")) # Ptr  |-> y)
   **  ((&((node_pre)  # "list" ->ₛ "data")) # Int  |-> a)
   **  (sllbseg ( &( "res" ) ) p2 l1 )
   **  ((p2) # Ptr  |-> p2_v)
   **  ((&((node_pre)  # "list" ->ₛ "next")) # Ptr  |->_)
 |--
   [| (p2_v <> 0) |] 
-  &&  [| (x_81 < a) |] 
-  &&  [| (l2 = (cons (x_81) (l0_82))) |] 
+  &&  [| (x < a) |] 
+  &&  [| (l2 = (cons (x) (l0))) |] 
   &&  [| (p2_v <> 0) |] 
   &&  [| (l = (app (l1) (l2))) |] 
   &&  [| (strict_upperbound a l1 ) |] 
   &&  [| (node_pre <> 0) |]
   &&  ((p2) # Ptr  |-> p2_v)
-  **  (sll p2_v (cons (x_81) (l0_82)) )
+  **  (sll p2_v (cons (x) (l0)) )
   **  ((&((node_pre)  # "list" ->ₛ "data")) # Int  |-> a)
   **  (sllbseg ( &( "res" ) ) p2 l1 )
   **  ((&((node_pre)  # "list" ->ₛ "next")) # Ptr  |->_)
@@ -250,16 +250,16 @@ forall (node_pre: Z) (a: Z) (l: (@list Z)) (p2_v: Z) (p2: Z) (l1: (@list Z)) (l2
 Definition insertion_partial_solve_wit_3 := insertion_partial_solve_wit_3_pure -> insertion_partial_solve_wit_3_aux.
 
 Definition insertion_partial_solve_wit_4_pure := 
-forall (node_pre: Z) (p_pre: Z) (a: Z) (l: (@list Z)) (p2_v: Z) (p2: Z) (l1: (@list Z)) (l2: (@list Z)) (x_81: Z) (l0_82: (@list Z)) (y_83: Z) ,
-  [| (x_81 >= a) |] 
-  &&  [| (l2 = (cons (x_81) (l0_82))) |] 
+forall (node_pre: Z) (p_pre: Z) (a: Z) (l: (@list Z)) (p2_v: Z) (p2: Z) (l1: (@list Z)) (l2: (@list Z)) (x: Z) (l0: (@list Z)) (y: Z) ,
+  [| (x >= a) |] 
+  &&  [| (l2 = (cons (x) (l0))) |] 
   &&  [| (p2_v <> 0) |] 
   &&  [| (l = (app (l1) (l2))) |] 
   &&  [| (strict_upperbound a l1 ) |] 
   &&  [| (node_pre <> 0) |]
-  &&  ((&((p2_v)  # "list" ->ₛ "data")) # Int  |-> x_81)
-  **  (sll y_83 l0_82 )
-  **  ((&((p2_v)  # "list" ->ₛ "next")) # Ptr  |-> y_83)
+  &&  ((&((p2_v)  # "list" ->ₛ "data")) # Int  |-> x)
+  **  (sll y l0 )
+  **  ((&((p2_v)  # "list" ->ₛ "next")) # Ptr  |-> y)
   **  ((( &( "node" ) )) # Ptr  |-> node_pre)
   **  ((&((node_pre)  # "list" ->ₛ "data")) # Int  |-> a)
   **  ((( &( "p2" ) )) # Ptr  |-> p2)
@@ -272,33 +272,33 @@ forall (node_pre: Z) (p_pre: Z) (a: Z) (l: (@list Z)) (p2_v: Z) (p2: Z) (l1: (@l
 .
 
 Definition insertion_partial_solve_wit_4_aux := 
-forall (node_pre: Z) (a: Z) (l: (@list Z)) (p2_v: Z) (p2: Z) (l1: (@list Z)) (l2: (@list Z)) (x_81: Z) (l0_82: (@list Z)) (y_83: Z) ,
-  [| (x_81 >= a) |] 
-  &&  [| (l2 = (cons (x_81) (l0_82))) |] 
+forall (node_pre: Z) (a: Z) (l: (@list Z)) (p2_v: Z) (p2: Z) (l1: (@list Z)) (l2: (@list Z)) (x: Z) (l0: (@list Z)) (y: Z) ,
+  [| (x >= a) |] 
+  &&  [| (l2 = (cons (x) (l0))) |] 
   &&  [| (p2_v <> 0) |] 
   &&  [| (l = (app (l1) (l2))) |] 
   &&  [| (strict_upperbound a l1 ) |] 
   &&  [| (node_pre <> 0) |]
-  &&  ((&((p2_v)  # "list" ->ₛ "data")) # Int  |-> x_81)
-  **  (sll y_83 l0_82 )
-  **  ((&((p2_v)  # "list" ->ₛ "next")) # Ptr  |-> y_83)
+  &&  ((&((p2_v)  # "list" ->ₛ "data")) # Int  |-> x)
+  **  (sll y l0 )
+  **  ((&((p2_v)  # "list" ->ₛ "next")) # Ptr  |-> y)
   **  ((&((node_pre)  # "list" ->ₛ "data")) # Int  |-> a)
   **  (sllbseg ( &( "res" ) ) p2 l1 )
   **  ((p2) # Ptr  |-> node_pre)
   **  ((&((node_pre)  # "list" ->ₛ "next")) # Ptr  |-> p2_v)
 |--
   [| (node_pre = node_pre) |] 
-  &&  [| (x_81 >= a) |] 
-  &&  [| (l2 = (cons (x_81) (l0_82))) |] 
+  &&  [| (x >= a) |] 
+  &&  [| (l2 = (cons (x) (l0))) |] 
   &&  [| (p2_v <> 0) |] 
   &&  [| (l = (app (l1) (l2))) |] 
   &&  [| (strict_upperbound a l1 ) |] 
   &&  [| (node_pre <> 0) |]
   &&  ((p2) # Ptr  |-> node_pre)
   **  (sllbseg ( &( "res" ) ) p2 l1 )
-  **  ((&((p2_v)  # "list" ->ₛ "data")) # Int  |-> x_81)
-  **  (sll y_83 l0_82 )
-  **  ((&((p2_v)  # "list" ->ₛ "next")) # Ptr  |-> y_83)
+  **  ((&((p2_v)  # "list" ->ₛ "data")) # Int  |-> x)
+  **  (sll y l0 )
+  **  ((&((p2_v)  # "list" ->ₛ "next")) # Ptr  |-> y)
   **  ((&((node_pre)  # "list" ->ₛ "data")) # Int  |-> a)
   **  ((&((node_pre)  # "list" ->ₛ "next")) # Ptr  |-> p2_v)
 .
@@ -311,7 +311,7 @@ forall (l2: (@list Z)) (p2: Z) (p2_v: Z) ,
   &&  ((p2) # Ptr  |-> p2_v)
   **  (sll p2_v l2 )
 |--
-  EX p2_v_next p2_v_data l3,
+  EX (p2_v_next: Z)  (p2_v_data: Z)  (l3: (@list Z)) ,
   [| (l2 = (cons (p2_v_data) (l3))) |]
   &&  ((p2) # Ptr  |-> p2_v)
   **  ((&((p2_v)  # "list" ->ₛ "data")) # Int  |-> p2_v_data)
@@ -325,7 +325,7 @@ forall (l1: (@list Z)) (p2: Z) (p2_v: Z) (node: Z) ,
   &&  ((p2) # Ptr  |-> p2_v)
   **  (sllbseg ( &( "res" ) ) p2 l1 )
 |--
-  EX res,
+  EX (res: Z) ,
   ((( &( "res" ) )) # Ptr  |-> res)
   **  (sllseg res node l1 )
 .
@@ -362,7 +362,7 @@ Definition insertion_sort_entail_wit_1 :=
 forall (x_pre: Z) (l: (@list Z)) ,
   (sll x_pre l )
 |--
-  EX l0 l1 l2,
+  EX (l0: (@list Z))  (l1: (@list Z))  (l2: (@list Z)) ,
   [| (l = (app (l1) (l2))) |] 
   &&  [| (Permutation l1 l0 ) |] 
   &&  [| (increasing l0 ) |]
@@ -382,7 +382,7 @@ forall (l: (@list Z)) (p: Z) (l0_3: (@list Z)) (l1_2: (@list Z)) (l2_2: (@list Z
   **  (sll p_next l3 )
   **  ((( &( "q" ) )) # Ptr  |-> p_next)
 |--
-  EX l0 l1 l2,
+  EX (l0: (@list Z))  (l1: (@list Z))  (l2: (@list Z)) ,
   [| (l = (app (l1) (l2))) |] 
   &&  [| (Permutation l1 l0 ) |] 
   &&  [| (increasing l0 ) |]
@@ -400,7 +400,7 @@ forall (l: (@list Z)) (p: Z) (res: Z) (l0_2: (@list Z)) (l1: (@list Z)) (l2: (@l
   &&  (sll res l0_2 )
   **  (sll p l2 )
 |--
-  EX l0,
+  EX (l0: (@list Z)) ,
   [| (Permutation l l0 ) |] 
   &&  [| (increasing l0 ) |]
   &&  (sll res l0 )
@@ -492,7 +492,7 @@ forall (l2: (@list Z)) (p: Z) ,
   [| (p <> 0) |]
   &&  (sll p l2 )
 |--
-  EX p_next p_data l3,
+  EX (p_next: Z)  (p_data: Z)  (l3: (@list Z)) ,
   [| (l2 = (cons (p_data) (l3))) |]
   &&  ((&((p)  # "list" ->ₛ "data")) # Int  |-> p_data)
   **  ((&((p)  # "list" ->ₛ "next")) # Ptr  |-> p_next)

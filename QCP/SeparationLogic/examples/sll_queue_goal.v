@@ -72,7 +72,7 @@ Definition enqueue_which_implies_wit_1 :=
 forall (l: (@list Z)) (q: Z) ,
   (store_queue q l )
 |--
-  EX q_head v u q_tail,
+  EX (q_head: Z)  (v: Z)  (u: Z)  (q_tail: Z) ,
   [| (q_tail <> 0) |]
   &&  ((&((q)  # "queue" ->ₛ "tail")) # Ptr  |-> q_tail)
   **  ((&((q_tail)  # "list" ->ₛ "data")) # Int  |-> u)
@@ -128,7 +128,7 @@ Definition dequeue_which_implies_wit_1 :=
 forall (l: (@list Z)) (x: Z) (q: Z) ,
   (store_queue q (cons (x) (l)) )
 |--
-  EX q_head_next q_head v u q_tail,
+  EX (q_head_next: Z)  (q_head: Z)  (v: Z)  (u: Z)  (q_tail: Z) ,
   [| (q_tail <> 0) |]
   &&  ((&((q)  # "queue" ->ₛ "tail")) # Ptr  |-> q_tail)
   **  ((&((q_tail)  # "list" ->ₛ "data")) # Int  |-> u)

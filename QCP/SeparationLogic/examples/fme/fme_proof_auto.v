@@ -83,7 +83,7 @@ Proof. Admitted.
 Lemma proof_of_free_InequList_safety_wit_4 : free_InequList_safety_wit_4.
 Proof. Admitted. 
 
-Lemma proof_of_free_InequList_return_wit_2_1 : free_InequList_return_wit_2_1.
+Lemma proof_of_free_InequList_return_wit_2_2 : free_InequList_return_wit_2_2.
 Proof. Admitted. 
 
 Lemma proof_of_free_InequList_partial_solve_wit_1 : free_InequList_partial_solve_wit_1.
@@ -99,6 +99,15 @@ Lemma proof_of_free_InequList_partial_solve_wit_4 : free_InequList_partial_solve
 Proof. Admitted. 
 
 Lemma proof_of_free_InequList_partial_solve_wit_5 : free_InequList_partial_solve_wit_5.
+Proof. Admitted. 
+
+Lemma proof_of_free_InequList_partial_solve_wit_6 : free_InequList_partial_solve_wit_6.
+Proof. Admitted. 
+
+Lemma proof_of_free_InequList_partial_solve_wit_7 : free_InequList_partial_solve_wit_7.
+Proof. Admitted. 
+
+Lemma proof_of_free_InequList_partial_solve_wit_8 : free_InequList_partial_solve_wit_8.
 Proof. Admitted. 
 
 Lemma proof_of_eliminate_safety_wit_1 : eliminate_safety_wit_1.
@@ -203,10 +212,7 @@ Proof. Admitted.
 Lemma proof_of_generate_new_constr_safety_wit_30 : generate_new_constr_safety_wit_30.
 Proof. Admitted. 
 
-Lemma proof_of_generate_new_constr_return_wit_1_1 : generate_new_constr_return_wit_1_1.
-Proof. Admitted. 
-
-Lemma proof_of_generate_new_constr_return_wit_1_2 : generate_new_constr_return_wit_1_2.
+Lemma proof_of_generate_new_constr_return_wit_1 : generate_new_constr_return_wit_1.
 Proof. Admitted. 
 
 Lemma proof_of_generate_new_constr_return_wit_2_1 : generate_new_constr_return_wit_2_1.
@@ -215,7 +221,10 @@ Proof. Admitted.
 Lemma proof_of_generate_new_constr_return_wit_2_2 : generate_new_constr_return_wit_2_2.
 Proof. Admitted. 
 
-Lemma proof_of_generate_new_constr_return_wit_3 : generate_new_constr_return_wit_3.
+Lemma proof_of_generate_new_constr_return_wit_3_1 : generate_new_constr_return_wit_3_1.
+Proof. Admitted. 
+
+Lemma proof_of_generate_new_constr_return_wit_3_2 : generate_new_constr_return_wit_3_2.
 Proof. Admitted. 
 
 Lemma proof_of_generate_new_constr_partial_solve_wit_1 : generate_new_constr_partial_solve_wit_1.
@@ -297,9 +306,6 @@ Lemma proof_of_generate_new_constraint_list_partial_solve_wit_3 : generate_new_c
 Proof. Admitted. 
 
 Lemma proof_of_generate_new_constraint_list_partial_solve_wit_4 : generate_new_constraint_list_partial_solve_wit_4.
-Proof. Admitted. 
-
-Lemma proof_of_generate_new_constraint_list_partial_solve_wit_5_pure : generate_new_constraint_list_partial_solve_wit_5_pure.
 Proof. Admitted. 
 
 Lemma proof_of_generate_new_constraint_list_partial_solve_wit_5 : generate_new_constraint_list_partial_solve_wit_5.

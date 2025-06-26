@@ -260,7 +260,7 @@ forall (x_pre: Z) (v: Z) ,
   &&  [| (v < INT_MAX) |]
   &&  ((x_pre) # Int  |-> (v + 1 ))
 |--
-  EX x_pre_v,
+  EX (x_pre_v: Z) ,
   [| (x_pre_v = (v + 1 )) |]
   &&  ((x_pre) # Int  |-> x_pre_v)
 .
@@ -298,7 +298,7 @@ forall (x_pre: Z) (v: Z) (x_pre_v_2: Z) ,
   &&  ((x_pre) # Ptr  |-> x_pre_v_2)
   **  ((x_pre_v_2) # Int  |-> (v + 1 ))
 |--
-  EX x_pre_v_v x_pre_v,
+  EX (x_pre_v_v: Z)  (x_pre_v: Z) ,
   [| (x_pre_v_v = (v + 1 )) |]
   &&  ((x_pre) # Ptr  |-> x_pre_v)
   **  ((x_pre_v) # Int  |-> x_pre_v_v)

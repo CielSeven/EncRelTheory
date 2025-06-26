@@ -58,7 +58,7 @@ forall (p_pre: Z) (l: (@list Z)) ,
   [| ((Zlength (l)) <= INT_MAX) |]
   &&  (sll p_pre l )
 |--
-  EX l1 l2,
+  EX (l1: (@list Z))  (l2: (@list Z)) ,
   [| (l = (app (l1) (l2))) |] 
   &&  [| (0 = (Zlength (l1))) |] 
   &&  [| ((Zlength (l)) <= INT_MAX) |]
@@ -78,7 +78,7 @@ forall (p_pre: Z) (l: (@list Z)) (p: Z) (n: Z) (l1_2: (@list Z)) (l2_2: (@list Z
   **  (sll p_next l3 )
   **  (sllseg p_pre p l1_2 )
 |--
-  EX l1 l2,
+  EX (l1: (@list Z))  (l2: (@list Z)) ,
   [| (l = (app (l1) (l2))) |] 
   &&  [| ((n + 1 ) = (Zlength (l1))) |] 
   &&  [| ((Zlength (l)) <= INT_MAX) |]
@@ -138,7 +138,7 @@ forall (l2: (@list Z)) (p: Z) ,
   [| (p <> 0) |]
   &&  (sll p l2 )
 |--
-  EX p_next p_data l3,
+  EX (p_next: Z)  (p_data: Z)  (l3: (@list Z)) ,
   [| (l2 = (cons (p_data) (l3))) |]
   &&  ((&((p)  # "list" ->ₛ "data")) # Int  |-> p_data)
   **  ((&((p)  # "list" ->ₛ "next")) # Ptr  |-> p_next)
@@ -161,7 +161,7 @@ Definition reverse_entail_wit_1 :=
 forall (p_pre: Z) (l: (@list Z)) ,
   (sll p_pre l )
 |--
-  EX l1 l2,
+  EX (l1: (@list Z))  (l2: (@list Z)) ,
   [| (l = (app ((rev (l1))) (l2))) |]
   &&  (sll 0 l1 )
   **  (sll p_pre l2 )
@@ -177,7 +177,7 @@ forall (l: (@list Z)) (v: Z) (w: Z) (l1_2: (@list Z)) (l2_2: (@list Z)) (v_next:
   **  (sll v_next l2_new )
   **  (sll w l1_2 )
 |--
-  EX l1 l2,
+  EX (l1: (@list Z))  (l2: (@list Z)) ,
   [| (l = (app ((rev (l1))) (l2))) |]
   &&  (sll v l1 )
   **  (sll v_next l2 )
@@ -227,7 +227,7 @@ forall (l2: (@list Z)) (v: Z) ,
   [| (v <> 0) |]
   &&  (sll v l2 )
 |--
-  EX v_next v_data l2_new,
+  EX (v_next: Z)  (v_data: Z)  (l2_new: (@list Z)) ,
   [| (l2 = (cons (v_data) (l2_new))) |]
   &&  ((&((v)  # "list" ->ₛ "data")) # Int  |-> v_data)
   **  ((&((v)  # "list" ->ₛ "next")) # Ptr  |-> v_next)
@@ -250,7 +250,7 @@ Definition reverse_alter_style1_entail_wit_1 :=
 forall (p_pre: Z) (l: (@list Z)) ,
   (sll p_pre l )
 |--
-  EX l1 l2,
+  EX (l1: (@list Z))  (l2: (@list Z)) ,
   [| (l = (app ((rev (l1))) (l2))) |]
   &&  (sll 0 l1 )
   **  (sll p_pre l2 )
@@ -266,7 +266,7 @@ forall (l: (@list Z)) (v: Z) (w: Z) (l1_2: (@list Z)) (l2_2: (@list Z)) (vn: Z) 
   **  (sll vn xs )
   **  (sll w l1_2 )
 |--
-  EX l1 l2,
+  EX (l1: (@list Z))  (l2: (@list Z)) ,
   [| (l = (app ((rev (l1))) (l2))) |]
   &&  (sll v l1 )
   **  (sll vn l2 )
@@ -316,7 +316,7 @@ forall (l2: (@list Z)) (v: Z) ,
   [| (v <> 0) |]
   &&  (sll v l2 )
 |--
-  EX vn x xs,
+  EX (vn: Z)  (x: Z)  (xs: (@list Z)) ,
   [| (l2 = (cons (x) (xs))) |]
   &&  ((&((v)  # "list" ->ₛ "data")) # Int  |-> x)
   **  ((&((v)  # "list" ->ₛ "next")) # Ptr  |-> vn)
@@ -339,7 +339,7 @@ Definition reverse_alter_style2_entail_wit_1 :=
 forall (p_pre: Z) (l: (@list Z)) ,
   (sll p_pre l )
 |--
-  EX l1 l2,
+  EX (l1: (@list Z))  (l2: (@list Z)) ,
   [| (l = (app ((rev (l1))) (l2))) |]
   &&  (sll 0 l1 )
   **  (sll p_pre l2 )
@@ -355,7 +355,7 @@ forall (l: (@list Z)) (v_inv: Z) (w_inv: Z) (l1_2: (@list Z)) (l2_2: (@list Z)) 
   **  (sll v_inv_next xs )
   **  (sll w_inv l1_2 )
 |--
-  EX l1 l2,
+  EX (l1: (@list Z))  (l2: (@list Z)) ,
   [| (l = (app ((rev (l1))) (l2))) |]
   &&  (sll v_inv l1 )
   **  (sll v_inv_next l2 )
@@ -405,7 +405,7 @@ forall (l2: (@list Z)) (v_inv: Z) ,
   [| (v_inv <> 0) |]
   &&  (sll v_inv l2 )
 |--
-  EX v_inv_next x xs,
+  EX (v_inv_next: Z)  (x: Z)  (xs: (@list Z)) ,
   [| (l2 = (cons (x) (xs))) |]
   &&  ((&((v_inv)  # "list" ->ₛ "data")) # Int  |-> x)
   **  ((&((v_inv)  # "list" ->ₛ "next")) # Ptr  |-> v_inv_next)
@@ -451,7 +451,7 @@ forall (p_pre: Z) (l: (@list Z)) (w: Z) (v: Z) ,
   &&  (sll w nil )
   **  (sll v l )
 |--
-  EX l1 l2,
+  EX (l1: (@list Z))  (l2: (@list Z)) ,
   [| (l = (app ((rev (l1))) (l2))) |]
   &&  (sll w l1 )
   **  (sll v l2 )
@@ -467,7 +467,7 @@ forall (l: (@list Z)) (l1_2: (@list Z)) (l2_2: (@list Z)) (w: Z) (v: Z) (v_next:
   **  (sll v_next l2_new )
   **  (sll w l1_2 )
 |--
-  EX l1 l2,
+  EX (l1: (@list Z))  (l2: (@list Z)) ,
   [| (l = (app ((rev (l1))) (l2))) |]
   &&  (sll v l1 )
   **  (sll v_next l2 )
@@ -517,7 +517,7 @@ forall (l2: (@list Z)) (v: Z) ,
   [| (v <> 0) |]
   &&  (sll v l2 )
 |--
-  EX v_next v_data l2_new,
+  EX (v_next: Z)  (v_data: Z)  (l2_new: (@list Z)) ,
   [| (l2 = (cons (v_data) (l2_new))) |]
   &&  ((&((v)  # "list" ->ₛ "data")) # Int  |-> v_data)
   **  ((&((v)  # "list" ->ₛ "next")) # Ptr  |-> v_next)
@@ -569,7 +569,7 @@ forall (y_pre: Z) (x_pre: Z) (l2: (@list Z)) (l1: (@list Z)) (x_next: Z) (x_data
   **  (sll x_next l1n )
   **  (sll y_pre l2 )
 |--
-  EX t_next l1a t_data l1b,
+  EX (t_next: Z)  (l1a: (@list Z))  (t_data: Z)  (l1b: (@list Z)) ,
   [| ((app (l1a) ((cons (t_data) (l1b)))) = l1) |] 
   &&  [| (x_pre <> 0) |] 
   &&  [| (t_next = x_next) |] 
@@ -599,7 +599,7 @@ forall (x_pre: Z) (l2: (@list Z)) (l1: (@list Z)) (x_data: Z) (l1n: (@list Z)) (
   **  (sllseg x t l1a_2 )
   **  (sll y l2 )
 |--
-  EX t_next l1a t_data l1b,
+  EX (t_next: Z)  (l1a: (@list Z))  (t_data: Z)  (l1b: (@list Z)) ,
   [| ((app (l1a) ((cons (t_data) (l1b)))) = l1) |] 
   &&  [| (u <> 0) |] 
   &&  [| (t_next = u_next) |] 
@@ -721,7 +721,7 @@ forall (l1: (@list Z)) (x: Z) ,
   [| (x <> 0) |]
   &&  (sll x l1 )
 |--
-  EX x_next x_data l1n,
+  EX (x_next: Z)  (x_data: Z)  (l1n: (@list Z)) ,
   [| (l1 = (cons (x_data) (l1n))) |]
   &&  ((&((x)  # "list" ->ₛ "data")) # Int  |-> x_data)
   **  ((&((x)  # "list" ->ₛ "next")) # Ptr  |-> x_next)
@@ -733,7 +733,7 @@ forall (l1b: (@list Z)) (u: Z) ,
   [| (u <> 0) |]
   &&  (sll u l1b )
 |--
-  EX u_next u_data l1b_new,
+  EX (u_next: Z)  (u_data: Z)  (l1b_new: (@list Z)) ,
   [| (l1b = (cons (u_data) (l1b_new))) |]
   &&  ((&((u)  # "list" ->ₛ "data")) # Int  |-> u_data)
   **  ((&((u)  # "list" ->ₛ "next")) # Ptr  |-> u_next)
@@ -804,7 +804,7 @@ forall (y_pre: Z) (x_pre: Z) (l2: (@list Z)) (l1: (@list Z)) (xn: Z) (a: Z) (l1b
   **  (sll xn l1b )
   **  (sll y_pre l2 )
 |--
-  EX t_next l1a b l1c,
+  EX (t_next: Z)  (l1a: (@list Z))  (b: Z)  (l1c: (@list Z)) ,
   [| ((app (l1a) ((cons (b) (l1c)))) = l1) |] 
   &&  [| (t_next = xn) |] 
   &&  [| (x_pre <> 0) |] 
@@ -836,7 +836,7 @@ forall (x_pre: Z) (l2: (@list Z)) (l1: (@list Z)) (xn: Z) (a: Z) (l1b: (@list Z)
   **  (sllseg x t l1a_2 )
   **  (sll y l2 )
 |--
-  EX t_next l1a b l1c,
+  EX (t_next: Z)  (l1a: (@list Z))  (b: Z)  (l1c: (@list Z)) ,
   [| ((app (l1a) ((cons (b) (l1c)))) = l1) |] 
   &&  [| (t_next = un) |] 
   &&  [| (u <> 0) |] 
@@ -976,7 +976,7 @@ forall (l1: (@list Z)) (x: Z) ,
   [| (x <> 0) |]
   &&  (sll x l1 )
 |--
-  EX xn a l1b,
+  EX (xn: Z)  (a: Z)  (l1b: (@list Z)) ,
   [| (l1 = (cons (a) (l1b))) |]
   &&  ((&((x)  # "list" ->ₛ "data")) # Int  |-> a)
   **  ((&((x)  # "list" ->ₛ "next")) # Ptr  |-> xn)
@@ -988,7 +988,7 @@ forall (l1cd: (@list Z)) (u: Z) ,
   [| (u <> 0) |]
   &&  (sll u l1cd )
 |--
-  EX un c l1d,
+  EX (un: Z)  (c: Z)  (l1d: (@list Z)) ,
   [| (l1cd = (cons (c) (l1d))) |]
   &&  ((&((u)  # "list" ->ₛ "data")) # Int  |-> c)
   **  ((&((u)  # "list" ->ₛ "next")) # Ptr  |-> un)
@@ -1002,7 +1002,7 @@ forall (y_pre: Z) (x_pre: Z) (l2: (@list Z)) (l1: (@list Z)) ,
   (sll x_pre l1 )
   **  (sll y_pre l2 )
 |--
-  EX l1a l1b,
+  EX (l1a: (@list Z))  (l1b: (@list Z)) ,
   [| ((app (l1a) (l1b)) = l1) |]
   &&  (sllbseg ( &( "x" ) ) ( &( "x" ) ) l1a )
   **  (sll x_pre l1b )
@@ -1018,7 +1018,7 @@ forall (l2: (@list Z)) (l1: (@list Z)) (y: Z) (pt_v_2: Z) (pt: Z) (l1a_2: (@list
   **  (sll pt_v_2 l1b_2 )
   **  (sll y l2 )
 |--
-  EX pt_v l1a l1b,
+  EX (pt_v: Z)  (l1a: (@list Z))  (l1b: (@list Z)) ,
   [| ((app (l1a) (l1b)) = l1) |]
   &&  (sllbseg ( &( "x" ) ) &((pt_v_2)  # "list" ->ₛ "next") l1a )
   **  ((&((pt_v_2)  # "list" ->ₛ "next")) # Ptr  |-> pt_v)
@@ -1078,7 +1078,7 @@ forall (l1a: (@list Z)) (pt: Z) (pt_v: Z) (y: Z) (pres: Z) ,
   &&  ((pt) # Ptr  |-> pt_v)
   **  (sllbseg pres pt l1a )
 |--
-  EX pres_v,
+  EX (pres_v: Z) ,
   ((pres) # Ptr  |-> pres_v)
   **  (sllseg pres_v y l1a )
 .

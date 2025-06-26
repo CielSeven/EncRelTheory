@@ -37,7 +37,7 @@ forall (x_pre: Z) (p_pre: Z) (l: (@list Z)) (p_pre_v_2: Z) (retval_data: Z) (ret
   **  ((p_pre) # Ptr  |-> retval)
   **  (sll p_pre_v_2 l )
 |--
-  EX p_pre_v,
+  EX (p_pre_v: Z) ,
   ((p_pre) # Ptr  |-> p_pre_v)
   **  (sll p_pre_v (cons (x_pre) (l)) )
 .
@@ -54,11 +54,11 @@ forall (p_pre: Z) (l: (@list Z)) (p_pre_v: Z) ,
 (*----- Function pop -----*)
 
 Definition pop_return_wit_1 := 
-forall (p_pre: Z) (l: (@list Z)) (x: Z) (y_105: Z) ,
-  (sll y_105 l )
-  **  ((p_pre) # Ptr  |-> y_105)
+forall (p_pre: Z) (l: (@list Z)) (x: Z) (y: Z) ,
+  (sll y l )
+  **  ((p_pre) # Ptr  |-> y)
 |--
-  EX p_pre_v,
+  EX (p_pre_v: Z) ,
   [| (x = x) |]
   &&  ((p_pre) # Ptr  |-> p_pre_v)
   **  (sll p_pre_v l )
@@ -69,24 +69,24 @@ forall (p_pre: Z) (l: (@list Z)) (x: Z) (p_pre_v: Z) ,
   ((p_pre) # Ptr  |-> p_pre_v)
   **  (sll p_pre_v (cons (x) (l)) )
 |--
-  EX y_105,
+  EX (y: Z) ,
   ((&((p_pre_v)  # "list" ->ₛ "data")) # Int  |-> x)
-  **  (sll y_105 l )
-  **  ((&((p_pre_v)  # "list" ->ₛ "next")) # Ptr  |-> y_105)
+  **  (sll y l )
+  **  ((&((p_pre_v)  # "list" ->ₛ "next")) # Ptr  |-> y)
   **  ((p_pre) # Ptr  |-> p_pre_v)
 .
 
 Definition pop_partial_solve_wit_2 := 
-forall (p_pre: Z) (l: (@list Z)) (x: Z) (p_pre_v: Z) (y_105: Z) ,
+forall (p_pre: Z) (l: (@list Z)) (x: Z) (p_pre_v: Z) (y: Z) ,
   ((&((p_pre_v)  # "list" ->ₛ "data")) # Int  |-> x)
-  **  (sll y_105 l )
-  **  ((&((p_pre_v)  # "list" ->ₛ "next")) # Ptr  |-> y_105)
-  **  ((p_pre) # Ptr  |-> y_105)
+  **  (sll y l )
+  **  ((&((p_pre_v)  # "list" ->ₛ "next")) # Ptr  |-> y)
+  **  ((p_pre) # Ptr  |-> y)
 |--
-  ((&((p_pre_v)  # "list" ->ₛ "next")) # Ptr  |-> y_105)
+  ((&((p_pre_v)  # "list" ->ₛ "next")) # Ptr  |-> y)
   **  ((&((p_pre_v)  # "list" ->ₛ "data")) # Int  |-> x)
-  **  (sll y_105 l )
-  **  ((p_pre) # Ptr  |-> y_105)
+  **  (sll y l )
+  **  ((p_pre) # Ptr  |-> y)
 .
 
 (*----- Function enqueue -----*)
@@ -128,7 +128,7 @@ Definition enqueue_which_implies_wit_1 :=
 forall (l: (@list Z)) (q: Z) ,
   (store_queue q l )
 |--
-  EX q_l2 q_l1 l1 l2,
+  EX (q_l2: Z)  (q_l1: Z)  (l1: (@list Z))  (l2: (@list Z)) ,
   [| (l = (app (l1) ((rev (l2))))) |]
   &&  ((&((q)  # "queue" ->ₛ "l1")) # Ptr  |-> q_l1)
   **  (sll q_l1 l1 )
@@ -326,7 +326,7 @@ Definition dequeue_which_implies_wit_1 :=
 forall (l: (@list Z)) (x: Z) (q: Z) ,
   (store_queue q (cons (x) (l)) )
 |--
-  EX q_l2 q_l1 l1 l2,
+  EX (q_l2: Z)  (q_l1: Z)  (l1: (@list Z))  (l2: (@list Z)) ,
   [| ((cons (x) (l)) = (app (l1) ((rev (l2))))) |]
   &&  ((&((q)  # "queue" ->ₛ "l1")) # Ptr  |-> q_l1)
   **  (sll q_l1 l1 )
@@ -350,7 +350,7 @@ forall (l1: (@list Z)) (q: Z) (q_l1: Z) ,
   &&  ((&((q)  # "queue" ->ₛ "l1")) # Ptr  |-> q_l1)
   **  (sll q_l1 l1 )
 |--
-  EX z l1_tail,
+  EX (z: Z)  (l1_tail: (@list Z)) ,
   [| (l1 = (cons (z) (l1_tail))) |]
   &&  ((&((q)  # "queue" ->ₛ "l1")) # Ptr  |-> q_l1)
   **  (sll q_l1 (cons (z) (l1_tail)) )

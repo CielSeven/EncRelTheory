@@ -40,7 +40,7 @@ Definition bst_strategy1 :=
   ) ** (
   ALL (pt : partial_tree) (q : Z) (p : Z),
     TT &&
-    ([| (pt = (empty_partial_tree)) |]) &&
+    ([| (pt = ( empty_partial_tree)) |]) &&
     emp **
     ((poly_store FET_ptr p q)) -*
     TT &&
@@ -78,7 +78,7 @@ Definition bst_strategy4 :=
   ) ** (
   ALL (pt : partial_tree) (q : Z) (p : Z),
     TT &&
-    ([| (pt = (empty_partial_tree)) |]) &&
+    ([| (pt = ( empty_partial_tree)) |]) &&
     emp **
     ((poly_store FET_ptr p q)) -*
     TT &&

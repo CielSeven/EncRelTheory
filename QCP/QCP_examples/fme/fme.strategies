@@ -2,8 +2,8 @@
 //max rule id:30
 
 #include "fme_def.h"
-#include "verification_list.h"
-#include "verification_stdlib.h"
+#include "../verification_list.h"
+#include "../verification_stdlib.h"
 
 id : 5
 priority : core(0)

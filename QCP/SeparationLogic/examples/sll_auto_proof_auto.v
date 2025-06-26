@@ -100,6 +100,12 @@ Proof. Admitted.
 Lemma proof_of_append_partial_solve_wit_2 : append_partial_solve_wit_2.
 Proof. Admitted. 
 
+Lemma proof_of_merge_safety_wit_1 : merge_safety_wit_1.
+Proof. Admitted. 
+
+Lemma proof_of_merge_safety_wit_2 : merge_safety_wit_2.
+Proof. Admitted. 
+
 Lemma proof_of_merge_entail_wit_1 : merge_entail_wit_1.
 Proof. Admitted. 
 
@@ -119,6 +125,9 @@ Lemma proof_of_merge_partial_solve_wit_1 : merge_partial_solve_wit_1.
 Proof. Admitted. 
 
 Lemma proof_of_merge_partial_solve_wit_2 : merge_partial_solve_wit_2.
+Proof. Admitted. 
+
+Lemma proof_of_multi_append_safety_wit_1 : multi_append_safety_wit_1.
 Proof. Admitted. 
 
 Lemma proof_of_multi_append_entail_wit_1 : multi_append_entail_wit_1.

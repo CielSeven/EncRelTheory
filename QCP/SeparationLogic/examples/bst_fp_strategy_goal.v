@@ -39,7 +39,7 @@ Definition bst_fp_strategy1 :=
   ) ** (
   ALL (pt : partial_tree) (q : Z) (r : Z) (p : Z),
     TT &&
-    ([| (pt = (empty_partial_tree)) |]) &&
+    ([| (pt = ( empty_partial_tree)) |]) &&
     emp **
     ((poly_store FET_ptr p r)) -*
     TT &&
@@ -64,7 +64,7 @@ Definition bst_fp_strategy2 :=
       ([| (p <> 0) |]) &&
       ([| (Z.le (Z.opp 2147483648) k) |]) &&
       ([| (Z.le k 2147483647) |]) &&
-      ([| (tr0 = (@make_tree tr1 k v tr2)) |]) &&
+      ([| (tr0 = ( make_tree tr1 k v tr2)) |]) &&
       emp **
       ((poly_store FET_int &( ((p)) # "tree" ->ₛ "key") k)) **
       ((poly_store FET_int &( ((p)) # "tree" ->ₛ "value") v)) **

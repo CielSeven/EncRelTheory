@@ -129,11 +129,10 @@ Definition fme_strategy13 :=
       ).
 
 Definition fme_strategy15 :=
-  forall (p : Z) (n : Z) (i : Z) (l : Constraint),
+  forall (i : Z) (n : Z) (p : Z) (l : Constraint),
     TT &&
     ([| (Z.le 0 i) |]) &&
     ([| (Z.lt i n) |]) &&
-    ([| (p <> 0) |]) &&
     emp **
     ((coef_array p n l))
     |--
@@ -144,7 +143,7 @@ Definition fme_strategy15 :=
     ) ** (
     ALL (v : Z),
       TT &&
-      ([| (v = (@coef_Znth i l 0)) |]) &&
+      ([| (v = ( coef_Znth i l 0)) |]) &&
       emp -*
       TT &&
       emp **
@@ -152,14 +151,13 @@ Definition fme_strategy15 :=
       ).
 
 Definition fme_strategy16 :=
-  forall (p : Z) (n : Z) (i : Z) (l : Constraint),
+  forall (i : Z) (n : Z) (l : Constraint) (p : Z),
     TT &&
     ([| (Z.le 0 i) |]) &&
     ([| (Z.lt i n) |]) &&
-    ([| (p <> 0) |]) &&
     emp **
     ((coef_array_missing_i_rec p i 0 n l)) **
-    ((poly_store FET_int (Z.add p (Z.mul i (@sizeof_front_end_type FET_int))) (@coef_Znth i l 0)))
+    ((poly_store FET_int (Z.add p (Z.mul i (@sizeof_front_end_type FET_int))) ( coef_Znth i l 0)))
     |--
     (
     TT &&
@@ -223,7 +221,6 @@ Definition fme_strategy11 :=
     EX (y : Z) (h : Z),
       (
       TT &&
-      ([| (h <> 0) |]) &&
       emp **
       ((poly_store FET_ptr &( ((p)) # "InequList" ->ₛ "coef") h)) **
       ((coef_array h n x)) **
@@ -249,7 +246,6 @@ Definition fme_strategy12 :=
     ) ** (
     ALL (h : Z) (x : Constraint) (y : Z) (l : (@list Constraint)) (n : Z),
       TT &&
-      ([| (h <> 0) |]) &&
       emp **
       ((poly_store FET_ptr &( ((p)) # "InequList" ->ₛ "coef") h)) **
       ((coef_array h n x)) **
@@ -261,11 +257,10 @@ Definition fme_strategy12 :=
       ).
 
 Definition fme_strategy17 :=
-  forall (p : Z) (n : Z) (i : Z) (l : Constraint) (v : Z),
+  forall (i : Z) (n : Z) (l : Constraint) (v : Z) (p : Z),
     TT &&
     ([| (Z.le 1 i) |]) &&
     ([| (Z.lt i n) |]) &&
-    ([| (p <> 0) |]) &&
     emp **
     ((coef_array_missing_i_rec p i 0 n l)) **
     ((poly_store FET_int (Z.add p (Z.mul i (@sizeof_front_end_type FET_int))) v))
@@ -273,7 +268,7 @@ Definition fme_strategy17 :=
     (
     TT &&
     emp **
-    ((coef_array p n (@coef_replace_Znth i v l)))
+    ((coef_array p n ( coef_replace_Znth i v l)))
     ) ** (
     TT &&
     emp -*

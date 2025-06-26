@@ -76,7 +76,7 @@ Definition common_strategy19 :=
     TT &&
     emp -*
     TT &&
-    ([| (Z.ge x (INT_MIN)) |]) &&
+    ([| (Z.ge x ( INT_MIN)) |]) &&
     emp
     ).
 
@@ -94,7 +94,7 @@ Definition common_strategy20 :=
     TT &&
     emp -*
     TT &&
-    ([| (Z.le x (INT_MAX)) |]) &&
+    ([| (Z.le x ( INT_MAX)) |]) &&
     emp
     ).
 
@@ -130,7 +130,7 @@ Definition common_strategy22 :=
     TT &&
     emp -*
     TT &&
-    ([| (Z.le x (UINT_MAX)) |]) &&
+    ([| (Z.le x ( UINT_MAX)) |]) &&
     emp
     ).
 

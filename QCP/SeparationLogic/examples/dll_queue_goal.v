@@ -198,7 +198,7 @@ Definition enqueue_which_implies_wit_1 :=
 forall (l: (@list Z)) (q: Z) ,
   (store_queue q l )
 |--
-  EX q_head q_tail,
+  EX (q_head: Z)  (q_tail: Z) ,
   ((&((q)  # "queue" ->ₛ "tail")) # Ptr  |-> q_tail)
   **  ((&((q)  # "queue" ->ₛ "head")) # Ptr  |-> q_head)
   **  (dllseg q_head 0 0 q_tail l )
@@ -211,7 +211,7 @@ forall (l: (@list Z)) (q: Z) (q_head: Z) (q_tail: Z) ,
   **  ((&((q)  # "queue" ->ₛ "tail")) # Ptr  |-> q_tail)
   **  (dllseg q_head 0 0 q_tail l )
 |--
-  EX q_tail_prev q_tail_next l0 q_tail_data,
+  EX (q_tail_prev: Z)  (q_tail_next: Z)  (l0: (@list Z))  (q_tail_data: Z) ,
   [| (q_tail <> 0) |] 
   &&  [| (l = (app (l0) ((cons (q_tail_data) (nil))))) |] 
   &&  [| (q_tail_next = 0) |]
@@ -363,7 +363,7 @@ Definition dequeue_which_implies_wit_1 :=
 forall (l: (@list Z)) (x: Z) (q: Z) ,
   (store_queue q (cons (x) (l)) )
 |--
-  EX q_head_next q_tail q_head_prev q_head,
+  EX (q_head_next: Z)  (q_tail: Z)  (q_head_prev: Z)  (q_head: Z) ,
   [| (q_head_prev = 0) |]
   &&  ((&((q)  # "queue" ->ₛ "head")) # Ptr  |-> q_head)
   **  ((&((q_head)  # "list" ->ₛ "prev")) # Ptr  |-> q_head_prev)
@@ -380,7 +380,7 @@ forall (l: (@list Z)) (q: Z) (q_head: Z) (q_tail: Z) (p: Z) ,
   **  ((&((q)  # "queue" ->ₛ "tail")) # Ptr  |-> q_tail)
   **  (dllseg q_head 0 p q_tail l )
 |--
-  EX q_head_next q_head_data l0,
+  EX (q_head_next: Z)  (q_head_data: Z)  (l0: (@list Z)) ,
   [| (l = (cons (q_head_data) (l0))) |]
   &&  ((&((q)  # "queue" ->ₛ "head")) # Ptr  |-> q_head)
   **  ((&((q_head)  # "list" ->ₛ "data")) # Int  |-> q_head_data)

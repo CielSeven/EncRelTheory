@@ -76,14 +76,14 @@ forall (y_pre: Z) (x_pre: Z) (s2: (@list Z)) (s1: (@list Z)) ,
   (sll x_pre s1 )
   **  (sll y_pre s2 )
 |--
-  EX l1 l2 l3,
+  EX (l1: (@list Z))  (l2: (@list Z))  (l3: (@list Z)) ,
   [| (merge_steps s1 s2 nil l1 l2 l3 ) |]
   &&  (sll x_pre l1 )
   **  (sll y_pre l2 )
   **  (sllbseg ( &( "ret" ) ) ( &( "ret" ) ) l3 )
 .
 
-Definition merge_entail_wit_2 := 
+Definition merge_entail_wit_2_1 := 
 forall (s2: (@list Z)) (s1: (@list Z)) (t: Z) (y: Z) (x: Z) (l1_2: (@list Z)) (l2_2: (@list Z)) (l3_2: (@list Z)) (x_next: Z) (x_data: Z) (l1_new: (@list Z)) (y_next: Z) (y_data: Z) (l2_new: (@list Z)) ,
   [| (x_data < y_data) |] 
   &&  [| (l2_2 = (cons (y_data) (l2_new))) |] 
@@ -100,7 +100,7 @@ forall (s2: (@list Z)) (s1: (@list Z)) (t: Z) (y: Z) (x: Z) (l1_2: (@list Z)) (l
   **  ((t) # Ptr  |-> x)
   **  (sllbseg ( &( "ret" ) ) t l3_2 )
 |--
-  EX l1 l2 l3,
+  EX (l1: (@list Z))  (l2: (@list Z))  (l3: (@list Z)) ,
   [| (merge_steps s1 s2 nil l1 l2 l3 ) |]
   &&  (sll x_next l1 )
   **  (sll y l2 )
@@ -108,7 +108,7 @@ forall (s2: (@list Z)) (s1: (@list Z)) (t: Z) (y: Z) (x: Z) (l1_2: (@list Z)) (l
   **  (sllbseg ( &( "ret" ) ) &((x)  # "list" ->ₛ "next") l3 )
 .
 
-Definition merge_entail_wit_3 := 
+Definition merge_entail_wit_2_2 := 
 forall (s2: (@list Z)) (s1: (@list Z)) (t: Z) (y: Z) (x: Z) (l1_2: (@list Z)) (l2_2: (@list Z)) (l3_2: (@list Z)) (x_next: Z) (x_data: Z) (l1_new: (@list Z)) (y_next: Z) (y_data: Z) (l2_new: (@list Z)) ,
   [| (x_data >= y_data) |] 
   &&  [| (l2_2 = (cons (y_data) (l2_new))) |] 
@@ -125,7 +125,7 @@ forall (s2: (@list Z)) (s1: (@list Z)) (t: Z) (y: Z) (x: Z) (l1_2: (@list Z)) (l
   **  ((t) # Ptr  |-> y)
   **  (sllbseg ( &( "ret" ) ) t l3_2 )
 |--
-  EX l1 l2 l3,
+  EX (l1: (@list Z))  (l2: (@list Z))  (l3: (@list Z)) ,
   [| (merge_steps s1 s2 nil l1 l2 l3 ) |]
   &&  (sll x l1 )
   **  (sll y_next l2 )
@@ -142,7 +142,7 @@ forall (s2: (@list Z)) (s1: (@list Z)) (y: Z) (x: Z) (l1: (@list Z)) (l2: (@list
   **  (sll x l1 )
   **  (sll y l2 )
 |--
-  EX s3,
+  EX (s3: (@list Z)) ,
   [| (merge_rel s1 s2 s3 ) |]
   &&  (sll ret s3 )
 .
@@ -155,7 +155,7 @@ forall (s2: (@list Z)) (s1: (@list Z)) (y: Z) (x: Z) (l1: (@list Z)) (l2: (@list
   **  (sll x l1 )
   **  (sll y l2 )
 |--
-  EX s3,
+  EX (s3: (@list Z)) ,
   [| (merge_rel s1 s2 s3 ) |]
   &&  (sll ret s3 )
 .
@@ -286,7 +286,7 @@ forall (l1: (@list Z)) (x: Z) ,
   [| (x <> 0) |]
   &&  (sll x l1 )
 |--
-  EX x_next x_data l1_new,
+  EX (x_next: Z)  (x_data: Z)  (l1_new: (@list Z)) ,
   [| (l1 = (cons (x_data) (l1_new))) |]
   &&  ((&((x)  # "list" ->ₛ "data")) # Int  |-> x_data)
   **  ((&((x)  # "list" ->ₛ "next")) # Ptr  |-> x_next)
@@ -298,7 +298,7 @@ forall (l2: (@list Z)) (y: Z) ,
   [| (y <> 0) |]
   &&  (sll y l2 )
 |--
-  EX y_next y_data l2_new,
+  EX (y_next: Z)  (y_data: Z)  (l2_new: (@list Z)) ,
   [| (l2 = (cons (y_data) (l2_new))) |]
   &&  ((&((y)  # "list" ->ₛ "data")) # Int  |-> y_data)
   **  ((&((y)  # "list" ->ₛ "next")) # Ptr  |-> y_next)
@@ -310,7 +310,7 @@ forall (l3: (@list Z)) (u: Z) (t: Z) ,
   ((t) # Ptr  |-> u)
   **  (sllbseg ( &( "ret" ) ) t l3 )
 |--
-  EX ret,
+  EX (ret: Z) ,
   ((( &( "ret" ) )) # Ptr  |-> ret)
   **  (sllseg ret u l3 )
 .
@@ -341,7 +341,7 @@ forall (q_pre: Z) (p_pre: Z) (x_pre: Z) (l2: (@list Z)) (l1: (@list Z)) (l: (@li
   **  ((q_pre) # Ptr  |-> q_pre_v_2)
   **  (sll q_pre_v_2 l2 )
 |--
-  EX q_pre_v p_pre_v s1 s2,
+  EX (q_pre_v: Z)  (p_pre_v: Z)  (s1: (@list Z))  (s2: (@list Z)) ,
   [| (split_rec_rel l l1 l2 s1 s2 ) |]
   &&  ((p_pre) # Ptr  |-> p_pre_v)
   **  (sll p_pre_v s1 )
@@ -359,7 +359,7 @@ forall (q_pre: Z) (p_pre: Z) (x_pre: Z) (l2: (@list Z)) (l1: (@list Z)) (l: (@li
   **  ((p_pre) # Ptr  |-> q_pre_v_2)
   **  (sll q_pre_v_2 s2_2 )
 |--
-  EX q_pre_v p_pre_v s1 s2,
+  EX (q_pre_v: Z)  (p_pre_v: Z)  (s1: (@list Z))  (s2: (@list Z)) ,
   [| (split_rec_rel l l1 l2 s1 s2 ) |]
   &&  ((p_pre) # Ptr  |-> p_pre_v)
   **  (sll p_pre_v s1 )
@@ -471,7 +471,7 @@ forall (l: (@list Z)) (x: Z) ,
   [| (x <> 0) |]
   &&  (sll x l )
 |--
-  EX x_next x_data l_new,
+  EX (x_next: Z)  (x_data: Z)  (l_new: (@list Z)) ,
   [| (l = (cons (x_data) (l_new))) |]
   &&  ((&((x)  # "list" ->ₛ "data")) # Int  |-> x_data)
   **  ((&((x)  # "list" ->ₛ "next")) # Ptr  |-> x_next)
@@ -535,7 +535,7 @@ forall (l: (@list Z)) (q_pre_v: Z) (p_pre_v: Z) (s1: (@list Z)) (s2: (@list Z)) 
   &&  (sll p_pre_v s1 )
   **  (sll q_pre_v s2 )
 |--
-  EX l0,
+  EX (l0: (@list Z)) ,
   [| (merge_sort_rel l l0 ) |]
   &&  (sll p_pre_v l0 )
 .
@@ -550,7 +550,7 @@ forall (l: (@list Z)) (q_pre_v: Z) (s1: (@list Z)) (s2: (@list Z)) (l0_2: (@list
   &&  [| (split_rec_rel l nil nil s1 s2 ) |]
   &&  (sll retval s3 )
 |--
-  EX l0,
+  EX (l0: (@list Z)) ,
   [| (merge_sort_rel l l0 ) |]
   &&  (sll retval l0 )
 .
@@ -786,7 +786,7 @@ forall (y_pre: Z) (x_pre: Z) (s2: (@list Z)) (s1: (@list Z)) (p: Z) (retval: Z) 
   **  (sll x_pre s1 )
   **  (sll y_pre s2 )
 |--
-  EX u l1 l2 l3,
+  EX (u: Z)  (l1: (@list Z))  (l2: (@list Z))  (l3: (@list Z)) ,
   [| (merge_steps s1 s2 nil l1 l2 l3 ) |]
   &&  (sll x_pre l1 )
   **  (sll y_pre l2 )
@@ -794,7 +794,7 @@ forall (y_pre: Z) (x_pre: Z) (s2: (@list Z)) (s1: (@list Z)) (p: Z) (retval: Z) 
   **  (sllbseg retval retval l3 )
 .
 
-Definition merge_malloc_entail_wit_2 := 
+Definition merge_malloc_entail_wit_2_1 := 
 forall (s2: (@list Z)) (s1: (@list Z)) (pret: Z) (t: Z) (y: Z) (x: Z) (l1_2: (@list Z)) (l2_2: (@list Z)) (l3_2: (@list Z)) (y_next: Z) (x_next: Z) (y_data: Z) (l2_new: (@list Z)) (x_data: Z) (l1_new: (@list Z)) ,
   [| (x_data < y_data) |] 
   &&  [| (l1_2 = (cons (x_data) (l1_new))) |] 
@@ -811,7 +811,7 @@ forall (s2: (@list Z)) (s1: (@list Z)) (pret: Z) (t: Z) (y: Z) (x: Z) (l1_2: (@l
   **  ((t) # Ptr  |-> x)
   **  (sllbseg pret t l3_2 )
 |--
-  EX u l1 l2 l3,
+  EX (u: Z)  (l1: (@list Z))  (l2: (@list Z))  (l3: (@list Z)) ,
   [| (merge_steps s1 s2 nil l1 l2 l3 ) |]
   &&  (sll x_next l1 )
   **  (sll y l2 )
@@ -819,7 +819,7 @@ forall (s2: (@list Z)) (s1: (@list Z)) (pret: Z) (t: Z) (y: Z) (x: Z) (l1_2: (@l
   **  (sllbseg pret &((x)  # "list" ->ₛ "next") l3 )
 .
 
-Definition merge_malloc_entail_wit_3 := 
+Definition merge_malloc_entail_wit_2_2 := 
 forall (s2: (@list Z)) (s1: (@list Z)) (pret: Z) (t: Z) (y: Z) (x: Z) (l1_2: (@list Z)) (l2_2: (@list Z)) (l3_2: (@list Z)) (y_next: Z) (x_next: Z) (y_data: Z) (l2_new: (@list Z)) (x_data: Z) (l1_new: (@list Z)) ,
   [| (x_data >= y_data) |] 
   &&  [| (l1_2 = (cons (x_data) (l1_new))) |] 
@@ -836,7 +836,7 @@ forall (s2: (@list Z)) (s1: (@list Z)) (pret: Z) (t: Z) (y: Z) (x: Z) (l1_2: (@l
   **  ((t) # Ptr  |-> y)
   **  (sllbseg pret t l3_2 )
 |--
-  EX u l1 l2 l3,
+  EX (u: Z)  (l1: (@list Z))  (l2: (@list Z))  (l3: (@list Z)) ,
   [| (merge_steps s1 s2 nil l1 l2 l3 ) |]
   &&  (sll x l1 )
   **  (sll y_next l2 )
@@ -853,7 +853,7 @@ forall (s2: (@list Z)) (s1: (@list Z)) (y: Z) (x: Z) (l1: (@list Z)) (l2: (@list
   **  (sll x l1 )
   **  (sll y l2 )
 |--
-  EX s3,
+  EX (s3: (@list Z)) ,
   [| (merge_rel s1 s2 s3 ) |]
   &&  (sll r s3 )
 .
@@ -866,7 +866,7 @@ forall (s2: (@list Z)) (s1: (@list Z)) (y: Z) (x: Z) (l1: (@list Z)) (l2: (@list
   **  (sll x l1 )
   **  (sll y l2 )
 |--
-  EX s3,
+  EX (s3: (@list Z)) ,
   [| (merge_rel s1 s2 s3 ) |]
   &&  (sll r s3 )
 .
@@ -1001,7 +1001,7 @@ forall (l2: (@list Z)) (l1: (@list Z)) (x: Z) (y: Z) ,
   &&  (sll x l1 )
   **  (sll y l2 )
 |--
-  EX y_next x_next y_data l2_new x_data l1_new,
+  EX (y_next: Z)  (x_next: Z)  (y_data: Z)  (l2_new: (@list Z))  (x_data: Z)  (l1_new: (@list Z)) ,
   [| (l1 = (cons (x_data) (l1_new))) |] 
   &&  [| (l2 = (cons (y_data) (l2_new))) |]
   &&  ((&((x)  # "list" ->ₛ "data")) # Int  |-> x_data)
@@ -1017,7 +1017,7 @@ forall (l3: (@list Z)) (u: Z) (t: Z) (pret: Z) ,
   ((t) # Ptr  |-> u)
   **  (sllbseg pret t l3 )
 |--
-  EX r,
+  EX (r: Z) ,
   ((pret) # Ptr  |-> r)
   **  (sllseg r u l3 )
 .
@@ -1048,8 +1048,8 @@ Axiom proof_of_merge_safety_wit_1 : merge_safety_wit_1.
 Axiom proof_of_merge_safety_wit_2 : merge_safety_wit_2.
 Axiom proof_of_merge_safety_wit_3 : merge_safety_wit_3.
 Axiom proof_of_merge_entail_wit_1 : merge_entail_wit_1.
-Axiom proof_of_merge_entail_wit_2 : merge_entail_wit_2.
-Axiom proof_of_merge_entail_wit_3 : merge_entail_wit_3.
+Axiom proof_of_merge_entail_wit_2_1 : merge_entail_wit_2_1.
+Axiom proof_of_merge_entail_wit_2_2 : merge_entail_wit_2_2.
 Axiom proof_of_merge_return_wit_1_1 : merge_return_wit_1_1.
 Axiom proof_of_merge_return_wit_1_2 : merge_return_wit_1_2.
 Axiom proof_of_merge_partial_solve_wit_1_pure : merge_partial_solve_wit_1_pure.
@@ -1094,8 +1094,8 @@ Axiom proof_of_merge_malloc_safety_wit_2 : merge_malloc_safety_wit_2.
 Axiom proof_of_merge_malloc_safety_wit_3 : merge_malloc_safety_wit_3.
 Axiom proof_of_merge_malloc_safety_wit_4 : merge_malloc_safety_wit_4.
 Axiom proof_of_merge_malloc_entail_wit_1 : merge_malloc_entail_wit_1.
-Axiom proof_of_merge_malloc_entail_wit_2 : merge_malloc_entail_wit_2.
-Axiom proof_of_merge_malloc_entail_wit_3 : merge_malloc_entail_wit_3.
+Axiom proof_of_merge_malloc_entail_wit_2_1 : merge_malloc_entail_wit_2_1.
+Axiom proof_of_merge_malloc_entail_wit_2_2 : merge_malloc_entail_wit_2_2.
 Axiom proof_of_merge_malloc_return_wit_1_1 : merge_malloc_return_wit_1_1.
 Axiom proof_of_merge_malloc_return_wit_1_2 : merge_malloc_return_wit_1_2.
 Axiom proof_of_merge_malloc_partial_solve_wit_1 : merge_malloc_partial_solve_wit_1.

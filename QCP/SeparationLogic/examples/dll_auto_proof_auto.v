@@ -73,6 +73,9 @@ Proof. Admitted.
 Lemma proof_of_reverse_partial_solve_wit_1 : reverse_partial_solve_wit_1.
 Proof. Admitted. 
 
+Lemma proof_of_append_safety_wit_1 : append_safety_wit_1.
+Proof. Admitted. 
+
 Lemma proof_of_append_entail_wit_1 : append_entail_wit_1.
 Proof. Admitted. 
 
@@ -92,6 +95,9 @@ Lemma proof_of_iter_return_wit_1 : iter_return_wit_1.
 Proof. Admitted. 
 
 Lemma proof_of_iter_partial_solve_wit_1 : iter_partial_solve_wit_1.
+Proof. Admitted. 
+
+Lemma proof_of_iter_back_safety_wit_1 : iter_back_safety_wit_1.
 Proof. Admitted. 
 
 Lemma proof_of_iter_back_return_wit_1 : iter_back_return_wit_1.

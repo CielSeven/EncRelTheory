@@ -400,8 +400,8 @@ auxlibs/Axioms.vo auxlibs/Axioms.glob auxlibs/Axioms.v.beautified auxlibs/Axioms
 auxlibs/Axioms.vio: auxlibs/Axioms.v 
 auxlibs/VMap.vo auxlibs/VMap.glob auxlibs/VMap.v.beautified auxlibs/VMap.required_vo: auxlibs/VMap.v auxlibs/Axioms.vo auxlibs/Idents.vo auxlibs/Feq.vo
 auxlibs/VMap.vio: auxlibs/VMap.v auxlibs/Axioms.vio auxlibs/Idents.vio auxlibs/Feq.vio
-auxlibs/List_lemma.vo auxlibs/List_lemma.glob auxlibs/List_lemma.v.beautified auxlibs/List_lemma.required_vo: auxlibs/List_lemma.v 
-auxlibs/List_lemma.vio: auxlibs/List_lemma.v 
+auxlibs/List_lemma.vo auxlibs/List_lemma.glob auxlibs/List_lemma.v.beautified auxlibs/List_lemma.required_vo: auxlibs/List_lemma.v compcert_lib/Coqlib.vo
+auxlibs/List_lemma.vio: auxlibs/List_lemma.v compcert_lib/Coqlib.vio
 auxlibs/relations.vo auxlibs/relations.glob auxlibs/relations.v.beautified auxlibs/relations.required_vo: auxlibs/relations.v sets/SetsClass.vo
 auxlibs/relations.vio: auxlibs/relations.v sets/SetsClass.vio
 auxlibs/OrdersDecFact.vo auxlibs/OrdersDecFact.glob auxlibs/OrdersDecFact.v.beautified auxlibs/OrdersDecFact.required_vo: auxlibs/OrdersDecFact.v 

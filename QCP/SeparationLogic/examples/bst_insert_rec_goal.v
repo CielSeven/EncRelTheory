@@ -316,7 +316,7 @@ forall (tr0: tree) (b: Z) ,
   [| (b <> 0) |]
   &&  (store_tree b tr0 )
 |--
-  EX b_right b_left l0 b_value r0 b_key,
+  EX (b_right: Z)  (b_left: Z)  (l0: tree)  (b_value: Z)  (r0: tree)  (b_key: Z) ,
   [| (INT_MIN <= b_key) |] 
   &&  [| (b_key <= INT_MAX) |] 
   &&  [| (tr0 = (make_tree (l0) (b_key) (b_value) (r0))) |]
