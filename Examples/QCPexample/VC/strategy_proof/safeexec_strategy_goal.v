@@ -99,7 +99,7 @@ Definition safeexec_strategy9 :=
 Definition safeexec_strategy1 :=
   forall (Sigma : Type) (A : Type) (c : (@ StateRelMonad.M  Sigma A)) (X : (A -> (Sigma -> Prop))) (P : (Sigma -> Prop)),
     TT &&
-    ([| (safeExec P c X) |]) &&
+    ([| (Exec P c X) |]) &&
     emp
     |--
     (
@@ -108,11 +108,11 @@ Definition safeexec_strategy1 :=
     ) ** (
     ALL (B : Type) (c2 : (@ StateRelMonad.M  Sigma B)) (X2 : (B -> (Sigma -> Prop))) (P2 : (Sigma -> Prop)),
       TT &&
-      ([| (safeExec P2 c2 X2) |]) &&
+      ([| (Exec P2 c2 X2) |]) &&
       emp -*
       TT &&
-      ([| (safeExec P c X) |]) &&
-      ([| (safeExec P2 c2 X2) |]) &&
+      ([| (Exec P c X) |]) &&
+      ([| (Exec P2 c2 X2) |]) &&
       emp
       ).
 
@@ -153,7 +153,7 @@ Definition safeexec_strategy7 :=
 Definition safeexec_strategy2 :=
   forall (Sigma : Type) (A : Type) (c : (@ StateRelMonad.M  Sigma A)) (X : (A -> (Sigma -> Prop))) (P : (Sigma -> Prop)),
     TT &&
-    ([| (safeExec P c X) |]) &&
+    ([| (Exec P c X) |]) &&
     emp
     |--
     (
@@ -165,7 +165,7 @@ Definition safeexec_strategy2 :=
       ([| (equiv c c2) |]) &&
       emp -*
       TT &&
-      ([| (safeExec P c2 X) |]) &&
+      ([| (Exec P c2 X) |]) &&
       emp
       ).
 

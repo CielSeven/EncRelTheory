@@ -21,15 +21,15 @@
 
 struct list *merge(struct list *x, struct list *y)
 /*@ With s1 s2 X
-    Require safeExec(ATrue, merge_rel(s1, s2), X) && sll(x, s1) * sll(y, s2)
-    Ensure exists s3, safeExec(ATrue, return(s3), X) && sll(__return, s3)
+    Require Exec(ATrue, merge_rel(s1, s2), X) && sll(x, s1) * sll(y, s2)
+    Ensure exists s3, Exec(ATrue, return(s3), X) && sll(__return, s3)
 */
 {
   struct list **t, *ret;
   t = &ret;
   /*@ Inv
     exists l1 l2 l3,
-      safeExec(ATrue, merge_from_mid_rel(l1, l2, l3), X) && 
+      Exec(ATrue, merge_from_mid_rel(l1, l2, l3), X) && 
       sll(x, l1) * sll(y, l2) *
       undef_data_at(t, struct list*) * sllbseg(&ret, t, l3)
   */
@@ -72,10 +72,10 @@ struct list *merge(struct list *x, struct list *y)
 void split_rec(struct list * x, struct list * * p, struct list * * q)
   /*@ high_level_spec <= low_level_spec
       With l X
-      Require safeExec(ATrue, split_rel(l), X) &&
+      Require Exec(ATrue, split_rel(l), X) &&
               sll(x, l) * sll(* p, nil) * sll(* q, nil)
       Ensure exists s1 s2,
-              safeExec(ATrue, return(maketuple(s1, s2)), X) && 
+              Exec(ATrue, return(maketuple(s1, s2)), X) && 
               sll(* p, s1) * sll(* q, s2)
    */
 ;
@@ -83,10 +83,10 @@ void split_rec(struct list * x, struct list * * p, struct list * * q)
 void split_rec(struct list * x, struct list * * p, struct list * * q)
   /*@ low_level_spec_aux <= low_level_spec
       With {B} l l1 l2 (c : ((list Z) * (list Z)) -> program unit B) X
-      Require safeExec(ATrue, bind(split_rec_rel(l, l1, l2), c), X) &&
+      Require Exec(ATrue, bind(split_rec_rel(l, l1, l2), c), X) &&
               sll(x, l) * sll(* p, l1) * sll(* q, l2)
       Ensure exists s1 s2,
-              safeExec(ATrue, applyf(c, maketuple(s1,s2)), X) &&
+              Exec(ATrue, applyf(c, maketuple(s1,s2)), X) &&
               sll(* p, s1) * sll(* q, s2)
    */
 ;
@@ -94,10 +94,10 @@ void split_rec(struct list * x, struct list * * p, struct list * * q)
 void split_rec(struct list * x, struct list * * p, struct list * * q)
   /*@ low_level_spec
       With l l1 l2 X
-      Require safeExec(ATrue, split_rec_rel(l, l1, l2), X) &&
+      Require Exec(ATrue, split_rec_rel(l, l1, l2), X) &&
               sll(x, l) * sll(* p, l1) * sll(* q, l2)
       Ensure exists s1 s2,
-              safeExec(ATrue, return(maketuple(s1, s2)), X) &&
+              Exec(ATrue, return(maketuple(s1, s2)), X) &&
               sll(* p, s1) * sll(* q, s2)
   */
 {
@@ -113,10 +113,10 @@ void split_rec(struct list * x, struct list * * p, struct list * * q)
   x -> next = * p;
   * p = x;
   /*@ exists l_new x_data, 
-        safeExec(ATrue, split_rec_rel(l, l1, l2), X) && l == cons(x_data, l_new) &&
+        Exec(ATrue, split_rec_rel(l, l1, l2), X) && l == cons(x_data, l_new) &&
         (* p) != 0 && (* p) -> data == x_data && sll((* p) -> next, l1) * sll(t,l_new)
       which implies
-      safeExec(ATrue, bind(split_rec_rel(l_new, l2, cons(x_data, l1)), reversepair) , X) && sll(* p, cons(x_data, l1)) * sll(t,l_new)
+      Exec(ATrue, bind(split_rec_rel(l_new, l2, cons(x_data, l1)), reversepair) , X) && sll(* p, cons(x_data, l1)) * sll(t,l_new)
   */
   split_rec(t, q, p) /*@ where(low_level_spec_aux) l1 = l2, c = reversepair,  X = X; B = (list Z) * (list Z) */; 
 }
@@ -134,9 +134,9 @@ struct list * merge_sort(struct list * x)
 struct list * merge_sort(struct list * x)
   /*@ low_level_spec_aux <= low_level_spec
       With {B} l (c: list Z -> program unit B) X
-      Require safeExec(ATrue, bind(mergesortrec(l), c), X) && sll(x, l)
+      Require Exec(ATrue, bind(mergesortrec(l), c), X) && sll(x, l)
       Ensure exists l0,
-              safeExec(ATrue, applyf(c, l0), X) && 
+              Exec(ATrue, applyf(c, l0), X) && 
               sll(__return, l0)
    */
 ;
@@ -144,9 +144,9 @@ struct list * merge_sort(struct list * x)
 struct list * merge_sort(struct list * x)
   /*@ low_level_spec
       With l X
-      Require safeExec(ATrue, mergesortrec(l), X) && sll(x, l)
+      Require Exec(ATrue, mergesortrec(l), X) && sll(x, l)
       Ensure exists l0,
-              safeExec(ATrue, return(l0), X) &&
+              Exec(ATrue, return(l0), X) &&
               sll(__return, l0)
   */
 {
@@ -159,16 +159,16 @@ struct list * merge_sort(struct list * x)
   /*@ q == 0 && emp
       which implies
       sll(q, nil) */
-  /*@ safeExec(ATrue, bind(split_rel(l), mergesortrec_loc0), X) && emp */
+  /*@ Exec(ATrue, bind(split_rel(l), mergesortrec_loc0), X) && emp */
   split_rec(x, &p, &q) /*@ where(low_level_spec_aux) X = X, c = mergesortrec_loc0; B = (list Z) */;
   if (q == (void *)0) {
     return p;
   }
-  /*@ exists l1 l2, safeExec(ATrue, bind(mergesortrec(l1), mergesortrec_loc1(l2)), X) && sll(p, l1) * sll(q, l2)  */
+  /*@ exists l1 l2, Exec(ATrue, bind(mergesortrec(l1), mergesortrec_loc1(l2)), X) && sll(p, l1) * sll(q, l2)  */
   p = merge_sort(p) /*@ where(low_level_spec_aux) X = X; B = (list Z) */;
-  /*@ exists l1 l2, safeExec(ATrue, bind(mergesortrec(l2), mergesortrec_loc2(l1)), X) && sll(p, l1) * sll(q, l2)  */
+  /*@ exists l1 l2, Exec(ATrue, bind(mergesortrec(l2), mergesortrec_loc2(l1)), X) && sll(p, l1) * sll(q, l2)  */
   q = merge_sort(q) /*@ where(low_level_spec_aux) X = X; B = (list Z) */;
-  /*@ exists l1 l2, safeExec(ATrue, merge_rel(l1, l2), X) && sll(p, l1) * sll(q, l2) */
+  /*@ exists l1 l2, Exec(ATrue, merge_rel(l1, l2), X) && sll(p, l1) * sll(q, l2) */
   return merge(p, q) /*@ where X = X */;
 }
 
@@ -201,9 +201,9 @@ struct list * merge_sort2(struct list * x)
 struct list * merge_sort2(struct list * x)
   /*@ low_level_spec_aux <= low_level_spec
       With {B} l (c: list Z -> program unit B) X
-      Require safeExec(ATrue, bind(gmergesortrec(l), c), X) && sll(x, l)
+      Require Exec(ATrue, bind(gmergesortrec(l), c), X) && sll(x, l)
       Ensure exists l0,
-              safeExec(ATrue, applyf(c, l0), X) && 
+              Exec(ATrue, applyf(c, l0), X) && 
               sll(__return, l0)
    */
 ;
@@ -211,9 +211,9 @@ struct list * merge_sort2(struct list * x)
 struct list * merge_sort2(struct list * x)
   /*@ low_level_spec
       With l X
-      Require safeExec(ATrue, gmergesortrec(l), X) && sll(x, l)
+      Require Exec(ATrue, gmergesortrec(l), X) && sll(x, l)
       Ensure exists l0,
-              safeExec(ATrue, return(l0), X) && 
+              Exec(ATrue, return(l0), X) && 
               sll(__return, l0)
   */
 ;
@@ -231,9 +231,9 @@ struct list * merge_sort3(struct list * x)
 struct list * merge_sort3(struct list * x)
   /*@ low_level_spec_aux <= low_level_spec
       With {B} l (c: list Z -> program unit B) X
-      Require Zlength(l) <= INT_MAX && safeExec(ATrue, bind(gmergesortrec(l), c), X) && sll(x, l)
+      Require Zlength(l) <= INT_MAX && Exec(ATrue, bind(gmergesortrec(l), c), X) && sll(x, l)
       Ensure exists l0,
-              safeExec(ATrue, applyf(c, l0), X) && 
+              Exec(ATrue, applyf(c, l0), X) && 
               sll(__return, l0)
    */
 ;
@@ -241,9 +241,9 @@ struct list * merge_sort3(struct list * x)
 struct list * merge_sort3(struct list * x)
   /*@ low_level_spec
       With l X
-      Require Zlength(l) <= INT_MAX && safeExec(ATrue, gmergesortrec(l), X) && sll(x, l)
+      Require Zlength(l) <= INT_MAX && Exec(ATrue, gmergesortrec(l), X) && sll(x, l)
       Ensure exists l0,
-              safeExec(ATrue, return(l0), X) && 
+              Exec(ATrue, return(l0), X) && 
               sll(__return, l0)
   */
 {
@@ -259,13 +259,13 @@ struct list * merge_sort3(struct list * x)
   /*@ q == 0 && emp
       which implies
       sll(q, nil) */
-  /*@ safeExec(ATrue, bind(split_rel(l), gmergesortrec_loc0), X) && emp */
+  /*@ Exec(ATrue, bind(split_rel(l), gmergesortrec_loc0), X) && emp */
   split_rec(x, &p, &q) /*@ where(low_level_spec_aux) X = X, c = gmergesortrec_loc0; B = (list Z) */;
-  /*@ exists l1 l2, safeExec(ATrue, bind(gmergesortrec(l1), gmergesortrec_loc1(l2)), X) && sll(p, l1) * sll(q, l2) */
+  /*@ exists l1 l2, Exec(ATrue, bind(gmergesortrec(l1), gmergesortrec_loc1(l2)), X) && sll(p, l1) * sll(q, l2) */
   p = merge_sort2(p) /*@ where(low_level_spec_aux) X = X; B = (list Z) */;
-  /*@ exists l1 l2, safeExec(ATrue, bind(gmergesortrec(l2), mergesortrec_loc2(l1)), X) && sll(p, l1) * sll(q, l2) */
+  /*@ exists l1 l2, Exec(ATrue, bind(gmergesortrec(l2), mergesortrec_loc2(l1)), X) && sll(p, l1) * sll(q, l2) */
   q = merge_sort2(q) /*@ where(low_level_spec_aux) X = X; B = (list Z) */;
-  /*@ exists l1 l2, safeExec(ATrue, merge_rel(l1, l2), X) && sll(p, l1) * sll(q, l2) */
+  /*@ exists l1 l2, Exec(ATrue, merge_rel(l1, l2), X) && sll(p, l1) * sll(q, l2) */
   return merge(p, q) /*@ where X = X */;
 }
 

@@ -19,7 +19,7 @@ Compcertlib_FILES = \
   Coqlib.v Integers.v Zbits.v 
 
 Auxlibs_FILES = \
-  int_auto.v Idents.v Feq.v Axioms.v VMap.v List_lemma.v ListLib.v OrdersDecFact.v BinaryTree.v GraphLib.v ListLibNat.v
+  int_auto.v Idents.v Feq.v Axioms.v VMap.v List_lemma.v ListLib.v OrdersDecFact.v BinaryTree.v GraphLib.v ListLibNat.v relations.v 
 
 Sets_FILES = \
   SetsClass.v SetsClass_AxiomFree.v SetsDomain.v SetElement.v SetElementProperties.v RelsDomain.v SetProd.v SetsDomain_Classic.v 
