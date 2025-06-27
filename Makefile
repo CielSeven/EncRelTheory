@@ -86,7 +86,6 @@ Language_FILES = \
 
 Examples_FILES = \
   	impexample/Cmergesort.v impexample/CmergesortProof.v \
-	impexample/CmergesortArray.v \
 	impEexample/Ckmp.v  impEexample/CkmpProof.v \
 	impexample/CBSTInsert.v monadexample/bst.v  impexample/CBSTInsProof.v \
 	impexample/CGraphDFS.v monadexample/dfs.v monadexample/dfsproof.v impexample/CGraphDFSProof.v
