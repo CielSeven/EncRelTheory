@@ -15,7 +15,8 @@ From EncRelSeq.MonadsAsHigh.AbsMonad Require Import  encimpmonad.
 Require Import MonadLib.MonadLib.
 Import StateRelMonad.
 From Examples Require Import  CBSTInsert bst.
-
+From SetsClass Require Import SetsClass.
+Local Open Scope sets.
 
 Module CBSTInsertProof.
 Import EnvProgramSem.

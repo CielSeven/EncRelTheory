@@ -16,6 +16,8 @@ Require Import MonadLib.MonadLib.
 Import StateRelMonad.
 From MonadLib.Examples Require Import mergesort.
 From Examples Require Import  Cmergesort.
+From SetsClass Require Import SetsClass.
+Local Open Scope sets.
 
 
 Module CMergeSortProof.
@@ -269,8 +271,6 @@ Proof.
   Exists lr rv.
   entailer!.
 Qed.
-
-
 
 Lemma split_triplesat: triple_body_nrm ρ Δ _split_while split_while_spec.
 Proof.

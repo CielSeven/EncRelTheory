@@ -19,7 +19,6 @@ Import naive_C_Rules.
 Require Import kmp_rel_lib.
 Local Open Scope monad.
 From AUXLib Require Import int_auto Axioms Feq Idents List_lemma VMap relations.
-From FP Require Import PartialOrder_Setoid BourbakiWitt.
 Local Open Scope sac.
 
 Lemma proof_of_inner_entail_wit_2 : inner_entail_wit_2.

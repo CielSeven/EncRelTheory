@@ -15,36 +15,42 @@ Local Open Scope string.
 
 Lemma safeexec_strategy3_correctness : safeexec_strategy3.
   pre_process_default.
-Admitted.
+Qed.
 
 Lemma safeexec_strategy4_correctness : safeexec_strategy4.
   pre_process_default.
-Admitted.
+Qed.
 
 Lemma safeexec_strategy5_correctness : safeexec_strategy5.
   pre_process_default.
-Admitted.
+  entailer!.
+  rewrite H, H0; reflexivity.
+Qed.
 
 Lemma safeexec_strategy8_correctness : safeexec_strategy8.
   pre_process_default.
-Admitted.
+  Intros; subst; entailer!.
+Qed.
 
 Lemma safeexec_strategy9_correctness : safeexec_strategy9.
   pre_process_default.
-Admitted.
+  Intros; subst; entailer!.
+Qed.
 
 Lemma safeexec_strategy1_correctness : safeexec_strategy1.
   pre_process_default.
-Admitted.
+Qed.
 
 Lemma safeexec_strategy6_correctness : safeexec_strategy6.
   pre_process_default.
-Admitted.
+Qed.
 
 Lemma safeexec_strategy7_correctness : safeexec_strategy7.
   pre_process_default.
-Admitted.
+Qed.
 
 Lemma safeexec_strategy2_correctness : safeexec_strategy2.
   pre_process_default.
-Admitted.
+  entailer!. 
+  rewrite <- H0; auto.
+Qed.
