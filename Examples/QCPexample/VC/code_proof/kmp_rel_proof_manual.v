@@ -288,12 +288,12 @@ Proof.
   2:{
     destruct H7 as [_ H7].
     specialize (H7 tt).
-    subst prog; apply safeExec_monad_Atrue_finnal; tauto.
+    subst prog; apply Exec_monad_Atrue_finnal; tauto.
   }
   apply derivable1_wand_sepcon_adjoint.
   entailer!. Intros ret retval.
   destruct H7 as [H7 _].
-  apply safeExec_ret_Atrue_finnal in H8.
+  apply Exec_ret_Atrue_finnal in H8.
   destruct H8 as [σ H8]; subst prog.
   specialize (H7 ret tt σ I H8).
   destruct ret; simpl in H9.
@@ -317,13 +317,13 @@ Proof.
   2:{
     destruct H3 as [_ H3].
     specialize (H3 tt I).
-    apply safeExec_monad_Atrue_finnal; tauto.
+    apply Exec_monad_Atrue_finnal; tauto.
   }
   apply derivable1_wand_sepcon_adjoint.
   entailer!; Intros vnext retval.
   Exists vnext retval; entailer!.
   destruct H3 as [H3 _].
-  apply safeExec_ret_Atrue_finnal in H4.
+  apply Exec_ret_Atrue_finnal in H4.
   destruct H4 as [σ H4].
   specialize (H3 vnext tt σ I H4); tauto.
 Qed. 
@@ -334,7 +334,7 @@ Proof.
   prop_apply store_char_array_Zlength; Intros.
   prop_apply store_int_array_Zlength; Intros.
   apply string_Zlength in H2.
-  apply safeExec_bind in H as (X' & H7 & H8).
+  apply Exec_bind in H as (X' & H7 & H8).
   Exists str0 vnext0.
   Exists n m X'; entailer!.
   apply derivable1_wand_sepcon_adjoint; entailer!.

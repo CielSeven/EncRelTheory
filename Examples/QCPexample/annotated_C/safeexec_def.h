@@ -1,6 +1,6 @@
 /*@ Extern Coq (program :: * => * => *) */
 /*@ Extern Coq (unit :: *) */
-/*@ Extern Coq (safeExec : {Sigma} {A} -> (Sigma -> Prop) -> program Sigma A -> (A -> Sigma -> Prop) -> Prop)
+/*@ Extern Coq (Exec : {Sigma} {A} -> (Sigma -> Prop) -> program Sigma A -> (A -> Sigma -> Prop) -> Prop)
                (bind: {Sigma} {A} {B} ->  program Sigma A -> (A -> program Sigma B) -> program Sigma B)
                (return : {Sigma} {A} -> A -> program Sigma A) 
                (applyf: {A} {B} -> (A -> B) -> A -> B)

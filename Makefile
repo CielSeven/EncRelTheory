@@ -19,7 +19,7 @@ Compcertlib_FILES = \
   Coqlib.v Integers.v Zbits.v 
 
 Auxlibs_FILES = \
-  int_auto.v Idents.v Feq.v Axioms.v VMap.v List_lemma.v ListLib.v OrdersDecFact.v BinaryTree.v GraphLib.v ListLibNat.v
+  int_auto.v Idents.v Feq.v Axioms.v VMap.v List_lemma.v ListLib.v OrdersDecFact.v BinaryTree.v GraphLib.v ListLibNat.v relations.v 
 
 Sets_FILES = \
   SetsClass.v SetsClass_AxiomFree.v SetsDomain.v SetElement.v SetElementProperties.v RelsDomain.v SetProd.v SetsDomain_Classic.v 
@@ -126,16 +126,16 @@ example_gen : \
 
 
 FILES = \
-	$(Unify_FILES:%.v=QCP/SeparationLogic/unifysl/LogicGenerator/demo932/%.v) \
-    $(Sets_FILES:%.v=QCP/SeparationLogic/sets/%.v) \
-    $(Compcertlib_FILES:%.v=QCP/SeparationLogic/compcert_lib/%.v) \
-    $(Auxlibs_FILES:%.v=QCP/SeparationLogic/auxlibs/%.v) \
-    $(FIXPOINT_FILES:%.v=fixedpoints/%.v) \
-    $(MONAD_FILES) \
-		$(EncRelSeq_FILES:%.v=EncRelSeq/%.v) \
-		$(MonadExampleQCP) \
-	$(Language_FILES:%.v=Language/%.v) \
-# 	$(Examples_FILES:%.v=Examples/%.v) \
+  $(FIXPOINT_FILES:%.v=fixedpoints/%.v) \
+  $(MONAD_FILES) \
+	$(EncRelSeq_FILES:%.v=EncRelSeq/%.v) \
+	$(MonadExampleQCP) \
+	# $(Language_FILES:%.v=Language/%.v) \
+# $(Unify_FILES:%.v=QCP/SeparationLogic/unifysl/LogicGenerator/demo932/%.v) \
+# $(Sets_FILES:%.v=QCP/SeparationLogic/sets/%.v) \
+# $(Compcertlib_FILES:%.v=QCP/SeparationLogic/compcert_lib/%.v) \
+# $(Auxlibs_FILES:%.v=QCP/SeparationLogic/auxlibs/%.v) \
+# $(Examples_FILES:%.v=Examples/%.v) \
 
 $(FILES:%.v=%.vo): %.vo: %.v
 	@echo COQC $*.v

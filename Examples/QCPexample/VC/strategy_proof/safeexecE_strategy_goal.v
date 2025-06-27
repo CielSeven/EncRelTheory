@@ -66,7 +66,7 @@ Definition safeexecE_strategy5 :=
 Definition safeexecE_strategy1 :=
   forall (Sigma : Type) (A : Type) (c : (@ MonadErr.M  Sigma A)) (X : (A -> (Sigma -> Prop))) (P : (Sigma -> Prop)),
     TT &&
-    ([| (safeExec P c X) |]) &&
+    ([| (Exec P c X) |]) &&
     emp
     |--
     (
@@ -75,11 +75,11 @@ Definition safeexecE_strategy1 :=
     ) ** (
     ALL (B : Type) (c2 : (@ MonadErr.M  Sigma B)) (X2 : (B -> (Sigma -> Prop))) (P2 : (Sigma -> Prop)),
       TT &&
-      ([| (safeExec P2 c2 X2) |]) &&
+      ([| (Exec P2 c2 X2) |]) &&
       emp -*
       TT &&
-      ([| (safeExec P c X) |]) &&
-      ([| (safeExec P2 c2 X2) |]) &&
+      ([| (Exec P c X) |]) &&
+      ([| (Exec P2 c2 X2) |]) &&
       emp
       ).
 
@@ -120,7 +120,7 @@ Definition safeexecE_strategy7 :=
 Definition safeexecE_strategy8 :=
   forall (Sigma : Type) (A : Type) (B : Type) (g : (B -> (@ MonadErr.M  Sigma A))) (f : (@ MonadErr.M  Sigma B)) (X : (A -> (Sigma -> Prop))) (P : (Sigma -> Prop)),
     TT &&
-    ([| (safeExec P ( bind f g) X) |]) &&
+    ([| (Exec P ( bind f g) X) |]) &&
     emp
     |--
     (
@@ -132,7 +132,7 @@ Definition safeexecE_strategy8 :=
       ([| (equiv g h) |]) &&
       emp -*
       TT &&
-      ([| (safeExec P ( bind f h) X) |]) &&
+      ([| (Exec P ( bind f h) X) |]) &&
       emp
       ).
 
@@ -160,7 +160,7 @@ Definition safeexecE_strategy9 :=
 Definition safeexecE_strategy2 :=
   forall (Sigma : Type) (A : Type) (c : (@ MonadErr.M  Sigma A)) (X : (A -> (Sigma -> Prop))) (P : (Sigma -> Prop)),
     TT &&
-    ([| (safeExec P c X) |]) &&
+    ([| (Exec P c X) |]) &&
     emp
     |--
     (
@@ -172,7 +172,7 @@ Definition safeexecE_strategy2 :=
       ([| (equiv c c2) |]) &&
       emp -*
       TT &&
-      ([| (safeExec P c2 X) |]) &&
+      ([| (Exec P c2 X) |]) &&
       emp
       ).
 

@@ -33,7 +33,7 @@ Require Import safeexecE_strategy_proof.
 
 Definition inner_safety_wit_1 := 
 forall (vnext_pre: Z) (str_pre: Z) (X: (Z -> (unit -> Prop))) (m: Z) (n: Z) (vnext0: (@list Z)) (str0: (@list Z)) (ch: Z) (j: Z) ,
-  [| (safeExec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
+  [| (Exec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
   &&  [| (m <= n) |] 
   &&  [| (n < INT_MAX) |]
   &&  ((( &( "j" ) )) # Int  |-> j)
@@ -53,7 +53,7 @@ forall (vnext_pre: Z) (str_pre: Z) (X: (Z -> (unit -> Prop))) (m: Z) (n: Z) (vne
   &&  [| (0 <= j) |] 
   &&  [| (j < m) |] 
   &&  [| (0 <= (n + 1 )) |] 
-  &&  [| (safeExec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
+  &&  [| (Exec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
   &&  [| (m <= n) |] 
   &&  [| (n < INT_MAX) |]
   &&  (store_char_array str_pre (n + 1 ) (app (str0) ((cons (0) (nil)))) )
@@ -73,7 +73,7 @@ forall (vnext_pre: Z) (str_pre: Z) (X: (Z -> (unit -> Prop))) (m: Z) (n: Z) (vne
   &&  [| (0 <= j) |] 
   &&  [| (j < m) |] 
   &&  [| (0 <= (n + 1 )) |] 
-  &&  [| (safeExec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
+  &&  [| (Exec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
   &&  [| (m <= n) |] 
   &&  [| (n < INT_MAX) |]
   &&  (store_char_array str_pre (n + 1 ) (app (str0) ((cons (0) (nil)))) )
@@ -93,7 +93,7 @@ forall (vnext_pre: Z) (str_pre: Z) (X: (Z -> (unit -> Prop))) (m: Z) (n: Z) (vne
   &&  [| (0 <= j) |] 
   &&  [| (j < m) |] 
   &&  [| (0 <= (n + 1 )) |] 
-  &&  [| (safeExec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
+  &&  [| (Exec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
   &&  [| (m <= n) |] 
   &&  [| (n < INT_MAX) |]
   &&  (store_char_array str_pre (n + 1 ) (app (str0) ((cons (0) (nil)))) )
@@ -114,7 +114,7 @@ forall (vnext_pre: Z) (str_pre: Z) (X: (Z -> (unit -> Prop))) (m: Z) (n: Z) (vne
   &&  [| (0 <= j) |] 
   &&  [| (j < m) |] 
   &&  [| (0 <= (n + 1 )) |] 
-  &&  [| (safeExec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
+  &&  [| (Exec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
   &&  [| (m <= n) |] 
   &&  [| (n < INT_MAX) |]
   &&  (store_char_array str_pre (n + 1 ) (app (str0) ((cons (0) (nil)))) )
@@ -135,7 +135,7 @@ forall (vnext_pre: Z) (str_pre: Z) (X: (Z -> (unit -> Prop))) (m: Z) (n: Z) (vne
   &&  [| (0 <= j) |] 
   &&  [| (j < m) |] 
   &&  [| (0 <= (n + 1 )) |] 
-  &&  [| (safeExec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
+  &&  [| (Exec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
   &&  [| (m <= n) |] 
   &&  [| (n < INT_MAX) |]
   &&  (store_char_array str_pre (n + 1 ) (app (str0) ((cons (0) (nil)))) )
@@ -156,7 +156,7 @@ forall (vnext_pre: Z) (str_pre: Z) (X: (Z -> (unit -> Prop))) (m: Z) (n: Z) (vne
   &&  [| (0 <= j) |] 
   &&  [| (j < m) |] 
   &&  [| (0 <= (n + 1 )) |] 
-  &&  [| (safeExec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
+  &&  [| (Exec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
   &&  [| (m <= n) |] 
   &&  [| (n < INT_MAX) |]
   &&  (store_char_array str_pre (n + 1 ) (app (str0) ((cons (0) (nil)))) )
@@ -172,13 +172,13 @@ forall (vnext_pre: Z) (str_pre: Z) (X: (Z -> (unit -> Prop))) (m: Z) (n: Z) (vne
 
 Definition inner_entail_wit_1 := 
 forall (j_pre: Z) (ch_pre: Z) (vnext_pre: Z) (str_pre: Z) (X: (Z -> (unit -> Prop))) (m: Z) (n: Z) (vnext0: (@list Z)) (str0: (@list Z)) ,
-  [| (safeExec ATrue (inner_loop (0) (str0) (vnext0) (ch_pre) (j_pre)) X ) |] 
+  [| (Exec ATrue (inner_loop (0) (str0) (vnext0) (ch_pre) (j_pre)) X ) |] 
   &&  [| (m <= n) |] 
   &&  [| (n < INT_MAX) |]
   &&  (store_char_array str_pre (n + 1 ) (app (str0) ((cons (0) (nil)))) )
   **  (store_int_array vnext_pre m vnext0 )
 |--
-  [| (safeExec ATrue (inner_loop (0) (str0) (vnext0) (ch_pre) (j_pre)) X ) |] 
+  [| (Exec ATrue (inner_loop (0) (str0) (vnext0) (ch_pre) (j_pre)) X ) |] 
   &&  [| (m <= n) |] 
   &&  [| (n < INT_MAX) |]
   &&  (store_char_array str_pre (n + 1 ) (app (str0) ((cons (0) (nil)))) )
@@ -187,7 +187,7 @@ forall (j_pre: Z) (ch_pre: Z) (vnext_pre: Z) (str_pre: Z) (X: (Z -> (unit -> Pro
 
 Definition inner_entail_wit_2 := 
 forall (vnext_pre: Z) (str_pre: Z) (X: (Z -> (unit -> Prop))) (m: Z) (n: Z) (vnext0: (@list Z)) (str0: (@list Z)) (ch: Z) (j: Z) ,
-  [| (safeExec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
+  [| (Exec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
   &&  [| (m <= n) |] 
   &&  [| (n < INT_MAX) |]
   &&  (store_char_array str_pre (n + 1 ) (app (str0) ((cons (0) (nil)))) )
@@ -196,7 +196,7 @@ forall (vnext_pre: Z) (str_pre: Z) (X: (Z -> (unit -> Prop))) (m: Z) (n: Z) (vne
   [| (0 <= j) |] 
   &&  [| (j < m) |] 
   &&  [| (0 <= (n + 1 )) |] 
-  &&  [| (safeExec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
+  &&  [| (Exec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
   &&  [| (m <= n) |] 
   &&  [| (n < INT_MAX) |]
   &&  (store_char_array str_pre (n + 1 ) (app (str0) ((cons (0) (nil)))) )
@@ -210,13 +210,13 @@ forall (vnext_pre: Z) (str_pre: Z) (X: (Z -> (unit -> Prop))) (m: Z) (n: Z) (vne
   &&  [| (0 <= j) |] 
   &&  [| (j < m) |] 
   &&  [| (0 <= (n + 1 )) |] 
-  &&  [| (safeExec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
+  &&  [| (Exec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
   &&  [| (m <= n) |] 
   &&  [| (n < INT_MAX) |]
   &&  (store_int_array vnext_pre m vnext0 )
   **  (store_char_array str_pre (n + 1 ) (app (str0) ((cons (0) (nil)))) )
 |--
-  [| (safeExec ATrue (inner_loop (0) (str0) (vnext0) (ch) ((Znth (j - 1 ) vnext0 0))) X ) |] 
+  [| (Exec ATrue (inner_loop (0) (str0) (vnext0) (ch) ((Znth (j - 1 ) vnext0 0))) X ) |] 
   &&  [| (m <= n) |] 
   &&  [| (n < INT_MAX) |]
   &&  (store_char_array str_pre (n + 1 ) (app (str0) ((cons (0) (nil)))) )
@@ -229,13 +229,13 @@ forall (vnext_pre: Z) (str_pre: Z) (X: (Z -> (unit -> Prop))) (m: Z) (n: Z) (vne
   &&  [| (0 <= j) |] 
   &&  [| (j < m) |] 
   &&  [| (0 <= (n + 1 )) |] 
-  &&  [| (safeExec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
+  &&  [| (Exec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
   &&  [| (m <= n) |] 
   &&  [| (n < INT_MAX) |]
   &&  (store_char_array str_pre (n + 1 ) (app (str0) ((cons (0) (nil)))) )
   **  (store_int_array vnext_pre m vnext0 )
 |--
-  [| (safeExec ATrue (return ((j + 1 ))) X ) |] 
+  [| (Exec ATrue (return ((j + 1 ))) X ) |] 
   &&  [| (0 <= (j + 1 )) |] 
   &&  [| ((j + 1 ) < (m + 1 )) |]
   &&  (store_char_array str_pre (n + 1 ) (app (str0) ((cons (0) (nil)))) )
@@ -249,13 +249,13 @@ forall (vnext_pre: Z) (str_pre: Z) (X: (Z -> (unit -> Prop))) (m: Z) (n: Z) (vne
   &&  [| (0 <= j) |] 
   &&  [| (j < m) |] 
   &&  [| (0 <= (n + 1 )) |] 
-  &&  [| (safeExec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
+  &&  [| (Exec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
   &&  [| (m <= n) |] 
   &&  [| (n < INT_MAX) |]
   &&  (store_char_array str_pre (n + 1 ) (app (str0) ((cons (0) (nil)))) )
   **  (store_int_array vnext_pre m vnext0 )
 |--
-  [| (safeExec ATrue (return (0)) X ) |] 
+  [| (Exec ATrue (return (0)) X ) |] 
   &&  [| (0 <= 0) |] 
   &&  [| (0 < (m + 1 )) |]
   &&  (store_char_array str_pre (n + 1 ) (app (str0) ((cons (0) (nil)))) )
@@ -267,7 +267,7 @@ forall (vnext_pre: Z) (str_pre: Z) (X: (Z -> (unit -> Prop))) (m: Z) (n: Z) (vne
   [| (0 <= j) |] 
   &&  [| (j < m) |] 
   &&  [| (0 <= (n + 1 )) |] 
-  &&  [| (safeExec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
+  &&  [| (Exec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
   &&  [| (m <= n) |] 
   &&  [| (n < INT_MAX) |]
   &&  (store_char_array str_pre (n + 1 ) (app (str0) ((cons (0) (nil)))) )
@@ -276,7 +276,7 @@ forall (vnext_pre: Z) (str_pre: Z) (X: (Z -> (unit -> Prop))) (m: Z) (n: Z) (vne
   [| (0 <= j) |] 
   &&  [| (j < m) |] 
   &&  [| (0 <= (n + 1 )) |] 
-  &&  [| (safeExec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
+  &&  [| (Exec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
   &&  [| (m <= n) |] 
   &&  [| (n < INT_MAX) |]
   &&  (((str_pre + (j * sizeof(CHAR) ) )) # Char  |-> (Znth j (app (str0) ((cons (0) (nil)))) 0))
@@ -291,7 +291,7 @@ forall (vnext_pre: Z) (str_pre: Z) (X: (Z -> (unit -> Prop))) (m: Z) (n: Z) (vne
   &&  [| (0 <= j) |] 
   &&  [| (j < m) |] 
   &&  [| (0 <= (n + 1 )) |] 
-  &&  [| (safeExec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
+  &&  [| (Exec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
   &&  [| (m <= n) |] 
   &&  [| (n < INT_MAX) |]
   &&  (store_char_array str_pre (n + 1 ) (app (str0) ((cons (0) (nil)))) )
@@ -302,7 +302,7 @@ forall (vnext_pre: Z) (str_pre: Z) (X: (Z -> (unit -> Prop))) (m: Z) (n: Z) (vne
   &&  [| (0 <= j) |] 
   &&  [| (j < m) |] 
   &&  [| (0 <= (n + 1 )) |] 
-  &&  [| (safeExec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
+  &&  [| (Exec ATrue (inner_loop (0) (str0) (vnext0) (ch) (j)) X ) |] 
   &&  [| (m <= n) |] 
   &&  [| (n < INT_MAX) |]
   &&  (((vnext_pre + ((j - 1 ) * sizeof(INT) ) )) # Int  |-> (Znth (j - 1 ) vnext0 0))
@@ -316,7 +316,7 @@ Definition constr_safety_wit_1 :=
 forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) (retval_2: Z) (l: (@list Z)) (retval: Z) ,
   [| (0 <= (n + 1 )) |] 
   &&  [| (retval_2 = n) |] 
-  &&  [| (safeExec ATrue (constr_loop (0) (str)) X ) |] 
+  &&  [| (Exec ATrue (constr_loop (0) (str)) X ) |] 
   &&  [| (n > 0) |] 
   &&  [| (n < INT_MAX) |]
   &&  (store_int_array retval retval_2 l )
@@ -333,7 +333,7 @@ Definition constr_safety_wit_2 :=
 forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) (retval_2: Z) (l: (@list Z)) (retval: Z) ,
   [| (0 <= (n + 1 )) |] 
   &&  [| (retval_2 = n) |] 
-  &&  [| (safeExec ATrue (constr_loop (0) (str)) X ) |] 
+  &&  [| (Exec ATrue (constr_loop (0) (str)) X ) |] 
   &&  [| (n > 0) |] 
   &&  [| (n < INT_MAX) |]
   &&  (store_int_array retval retval_2 l )
@@ -350,7 +350,7 @@ Definition constr_safety_wit_3 :=
 forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) (retval: Z) (l: (@list Z)) (retval_2: Z) ,
   [| (0 <= (n + 1 )) |] 
   &&  [| (retval = n) |] 
-  &&  [| (safeExec ATrue (constr_loop (0) (str)) X ) |] 
+  &&  [| (Exec ATrue (constr_loop (0) (str)) X ) |] 
   &&  [| (n > 0) |] 
   &&  [| (n < INT_MAX) |]
   &&  ((( &( "j" ) )) # Int  |->_)
@@ -368,7 +368,7 @@ Definition constr_safety_wit_4 :=
 forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) (retval: Z) (l: (@list Z)) (retval_2: Z) ,
   [| (0 <= (n + 1 )) |] 
   &&  [| (retval = n) |] 
-  &&  [| (safeExec ATrue (constr_loop (0) (str)) X ) |] 
+  &&  [| (Exec ATrue (constr_loop (0) (str)) X ) |] 
   &&  [| (n > 0) |] 
   &&  [| (n < INT_MAX) |]
   &&  ((( &( "i" ) )) # Int  |->_)
@@ -387,7 +387,7 @@ Definition constr_safety_wit_5 :=
 forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) (vnext0: (@list Z)) (l0: (@list Z)) (i: Z) (vnext: Z) (retval: Z) (a: Z) (l1: (@list Z)) ,
   [| (l0 = (cons (a) (l1))) |] 
   &&  [| (0 <= (n + 1 )) |] 
-  &&  [| (safeExec ATrue (applyf ((constr_loop_from_after (0) (str) (i) (vnext0))) (retval)) X ) |] 
+  &&  [| (Exec ATrue (applyf ((constr_loop_from_after (0) (str) (i) (vnext0))) (retval)) X ) |] 
   &&  [| (0 <= retval) |] 
   &&  [| (retval < (i + 1 )) |] 
   &&  [| (i < n) |] 
@@ -411,7 +411,7 @@ Definition constr_entail_wit_1 :=
 forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) (retval_2: Z) (l: (@list Z)) (retval: Z) ,
   [| (0 <= (n + 1 )) |] 
   &&  [| (retval_2 = n) |] 
-  &&  [| (safeExec ATrue (constr_loop (0) (str)) X ) |] 
+  &&  [| (Exec ATrue (constr_loop (0) (str)) X ) |] 
   &&  [| (n > 0) |] 
   &&  [| (n < INT_MAX) |]
   &&  (store_int_array retval retval_2 (replace_Znth (0) (0) (l)) )
@@ -419,7 +419,7 @@ forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) 
   **  ((( &( "len" ) )) # Int  |-> retval_2)
 |--
   EX (l0: (@list Z))  (vnext0: (@list Z)) ,
-  [| (safeExec ATrue (constr_loop_from (0) (str) (1) (vnext0) (0)) X ) |] 
+  [| (Exec ATrue (constr_loop_from (0) (str) (1) (vnext0) (0)) X ) |] 
   &&  [| (n < INT_MAX) |] 
   &&  [| (1 <= 1) |]
   &&  ((( &( "len" ) )) # Int  |-> n)
@@ -432,7 +432,7 @@ Definition constr_entail_wit_2 :=
 forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) (vnext0_2: (@list Z)) (l0_2: (@list Z)) (i: Z) (vnext: Z) (retval: Z) (a: Z) (l1: (@list Z)) ,
   [| (l0_2 = (cons (a) (l1))) |] 
   &&  [| (0 <= (n + 1 )) |] 
-  &&  [| (safeExec ATrue (applyf ((constr_loop_from_after (0) (str) (i) (vnext0_2))) (retval)) X ) |] 
+  &&  [| (Exec ATrue (applyf ((constr_loop_from_after (0) (str) (i) (vnext0_2))) (retval)) X ) |] 
   &&  [| (0 <= retval) |] 
   &&  [| (retval < (i + 1 )) |] 
   &&  [| (i < n) |] 
@@ -444,7 +444,7 @@ forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) 
   **  (store_int_array vnext i vnext0_2 )
 |--
   EX (l0: (@list Z))  (vnext0: (@list Z)) ,
-  [| (safeExec ATrue (constr_loop_from (0) (str) ((i + 1 )) (vnext0) (retval)) X ) |] 
+  [| (Exec ATrue (constr_loop_from (0) (str) ((i + 1 )) (vnext0) (retval)) X ) |] 
   &&  [| (n < INT_MAX) |] 
   &&  [| (1 <= (i + 1 )) |]
   &&  (store_char_array patn_pre (n + 1 ) (app (str) ((cons (0) (nil)))) )
@@ -455,7 +455,7 @@ forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) 
 Definition constr_return_wit_1 := 
 forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) (vnext0: (@list Z)) (l0: (@list Z)) (j: Z) (i: Z) (vnext_2: Z) ,
   [| (i >= n) |] 
-  &&  [| (safeExec ATrue (constr_loop_from (0) (str) (i) (vnext0) (j)) X ) |] 
+  &&  [| (Exec ATrue (constr_loop_from (0) (str) (i) (vnext0) (j)) X ) |] 
   &&  [| (n < INT_MAX) |] 
   &&  [| (1 <= i) |]
   &&  (store_char_array patn_pre (n + 1 ) (app (str) ((cons (0) (nil)))) )
@@ -463,19 +463,19 @@ forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) 
   **  (store_int_array (vnext_2 + (i * sizeof(INT) ) ) (n - i ) l0 )
 |--
   EX (vnext: (@list Z)) ,
-  [| (safeExec ATrue (return (vnext)) X ) |]
+  [| (Exec ATrue (return (vnext)) X ) |]
   &&  (store_int_array vnext_2 n vnext )
   **  (store_char_array patn_pre (n + 1 ) (app (str) ((cons (0) (nil)))) )
 .
 
 Definition constr_partial_solve_wit_1 := 
 forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) ,
-  [| (safeExec ATrue (constr_loop (0) (str)) X ) |] 
+  [| (Exec ATrue (constr_loop (0) (str)) X ) |] 
   &&  [| (n > 0) |] 
   &&  [| (n < INT_MAX) |]
   &&  (store_char_array patn_pre (n + 1 ) (app (str) ((cons (0) (nil)))) )
 |--
-  [| (safeExec ATrue (constr_loop (0) (str)) X ) |] 
+  [| (Exec ATrue (constr_loop (0) (str)) X ) |] 
   &&  [| (n > 0) |] 
   &&  [| (n < INT_MAX) |]
   &&  (store_char_array patn_pre (n + 1 ) (app (str) ((cons (0) (nil)))) )
@@ -484,7 +484,7 @@ forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) 
 Definition constr_partial_solve_wit_2_pure := 
 forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) (retval: Z) ,
   [| (retval = n) |] 
-  &&  [| (safeExec ATrue (constr_loop (0) (str)) X ) |] 
+  &&  [| (Exec ATrue (constr_loop (0) (str)) X ) |] 
   &&  [| (n > 0) |] 
   &&  [| (n < INT_MAX) |]
   &&  ((( &( "vnext" ) )) # Ptr  |->_)
@@ -498,7 +498,7 @@ forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) 
 Definition constr_partial_solve_wit_2_aux := 
 forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) (retval: Z) ,
   [| (retval = n) |] 
-  &&  [| (safeExec ATrue (constr_loop (0) (str)) X ) |] 
+  &&  [| (Exec ATrue (constr_loop (0) (str)) X ) |] 
   &&  [| (n > 0) |] 
   &&  [| (n < INT_MAX) |]
   &&  (store_char_array patn_pre (n + 1 ) (app (str) ((cons (0) (nil)))) )
@@ -506,7 +506,7 @@ forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) 
   [| (retval > 0) |] 
   &&  [| (0 <= (n + 1 )) |] 
   &&  [| (retval = n) |] 
-  &&  [| (safeExec ATrue (constr_loop (0) (str)) X ) |] 
+  &&  [| (Exec ATrue (constr_loop (0) (str)) X ) |] 
   &&  [| (n > 0) |] 
   &&  [| (n < INT_MAX) |]
   &&  (store_char_array patn_pre (n + 1 ) (app (str) ((cons (0) (nil)))) )
@@ -518,7 +518,7 @@ Definition constr_partial_solve_wit_3 :=
 forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) (retval: Z) (l: (@list Z)) (retval_2: Z) ,
   [| (0 <= (n + 1 )) |] 
   &&  [| (retval = n) |] 
-  &&  [| (safeExec ATrue (constr_loop (0) (str)) X ) |] 
+  &&  [| (Exec ATrue (constr_loop (0) (str)) X ) |] 
   &&  [| (n > 0) |] 
   &&  [| (n < INT_MAX) |]
   &&  (store_int_array retval_2 retval l )
@@ -526,7 +526,7 @@ forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) 
 |--
   [| (0 <= (n + 1 )) |] 
   &&  [| (retval = n) |] 
-  &&  [| (safeExec ATrue (constr_loop (0) (str)) X ) |] 
+  &&  [| (Exec ATrue (constr_loop (0) (str)) X ) |] 
   &&  [| (n > 0) |] 
   &&  [| (n < INT_MAX) |]
   &&  (((retval_2 + (0 * sizeof(INT) ) )) # Int  |->_)
@@ -537,7 +537,7 @@ forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) 
 Definition constr_partial_solve_wit_4 := 
 forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) (vnext0: (@list Z)) (l0: (@list Z)) (j: Z) (i: Z) (vnext: Z) ,
   [| (i < n) |] 
-  &&  [| (safeExec ATrue (constr_loop_from (0) (str) (i) (vnext0) (j)) X ) |] 
+  &&  [| (Exec ATrue (constr_loop_from (0) (str) (i) (vnext0) (j)) X ) |] 
   &&  [| (n < INT_MAX) |] 
   &&  [| (1 <= i) |]
   &&  (store_char_array patn_pre (n + 1 ) (app (str) ((cons (0) (nil)))) )
@@ -545,7 +545,7 @@ forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) 
   **  (store_int_array (vnext + (i * sizeof(INT) ) ) (n - i ) l0 )
 |--
   [| (i < n) |] 
-  &&  [| (safeExec ATrue (constr_loop_from (0) (str) (i) (vnext0) (j)) X ) |] 
+  &&  [| (Exec ATrue (constr_loop_from (0) (str) (i) (vnext0) (j)) X ) |] 
   &&  [| (n < INT_MAX) |] 
   &&  [| (1 <= i) |]
   &&  (((patn_pre + (i * sizeof(CHAR) ) )) # Char  |-> (Znth i (app (str) ((cons (0) (nil)))) 0))
@@ -557,7 +557,7 @@ forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) 
 Definition constr_partial_solve_wit_5_pure := 
 forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) (vnext0: (@list Z)) (l0: (@list Z)) (j: Z) (i: Z) (vnext: Z) ,
   [| (i < n) |] 
-  &&  [| (safeExec ATrue (constr_loop_from (0) (str) (i) (vnext0) (j)) X ) |] 
+  &&  [| (Exec ATrue (constr_loop_from (0) (str) (i) (vnext0) (j)) X ) |] 
   &&  [| (n < INT_MAX) |] 
   &&  [| (1 <= i) |]
   &&  (store_char_array patn_pre (n + 1 ) (app (str) ((cons (0) (nil)))) )
@@ -569,7 +569,7 @@ forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) 
   **  (store_int_array vnext i vnext0 )
   **  (store_int_array (vnext + (i * sizeof(INT) ) ) (n - i ) l0 )
 |--
-  [| (safeExec ATrue (bind ((inner_loop (0) (str) (vnext0) ((Znth i (app (str) ((cons (0) (nil)))) 0)) (j))) ((constr_loop_from_after (0) (str) (i) (vnext0)))) X ) |] 
+  [| (Exec ATrue (bind ((inner_loop (0) (str) (vnext0) ((Znth i (app (str) ((cons (0) (nil)))) 0)) (j))) ((constr_loop_from_after (0) (str) (i) (vnext0)))) X ) |] 
   &&  [| (i <= n) |] 
   &&  [| (n < INT_MAX) |] 
   &&  [| (equiv (constr_loop_from (0) (str) (i) (vnext0) (j)) (bind ((inner_loop (0) (str) (vnext0) ((Znth i (app (str) ((cons (0) (nil)))) 0)) (j))) ((constr_loop_from_after (0) (str) (i) (vnext0)))) ) |]
@@ -578,14 +578,14 @@ forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) 
 Definition constr_partial_solve_wit_5_aux := 
 forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) (vnext0: (@list Z)) (l0: (@list Z)) (j: Z) (i: Z) (vnext: Z) ,
   [| (i < n) |] 
-  &&  [| (safeExec ATrue (constr_loop_from (0) (str) (i) (vnext0) (j)) X ) |] 
+  &&  [| (Exec ATrue (constr_loop_from (0) (str) (i) (vnext0) (j)) X ) |] 
   &&  [| (n < INT_MAX) |] 
   &&  [| (1 <= i) |]
   &&  (store_char_array patn_pre (n + 1 ) (app (str) ((cons (0) (nil)))) )
   **  (store_int_array vnext i vnext0 )
   **  (store_int_array (vnext + (i * sizeof(INT) ) ) (n - i ) l0 )
 |--
-  [| (safeExec ATrue (bind ((inner_loop (0) (str) (vnext0) ((Znth i (app (str) ((cons (0) (nil)))) 0)) (j))) ((constr_loop_from_after (0) (str) (i) (vnext0)))) X ) |] 
+  [| (Exec ATrue (bind ((inner_loop (0) (str) (vnext0) ((Znth i (app (str) ((cons (0) (nil)))) 0)) (j))) ((constr_loop_from_after (0) (str) (i) (vnext0)))) X ) |] 
   &&  [| (i <= n) |] 
   &&  [| (n < INT_MAX) |] 
   &&  [| (equiv (constr_loop_from (0) (str) (i) (vnext0) (j)) (bind ((inner_loop (0) (str) (vnext0) ((Znth i (app (str) ((cons (0) (nil)))) 0)) (j))) ((constr_loop_from_after (0) (str) (i) (vnext0)))) ) |] 
@@ -601,7 +601,7 @@ Definition constr_partial_solve_wit_5 := constr_partial_solve_wit_5_pure -> cons
 
 Definition constr_partial_solve_wit_6_pure := 
 forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) (vnext0: (@list Z)) (l0: (@list Z)) (i: Z) (vnext: Z) (retval: Z) ,
-  [| (safeExec ATrue (applyf ((constr_loop_from_after (0) (str) (i) (vnext0))) (retval)) X ) |] 
+  [| (Exec ATrue (applyf ((constr_loop_from_after (0) (str) (i) (vnext0))) (retval)) X ) |] 
   &&  [| (0 <= retval) |] 
   &&  [| (retval < (i + 1 )) |] 
   &&  [| (i < n) |] 
@@ -621,7 +621,7 @@ forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) 
 
 Definition constr_partial_solve_wit_6_aux := 
 forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) (vnext0: (@list Z)) (l0: (@list Z)) (i: Z) (vnext: Z) (retval: Z) ,
-  [| (safeExec ATrue (applyf ((constr_loop_from_after (0) (str) (i) (vnext0))) (retval)) X ) |] 
+  [| (Exec ATrue (applyf ((constr_loop_from_after (0) (str) (i) (vnext0))) (retval)) X ) |] 
   &&  [| (0 <= retval) |] 
   &&  [| (retval < (i + 1 )) |] 
   &&  [| (i < n) |] 
@@ -633,7 +633,7 @@ forall (patn_pre: Z) (X: ((@list Z) -> (unit -> Prop))) (n: Z) (str: (@list Z)) 
 |--
   [| (i < n) |] 
   &&  [| (0 <= (n + 1 )) |] 
-  &&  [| (safeExec ATrue (applyf ((constr_loop_from_after (0) (str) (i) (vnext0))) (retval)) X ) |] 
+  &&  [| (Exec ATrue (applyf ((constr_loop_from_after (0) (str) (i) (vnext0))) (retval)) X ) |] 
   &&  [| (0 <= retval) |] 
   &&  [| (retval < (i + 1 )) |] 
   &&  [| (i < n) |] 
@@ -661,7 +661,7 @@ forall (n: Z) (l0: (@list Z)) (i: Z) (vnext: Z) ,
 
 Definition match_safety_wit_1 := 
 forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> Prop))) (m: Z) (n: Z) (vnext0: (@list Z)) (text0: (@list Z)) (patn0: (@list Z)) ,
-  [| (safeExec ATrue (match_loop (0) (patn0) (text0) (vnext0)) X ) |] 
+  [| (Exec ATrue (match_loop (0) (patn0) (text0) (vnext0)) X ) |] 
   &&  [| (n > 0) |] 
   &&  [| (n < INT_MAX) |] 
   &&  [| (m < INT_MAX) |]
@@ -683,7 +683,7 @@ forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> P
   &&  [| (0 <= (m + 1 )) |] 
   &&  [| (retval_2 = m) |] 
   &&  [| (0 <= (n + 1 )) |] 
-  &&  [| (safeExec ATrue (match_loop (0) (patn0) (text0) (vnext0)) X ) |] 
+  &&  [| (Exec ATrue (match_loop (0) (patn0) (text0) (vnext0)) X ) |] 
   &&  [| (n > 0) |] 
   &&  [| (n < INT_MAX) |] 
   &&  [| (m < INT_MAX) |]
@@ -705,7 +705,7 @@ forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> P
 Definition match_safety_wit_3 := 
 forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> Prop))) (m: Z) (n: Z) (vnext0: (@list Z)) (text0: (@list Z)) (patn0: (@list Z)) (retval_2: Z) (retval_3: Z) (i: Z) (retval: Z) ,
   [| (retval = n) |] 
-  &&  [| (safeExec ATrue (applyf ((match_loop_from_after (0) (patn0) (text0) (vnext0) (i))) (retval)) X ) |] 
+  &&  [| (Exec ATrue (applyf ((match_loop_from_after (0) (patn0) (text0) (vnext0) (i))) (retval)) X ) |] 
   &&  [| (0 <= retval) |] 
   &&  [| (retval < (n + 1 )) |] 
   &&  [| (i < m) |] 
@@ -737,7 +737,7 @@ forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> P
 Definition match_safety_wit_4 := 
 forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> Prop))) (m: Z) (n: Z) (vnext0: (@list Z)) (text0: (@list Z)) (patn0: (@list Z)) (retval_2: Z) (retval_3: Z) (i: Z) (retval: Z) ,
   [| (retval = n) |] 
-  &&  [| (safeExec ATrue (applyf ((match_loop_from_after (0) (patn0) (text0) (vnext0) (i))) (retval)) X ) |] 
+  &&  [| (Exec ATrue (applyf ((match_loop_from_after (0) (patn0) (text0) (vnext0) (i))) (retval)) X ) |] 
   &&  [| (0 <= retval) |] 
   &&  [| (retval < (n + 1 )) |] 
   &&  [| (i < m) |] 
@@ -769,7 +769,7 @@ forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> P
 Definition match_safety_wit_5 := 
 forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> Prop))) (m: Z) (n: Z) (vnext0: (@list Z)) (text0: (@list Z)) (patn0: (@list Z)) (retval_2: Z) (retval_3: Z) (i: Z) (retval: Z) ,
   [| (retval = n) |] 
-  &&  [| (safeExec ATrue (applyf ((match_loop_from_after (0) (patn0) (text0) (vnext0) (i))) (retval)) X ) |] 
+  &&  [| (Exec ATrue (applyf ((match_loop_from_after (0) (patn0) (text0) (vnext0) (i))) (retval)) X ) |] 
   &&  [| (0 <= retval) |] 
   &&  [| (retval < (n + 1 )) |] 
   &&  [| (i < m) |] 
@@ -801,7 +801,7 @@ forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> P
 Definition match_safety_wit_6 := 
 forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> Prop))) (m: Z) (n: Z) (vnext0: (@list Z)) (text0: (@list Z)) (patn0: (@list Z)) (retval_2: Z) (retval_3: Z) (i: Z) (retval: Z) ,
   [| (retval <> n) |] 
-  &&  [| (safeExec ATrue (applyf ((match_loop_from_after (0) (patn0) (text0) (vnext0) (i))) (retval)) X ) |] 
+  &&  [| (Exec ATrue (applyf ((match_loop_from_after (0) (patn0) (text0) (vnext0) (i))) (retval)) X ) |] 
   &&  [| (0 <= retval) |] 
   &&  [| (retval < (n + 1 )) |] 
   &&  [| (i < m) |] 
@@ -833,7 +833,7 @@ forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> P
 Definition match_safety_wit_7 := 
 forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> Prop))) (m: Z) (n: Z) (vnext0: (@list Z)) (text0: (@list Z)) (patn0: (@list Z)) (retval: Z) (retval_2: Z) (i: Z) (j: Z) ,
   [| (i >= m) |] 
-  &&  [| (safeExec ATrue (match_loop_from (0) (patn0) (text0) (vnext0) (i) (j)) X ) |] 
+  &&  [| (Exec ATrue (match_loop_from (0) (patn0) (text0) (vnext0) (i) (j)) X ) |] 
   &&  [| (n < INT_MAX) |] 
   &&  [| (m < INT_MAX) |] 
   &&  [| (i >= 0) |] 
@@ -861,7 +861,7 @@ forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> P
 Definition match_safety_wit_8 := 
 forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> Prop))) (m: Z) (n: Z) (vnext0: (@list Z)) (text0: (@list Z)) (patn0: (@list Z)) (retval: Z) (retval_2: Z) (i: Z) (j: Z) ,
   [| (i >= m) |] 
-  &&  [| (safeExec ATrue (match_loop_from (0) (patn0) (text0) (vnext0) (i) (j)) X ) |] 
+  &&  [| (Exec ATrue (match_loop_from (0) (patn0) (text0) (vnext0) (i) (j)) X ) |] 
   &&  [| (n < INT_MAX) |] 
   &&  [| (m < INT_MAX) |] 
   &&  [| (i >= 0) |] 
@@ -893,7 +893,7 @@ forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> P
   &&  [| (0 <= (m + 1 )) |] 
   &&  [| (retval = m) |] 
   &&  [| (0 <= (n + 1 )) |] 
-  &&  [| (safeExec ATrue (match_loop (0) (patn0) (text0) (vnext0)) X ) |] 
+  &&  [| (Exec ATrue (match_loop (0) (patn0) (text0) (vnext0)) X ) |] 
   &&  [| (n > 0) |] 
   &&  [| (n < INT_MAX) |] 
   &&  [| (m < INT_MAX) |]
@@ -903,7 +903,7 @@ forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> P
   **  ((( &( "text_len" ) )) # Int  |-> retval)
   **  (store_int_array vnext_pre n vnext0 )
 |--
-  [| (safeExec ATrue (match_loop_from (0) (patn0) (text0) (vnext0) (0) (0)) X ) |] 
+  [| (Exec ATrue (match_loop_from (0) (patn0) (text0) (vnext0) (0) (0)) X ) |] 
   &&  [| (n < INT_MAX) |] 
   &&  [| (m < INT_MAX) |] 
   &&  [| (0 >= 0) |] 
@@ -924,7 +924,7 @@ forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> P
 Definition match_entail_wit_2 := 
 forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> Prop))) (m: Z) (n: Z) (vnext0: (@list Z)) (text0: (@list Z)) (patn0: (@list Z)) (retval: Z) (retval_2: Z) (i: Z) (retval_3: Z) ,
   [| (retval_3 <> n) |] 
-  &&  [| (safeExec ATrue (applyf ((match_loop_from_after (0) (patn0) (text0) (vnext0) (i))) (retval_3)) X ) |] 
+  &&  [| (Exec ATrue (applyf ((match_loop_from_after (0) (patn0) (text0) (vnext0) (i))) (retval_3)) X ) |] 
   &&  [| (0 <= retval_3) |] 
   &&  [| (retval_3 < (n + 1 )) |] 
   &&  [| (i < m) |] 
@@ -942,7 +942,7 @@ forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> P
   **  (store_int_array vnext_pre n vnext0 )
   **  (store_char_array text_pre (m + 1 ) (app (text0) ((cons (0) (nil)))) )
 |--
-  [| (safeExec ATrue (match_loop_from (0) (patn0) (text0) (vnext0) ((i + 1 )) (retval_3)) X ) |] 
+  [| (Exec ATrue (match_loop_from (0) (patn0) (text0) (vnext0) ((i + 1 )) (retval_3)) X ) |] 
   &&  [| (n < INT_MAX) |] 
   &&  [| (m < INT_MAX) |] 
   &&  [| ((i + 1 ) >= 0) |] 
@@ -961,7 +961,7 @@ forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> P
 Definition match_return_wit_1 := 
 forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> Prop))) (m: Z) (n: Z) (vnext0: (@list Z)) (text0: (@list Z)) (patn0: (@list Z)) (retval_2: Z) (retval_3: Z) (i: Z) (retval: Z) ,
   [| (retval = n) |] 
-  &&  [| (safeExec ATrue (applyf ((match_loop_from_after (0) (patn0) (text0) (vnext0) (i))) (retval)) X ) |] 
+  &&  [| (Exec ATrue (applyf ((match_loop_from_after (0) (patn0) (text0) (vnext0) (i))) (retval)) X ) |] 
   &&  [| (0 <= retval) |] 
   &&  [| (retval < (n + 1 )) |] 
   &&  [| (i < m) |] 
@@ -980,7 +980,7 @@ forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> P
   **  (store_char_array text_pre (m + 1 ) (app (text0) ((cons (0) (nil)))) )
 |--
   EX (ret: (@option Z)) ,
-  [| (safeExec ATrue (return (ret)) X ) |] 
+  [| (Exec ATrue (return (ret)) X ) |] 
   &&  [| (((i - n ) + 1 ) = (option_int_repr (ret))) |]
   &&  (store_char_array patn_pre (n + 1 ) (app (patn0) ((cons (0) (nil)))) )
   **  (store_char_array text_pre (m + 1 ) (app (text0) ((cons (0) (nil)))) )
@@ -990,7 +990,7 @@ forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> P
 Definition match_return_wit_2 := 
 forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> Prop))) (m: Z) (n: Z) (vnext0: (@list Z)) (text0: (@list Z)) (patn0: (@list Z)) (retval: Z) (retval_2: Z) (i: Z) (j: Z) ,
   [| (i >= m) |] 
-  &&  [| (safeExec ATrue (match_loop_from (0) (patn0) (text0) (vnext0) (i) (j)) X ) |] 
+  &&  [| (Exec ATrue (match_loop_from (0) (patn0) (text0) (vnext0) (i) (j)) X ) |] 
   &&  [| (n < INT_MAX) |] 
   &&  [| (m < INT_MAX) |] 
   &&  [| (i >= 0) |] 
@@ -1006,7 +1006,7 @@ forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> P
   **  (store_int_array vnext_pre n vnext0 )
 |--
   EX (ret: (@option Z)) ,
-  [| (safeExec ATrue (return (ret)) X ) |] 
+  [| (Exec ATrue (return (ret)) X ) |] 
   &&  [| ((-1) = (option_int_repr (ret))) |]
   &&  (store_char_array patn_pre (n + 1 ) (app (patn0) ((cons (0) (nil)))) )
   **  (store_char_array text_pre (m + 1 ) (app (text0) ((cons (0) (nil)))) )
@@ -1015,7 +1015,7 @@ forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> P
 
 Definition match_partial_solve_wit_1 := 
 forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> Prop))) (m: Z) (n: Z) (vnext0: (@list Z)) (text0: (@list Z)) (patn0: (@list Z)) ,
-  [| (safeExec ATrue (match_loop (0) (patn0) (text0) (vnext0)) X ) |] 
+  [| (Exec ATrue (match_loop (0) (patn0) (text0) (vnext0)) X ) |] 
   &&  [| (n > 0) |] 
   &&  [| (n < INT_MAX) |] 
   &&  [| (m < INT_MAX) |]
@@ -1024,7 +1024,7 @@ forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> P
   **  (store_int_array vnext_pre n vnext0 )
 |--
   [| (0 <= (n + 1 )) |] 
-  &&  [| (safeExec ATrue (match_loop (0) (patn0) (text0) (vnext0)) X ) |] 
+  &&  [| (Exec ATrue (match_loop (0) (patn0) (text0) (vnext0)) X ) |] 
   &&  [| (n > 0) |] 
   &&  [| (n < INT_MAX) |] 
   &&  [| (m < INT_MAX) |]
@@ -1037,7 +1037,7 @@ Definition match_partial_solve_wit_2 :=
 forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> Prop))) (m: Z) (n: Z) (vnext0: (@list Z)) (text0: (@list Z)) (patn0: (@list Z)) (retval: Z) ,
   [| (retval = m) |] 
   &&  [| (0 <= (n + 1 )) |] 
-  &&  [| (safeExec ATrue (match_loop (0) (patn0) (text0) (vnext0)) X ) |] 
+  &&  [| (Exec ATrue (match_loop (0) (patn0) (text0) (vnext0)) X ) |] 
   &&  [| (n > 0) |] 
   &&  [| (n < INT_MAX) |] 
   &&  [| (m < INT_MAX) |]
@@ -1048,7 +1048,7 @@ forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> P
   [| (0 <= (m + 1 )) |] 
   &&  [| (retval = m) |] 
   &&  [| (0 <= (n + 1 )) |] 
-  &&  [| (safeExec ATrue (match_loop (0) (patn0) (text0) (vnext0)) X ) |] 
+  &&  [| (Exec ATrue (match_loop (0) (patn0) (text0) (vnext0)) X ) |] 
   &&  [| (n > 0) |] 
   &&  [| (n < INT_MAX) |] 
   &&  [| (m < INT_MAX) |]
@@ -1060,7 +1060,7 @@ forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> P
 Definition match_partial_solve_wit_3 := 
 forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> Prop))) (m: Z) (n: Z) (vnext0: (@list Z)) (text0: (@list Z)) (patn0: (@list Z)) (retval: Z) (retval_2: Z) (i: Z) (j: Z) ,
   [| (i < m) |] 
-  &&  [| (safeExec ATrue (match_loop_from (0) (patn0) (text0) (vnext0) (i) (j)) X ) |] 
+  &&  [| (Exec ATrue (match_loop_from (0) (patn0) (text0) (vnext0) (i) (j)) X ) |] 
   &&  [| (n < INT_MAX) |] 
   &&  [| (m < INT_MAX) |] 
   &&  [| (i >= 0) |] 
@@ -1076,7 +1076,7 @@ forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> P
   **  (store_int_array vnext_pre n vnext0 )
 |--
   [| (i < m) |] 
-  &&  [| (safeExec ATrue (match_loop_from (0) (patn0) (text0) (vnext0) (i) (j)) X ) |] 
+  &&  [| (Exec ATrue (match_loop_from (0) (patn0) (text0) (vnext0) (i) (j)) X ) |] 
   &&  [| (n < INT_MAX) |] 
   &&  [| (m < INT_MAX) |] 
   &&  [| (i >= 0) |] 
@@ -1096,7 +1096,7 @@ forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> P
 Definition match_partial_solve_wit_4_pure := 
 forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> Prop))) (m: Z) (n: Z) (vnext0: (@list Z)) (text0: (@list Z)) (patn0: (@list Z)) (retval: Z) (retval_2: Z) (i: Z) (j: Z) ,
   [| (i < m) |] 
-  &&  [| (safeExec ATrue (match_loop_from (0) (patn0) (text0) (vnext0) (i) (j)) X ) |] 
+  &&  [| (Exec ATrue (match_loop_from (0) (patn0) (text0) (vnext0) (i) (j)) X ) |] 
   &&  [| (n < INT_MAX) |] 
   &&  [| (m < INT_MAX) |] 
   &&  [| (i >= 0) |] 
@@ -1118,7 +1118,7 @@ forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> P
   **  (store_char_array patn_pre (n + 1 ) (app (patn0) ((cons (0) (nil)))) )
   **  (store_int_array vnext_pre n vnext0 )
 |--
-  [| (safeExec ATrue (bind ((inner_loop (0) (patn0) (vnext0) ((Znth i (app (text0) ((cons (0) (nil)))) 0)) (j))) ((match_loop_from_after (0) (patn0) (text0) (vnext0) (i)))) X ) |] 
+  [| (Exec ATrue (bind ((inner_loop (0) (patn0) (vnext0) ((Znth i (app (text0) ((cons (0) (nil)))) 0)) (j))) ((match_loop_from_after (0) (patn0) (text0) (vnext0) (i)))) X ) |] 
   &&  [| (n <= n) |] 
   &&  [| (n < INT_MAX) |] 
   &&  [| (equiv (match_loop_from (0) (patn0) (text0) (vnext0) (i) (j)) (bind ((inner_loop (0) (patn0) (vnext0) ((Znth i (app (text0) ((cons (0) (nil)))) 0)) (j))) ((match_loop_from_after (0) (patn0) (text0) (vnext0) (i)))) ) |]
@@ -1127,7 +1127,7 @@ forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> P
 Definition match_partial_solve_wit_4_aux := 
 forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> Prop))) (m: Z) (n: Z) (vnext0: (@list Z)) (text0: (@list Z)) (patn0: (@list Z)) (retval: Z) (retval_2: Z) (i: Z) (j: Z) ,
   [| (i < m) |] 
-  &&  [| (safeExec ATrue (match_loop_from (0) (patn0) (text0) (vnext0) (i) (j)) X ) |] 
+  &&  [| (Exec ATrue (match_loop_from (0) (patn0) (text0) (vnext0) (i) (j)) X ) |] 
   &&  [| (n < INT_MAX) |] 
   &&  [| (m < INT_MAX) |] 
   &&  [| (i >= 0) |] 
@@ -1142,7 +1142,7 @@ forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (X: ((@option Z) -> (unit -> P
   **  (store_char_array patn_pre (n + 1 ) (app (patn0) ((cons (0) (nil)))) )
   **  (store_int_array vnext_pre n vnext0 )
 |--
-  [| (safeExec ATrue (bind ((inner_loop (0) (patn0) (vnext0) ((Znth i (app (text0) ((cons (0) (nil)))) 0)) (j))) ((match_loop_from_after (0) (patn0) (text0) (vnext0) (i)))) X ) |] 
+  [| (Exec ATrue (bind ((inner_loop (0) (patn0) (vnext0) ((Znth i (app (text0) ((cons (0) (nil)))) 0)) (j))) ((match_loop_from_after (0) (patn0) (text0) (vnext0) (i)))) X ) |] 
   &&  [| (n <= n) |] 
   &&  [| (n < INT_MAX) |] 
   &&  [| (equiv (match_loop_from (0) (patn0) (text0) (vnext0) (i) (j)) (bind ((inner_loop (0) (patn0) (vnext0) ((Znth i (app (text0) ((cons (0) (nil)))) 0)) (j))) ((match_loop_from_after (0) (patn0) (text0) (vnext0) (i)))) ) |] 
@@ -1175,7 +1175,7 @@ forall (vnext_pre: Z) (text_pre: Z) (patn_pre: Z) (m: Z) (n: Z) (vnext0: (@list 
   **  (store_int_array vnext_pre n vnext0 )
 |--
 EX (patn0_2: (@list Z)) (text0_2: (@list Z)) (vnext0_2: (@list Z)) (n_2: Z) (m_2: Z) (X: ((@option Z) -> (unit -> Prop))) ,
-  ([| (safeExec ATrue (match_loop (0) (patn0_2) (text0_2) (vnext0_2)) X ) |] 
+  ([| (Exec ATrue (match_loop (0) (patn0_2) (text0_2) (vnext0_2)) X ) |] 
   &&  [| (n_2 > 0) |] 
   &&  [| (n_2 < INT_MAX) |] 
   &&  [| (m_2 < INT_MAX) |]
@@ -1184,7 +1184,7 @@ EX (patn0_2: (@list Z)) (text0_2: (@list Z)) (vnext0_2: (@list Z)) (n_2: Z) (m_2
   **  (store_int_array vnext_pre n_2 vnext0_2 ))
   **
   ((EX ret retval_2,
-  [| (safeExec ATrue (return (ret)) X ) |] 
+  [| (Exec ATrue (return (ret)) X ) |] 
   &&  [| (retval_2 = (option_int_repr (ret))) |]
   &&  (store_char_array patn_pre (n_2 + 1 ) (app (patn0_2) ((cons (0) (nil)))) )
   **  (store_char_array text_pre (m_2 + 1 ) (app (text0_2) ((cons (0) (nil)))) )
@@ -1212,13 +1212,13 @@ forall (patn_pre: Z) (n: Z) (str: (@list Z)) ,
   &&  (store_char_array patn_pre (n + 1 ) (app (str) ((cons (0) (nil)))) )
 |--
 EX (str_2: (@list Z)) (n_2: Z) (X: ((@list Z) -> (unit -> Prop))) ,
-  ([| (safeExec ATrue (constr_loop (0) (str_2)) X ) |] 
+  ([| (Exec ATrue (constr_loop (0) (str_2)) X ) |] 
   &&  [| (n_2 > 0) |] 
   &&  [| (n_2 < INT_MAX) |]
   &&  (store_char_array patn_pre (n_2 + 1 ) (app (str_2) ((cons (0) (nil)))) ))
   **
   ((EX vnext_2 retval_2,
-  [| (safeExec ATrue (return (vnext_2)) X ) |]
+  [| (Exec ATrue (return (vnext_2)) X ) |]
   &&  (store_int_array retval_2 n_2 vnext_2 )
   **  (store_char_array patn_pre (n_2 + 1 ) (app (str_2) ((cons (0) (nil)))) ))
   -*
@@ -1231,28 +1231,28 @@ EX (str_2: (@list Z)) (n_2: Z) (X: ((@list Z) -> (unit -> Prop))) ,
 Definition inner_derive_bind_spec_by_low_level_spec := 
 forall (B: Type) ,
 forall (j_pre: Z) (ch_pre: Z) (vnext_pre: Z) (str_pre: Z) (f: (Z -> (@program unit B))) (X: (B -> (unit -> Prop))) (m: Z) (n: Z) (vnext0: (@list Z)) (str0: (@list Z)) ,
-  [| (safeExec ATrue (bind ((inner_loop (0) (str0) (vnext0) (ch_pre) (j_pre))) (f)) X ) |] 
+  [| (Exec ATrue (bind ((inner_loop (0) (str0) (vnext0) (ch_pre) (j_pre))) (f)) X ) |] 
   &&  [| (m <= n) |] 
   &&  [| (n < INT_MAX) |]
   &&  (store_char_array str_pre (n + 1 ) (app (str0) ((cons (0) (nil)))) )
   **  (store_int_array vnext_pre m vnext0 )
 |--
 EX (str0_2: (@list Z)) (vnext0_2: (@list Z)) (n_2: Z) (m_2: Z) (X_2: (Z -> (unit -> Prop))) ,
-  ([| (safeExec ATrue (inner_loop (0) (str0_2) (vnext0_2) (ch_pre) (j_pre)) X_2 ) |] 
+  ([| (Exec ATrue (inner_loop (0) (str0_2) (vnext0_2) (ch_pre) (j_pre)) X_2 ) |] 
   &&  [| (m_2 <= n_2) |] 
   &&  [| (n_2 < INT_MAX) |]
   &&  (store_char_array str_pre (n_2 + 1 ) (app (str0_2) ((cons (0) (nil)))) )
   **  (store_int_array vnext_pre m_2 vnext0_2 ))
   **
   ((EX retval_2,
-  [| (safeExec ATrue (return (retval_2)) X_2 ) |] 
+  [| (Exec ATrue (return (retval_2)) X_2 ) |] 
   &&  [| (0 <= retval_2) |] 
   &&  [| (retval_2 < (m_2 + 1 )) |]
   &&  (store_char_array str_pre (n_2 + 1 ) (app (str0_2) ((cons (0) (nil)))) )
   **  (store_int_array vnext_pre m_2 vnext0_2 ))
   -*
   (EX retval,
-  [| (safeExec ATrue (applyf (f) (retval)) X ) |] 
+  [| (Exec ATrue (applyf (f) (retval)) X ) |] 
   &&  [| (0 <= retval) |] 
   &&  [| (retval < (m + 1 )) |]
   &&  (store_char_array str_pre (n + 1 ) (app (str0) ((cons (0) (nil)))) )
