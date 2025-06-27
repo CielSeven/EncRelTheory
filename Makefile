@@ -8,6 +8,11 @@ COQBIN=
 COQC=$(COQBIN)coqc$(SUF)
 COQDEP=$(COQBIN)coqdep$(SUF)
 
+ifeq ($(system), windows)
+	SYMBOLIC_DIR = QCP/win-binary
+else ifeq ($(system), linux)
+	SYMBOLIC_DIR = QCP/linux-binary
+
 DIRS = \
 	Examples Language auxlib EncRelSeq compcert_lib sets unifysl fixedpoints monadlib 
  
@@ -98,7 +103,7 @@ FILES = \
     $(Auxlibs_FILES:%.v=QCP/SeparationLogic/auxlibs/%.v) \
     $(FIXPOINT_FILES:%.v=fixedpoints/%.v) \
     $(MONAD_FILES) \
-    $(EncRelSeq_FILES:%.v=EncRelSeq/%.v) \
+		$(EncRelSeq_FILES:%.v=EncRelSeq/%.v) \
 # 	$(Language_FILES:%.v=Language/%.v) \
 # 	$(Examples_FILES:%.v=Examples/%.v) \
 
