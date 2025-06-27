@@ -128,7 +128,7 @@ Proof.
   { unfold derivable1, andp, coq_prop, encode_asrt, andp, Alst, Ahst, Aspec, Exec.
   intros.
   destructs H.
-  simpl in *.
+  sets_unfold.
   subst cₕ0.
   split;auto.
   eexists;
@@ -137,7 +137,7 @@ Proof.
   unfold derivable1, andp, coq_prop, encode_asrt, andp, Alst, Ahst, Aspec, Exec.
   intros.
   destructs H.
-  simpl in *.
+  sets_unfold. sets_unfold in H1.
   do 2 eexists.
   split;eauto.
 Qed.
