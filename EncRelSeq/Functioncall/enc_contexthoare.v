@@ -195,7 +195,7 @@ Section contextual_validity_soundness.
         apply relfuncspecs_equivforall;auto.
   Qed.
 
-  Theorem validity_lemma : forall (Δ : funcspecs) (Γ : relfuncspecs) (P: @relasrt Σₗ Σₕ (@denosem Σₕ)) (cₗ: (@Langstmts Σₗ callcₗ)) 
+  Theorem encoding_correctness : forall (Δ : funcspecs) (Γ : relfuncspecs) (P: @relasrt Σₗ Σₕ (@denosem Σₕ)) (cₗ: (@Langstmts Σₗ callcₗ)) 
     (Q : @relasrt Σₗ Σₕ (@denosem Σₕ)),
     Δ ⩅ Γ  ⊢ ⟨ P ⟩ cₗ ⟨ Q ⟩ <-> Δ ⩅ Γ ⊢ₑ ⟨ P ⟩ cₗ ⟨ Q ⟩.
   Proof.
@@ -468,7 +468,7 @@ Section contextual_validity_soundness.
         apply relfuncspecs_equivforall;auto.
   Qed.
 
-  Theorem validity_lemma : forall (Δ : funcspecs) (Γ : relfuncspecs) (P: @relasrt Σₗ Σₕ (@denosem Σₕ)) (cₗ: (@Langstmts Σₗ callcₗ)) 
+  Theorem encoding_correctness : forall (Δ : funcspecs) (Γ : relfuncspecs) (P: @relasrt Σₗ Σₕ (@denosem Σₕ)) (cₗ: (@Langstmts Σₗ callcₗ)) 
     (Q : @relasrt Σₗ Σₕ (@denosem Σₕ)),
     Δ ⩅ Γ  ⊢ ⟨ P ⟩ cₗ ⟨ Q ⟩ <-> Δ ⩅ Γ ⊢ₑ ⟨ P ⟩ cₗ ⟨ Q ⟩.
   Proof.
@@ -787,7 +787,7 @@ Section contextual_validity_soundness.
         apply relfuncspecs_equivforall;auto.
   Qed.
 
-  Theorem validity_lemma : forall (Δ : funcspecs) (Γ : relfuncspecs) (P: @relasrt Σₗ Σₕ (@Langstmts Σₕ callcₕ)) (cₗ: (@Langstmts Σₗ callcₗ)) 
+  Theorem encoding_correctness : forall (Δ : funcspecs) (Γ : relfuncspecs) (P: @relasrt Σₗ Σₕ (@Langstmts Σₕ callcₕ)) (cₗ: (@Langstmts Σₗ callcₗ)) 
     (Q : @relasrt Σₗ Σₕ (@Langstmts Σₕ callcₕ)),
     Δ ⩅ Γ  ⊢ ⟨ P ⟩ cₗ ⟨ Q ⟩ <-> Δ ⩅ Γ ⊢ₑ ⟨ P ⟩ cₗ ⟨ Q ⟩.
   Proof.
@@ -1121,7 +1121,7 @@ Section contextual_validity_soundness.
         apply relfuncspecs_equivforall;auto.
   Qed.
 
-  Theorem validity_lemma : forall (Δ : funcspecs) (Γ : relfuncspecs) (P: @relasrt Σₗ Σₕ (@Langstmts Σₕ callcₕ)) (cₗ: (@Langstmts Σₗ callcₗ)) 
+  Theorem encoding_correctness : forall (Δ : funcspecs) (Γ : relfuncspecs) (P: @relasrt Σₗ Σₕ (@Langstmts Σₕ callcₕ)) (cₗ: (@Langstmts Σₗ callcₗ)) 
     (Q : @relasrt Σₗ Σₕ (@Langstmts Σₕ callcₕ)),
     Δ ⩅ Γ  ⊢ ⟨ P ⟩ cₗ ⟨ Q ⟩ <-> Δ ⩅ Γ ⊢ₑ ⟨ P ⟩ cₗ ⟨ Q ⟩.
   Proof.

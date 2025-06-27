@@ -1,7 +1,10 @@
 CURRENT_DIR=.
 QCP_DIR = QCP/SeparationLogic/
 
-COQBIN=
+COQBIN=        # Path to your Coq binaries, or leave empty if 'coqc' is in your PATH
+SymExec_DIR=   # Set to QCP/win-binary/ on Windows, or QCP/linux-binary/ on Linux
+SYM_SUF=       # Set to .exe on Windows; leave empty on Linux
+SUF=           # Set to .exe on Windows; leave empty on Linux
 
 -include CONFIGURE
 
@@ -183,7 +186,13 @@ example_gen : \
 	$(strategy_FILE_NAME:%=Examples/QCPexample/VC/strategy_proof/%_strategy_goal.v) \
 	$(VC_code_FILE_NAME:%=Examples/QCPexample/VC/code_proof/%_goal.v)
 
-QCPEXAMPLE = \
+QCP_Relational_Examples = \
+	$(Qcp_Unify_FILES:%.v=QCP/SeparationLogic/unifysl/LogicGenerator/demo932/%.v) \
+	$(SL_FILES:%.v=QCP/SeparationLogic/SeparationLogic/%.v) \
+	$(MonadExampleQCP) \
+
+
+QCPFILES = \
 	$(Qcp_Unify_FILES:%.v=QCP/SeparationLogic/unifysl/LogicGenerator/demo932/%.v) \
 	$(SL_FILES:%.v=QCP/SeparationLogic/SeparationLogic/%.v) \
 	$(Qcp_Examples_FILES:%.v=QCP/SeparationLogic/examples/%.v) \
@@ -191,7 +200,7 @@ QCPEXAMPLE = \
 	$(Auto_Examples_FILES:%.v=QCP/SeparationLogic/examples/%.v) \
 	$(MonadExampleQCP) \
 
-$(QCPEXAMPLE:%.v=%.vo): %.vo: %.v
+$(QCPFILES:%.v=%.vo): %.vo: %.v
 	@echo COQC $*.v
 	@$(COQC) $(COQ_FLAG) $(CURRENT_DIR)/$*.v
 
@@ -230,20 +239,29 @@ language: $(Language_FILES:%.v=Language/%.vo)
 	@echo "====== monadlib built ======"
 
 encexample: $(FILES:%.v=%.vo)
+	@echo "====== enctheory demo language and examples built ======"
+
+qcpexample:  example_gen \
+  $(QCP_Relational_Examples:%.v=%.vo) 
+	@echo "====== QCP examples built ======"
+
+qcpfullexample:  example_gen \
+  $(QCPFILES:%.v=%.vo) 
+	@echo "====== QCP full examples built ======"
 
 all: \
   $(FILES:%.v=%.vo) \
   example_gen \
-  $(QCPEXAMPLE:%.v=%.vo) \
+  $(QCP_Relational_Examples:%.v=%.vo) \
 
 _CoqProject:
 	@echo $(COQ_FLAG) > _CoqProject
 
 depend:
-	@$(COQDEP) $(DEP_FLAG) $(FILES) $(QCPEXAMPLE) > .depend
+	@$(COQDEP) $(DEP_FLAG) $(FILES) $(QCPFILES) > .depend
 
 .depend:
-	@$(COQDEP) $(DEP_FLAG) $(FILES) $(QCPEXAMPLE) > .depend
+	@$(COQDEP) $(DEP_FLAG) $(FILES) $(QCPFILES) > .depend
 
 clean: 
 	@rm -f $(FILES:%.v=%.glob)  
@@ -251,11 +269,13 @@ clean:
 	@rm -f $(FILES:%.v=%.vok)  
 	@rm -f $(FILES:%.v=%.vos)  
 	@rm -f $(FILES:%.v=.%.aux)  
-	@rm -f $(QCPEXAMPLE:%.v=%.glob)  
-	@rm -f $(QCPEXAMPLE:%.v=%.vo)  
-	@rm -f $(QCPEXAMPLE:%.v=%.vok)  
-	@rm -f $(QCPEXAMPLE:%.v=%.vos)  
-	@rm -f $(QCPEXAMPLE:%.v=.%.aux)  
+	@rm -f $(QCPFILES:%.v=%.glob)  
+	@rm -f $(QCPFILES:%.v=%.vo)  
+	@rm -f $(QCPFILES:%.v=%.vok)  
+	@rm -f $(QCPFILES:%.v=%.vos)  
+	@rm -f $(QCPFILES:%.v=.%.aux)  
+	@rm -f **/.*.aux
+	@rm -f **/**/.*.aux
 	@rm -f .depend
 
 .PHONY: clean depend
