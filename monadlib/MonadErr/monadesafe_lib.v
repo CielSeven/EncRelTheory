@@ -60,8 +60,9 @@ Section  safeexec_rules.
     unfold hs_eval, valid_angelic_triple. unfold_monad.
     split;intros.
     - specialize (H _ H0) as (? & ? & ?).
-      eexists. splits;eauto.
+      sets_unfold. eexists. splits;eauto.
     - specialize (H _ H0) as (? & ? & ? & ? & ?). subst.
+      sets_unfold. sets_unfold in H.
       eexists. splits;eauto.
   Qed. 
 
@@ -70,7 +71,8 @@ Section  safeexec_rules.
   (forall X, Exec P (c1) X ->  Exec (P' a) (ret a) X).
   Proof.
     intros.
-    unfold hs_eval, Exec in *; simpl in *. unfold weakestpre in *. 
+    unfold hs_eval, Exec in *; simpl in *. unfold weakestpre in *. sets_unfold.
+    sets_unfold in H0.
     destructs H0. 
     simpl in *.
     specialize (H _ H0) as [σₕ' [? ?]].
@@ -99,9 +101,11 @@ Section  safeexec_rules.
   (forall X, Exec P (x <- c1;; c2 x) X ->  Exec (P') (c2 a) X).
   Proof.
     intros.
-    unfold hs_eval, Exec in *; simpl in *. unfold weakestpre in *. 
+    unfold hs_eval, Exec in *; simpl in *. unfold weakestpre in *.
+    sets_unfold in H0. 
     destructs H0. 
     specialize (H _ H0) as [σₕ' [? ?]].
+    sets_unfold.
     exists σₕ'.
     splits;auto.
     eapply bind_noerr_right;eauto.
@@ -215,7 +219,7 @@ Section  safeexec_rules.
   Lemma Exec_ex : forall {A B: Type} (P: A -> Σ -> Prop) (c:  program Σ B) X,
   (exists a, Exec (P a) (c) X) <->  Exec (fun σ => exists a, P a σ) (c) X.
   Proof.
-    unfold Exec;simpl;unfold weakestpre;intros;split;intros.
+    unfold Exec;simpl;unfold weakestpre;sets_unfold. intros;split;intros.
     - destruct H as (? & ? & ? & ?).
       eexists.
       split;eauto.
@@ -238,7 +242,7 @@ Section  safeexec_rules.
   c1 == c2 ->
   Exec P c1 X -> Exec P c2 X.
   Proof.
-    unfold Exec;simpl;unfold weakestpre;intros.
+    unfold Exec;simpl;unfold weakestpre;sets_unfold. intros.
     destructs H0.
     eexists.
     split;eauto.
@@ -425,6 +429,7 @@ Section  safeexec_rules.
     unfold Exec, ATrue;simpl_hdefs;unfold weakestpre;sets_unfold.
     intros.
     destructs H; simpl in H1.
+    sets_unfold in H1.
     specialize (H1 l st (ltac:(auto))).
     exists st.
     auto.
@@ -436,6 +441,7 @@ Section  safeexec_rules.
   Proof.
     unfold Exec;simpl_hdefs;unfold weakestpre.
     intros.
+    sets_unfold in H.
     destruct H as [? [? ?]].
     unfold safe in *.
     unfold choice in H0; simpl in H0.

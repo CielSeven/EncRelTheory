@@ -89,13 +89,14 @@ Examples_FILES = \
 
 
 FILES = \
+	$(Unify_FILES:%.v=QCP/SeparationLogic/unifysl/LogicGenerator/demo932/%.v) \
     $(Sets_FILES:%.v=QCP/SeparationLogic/sets/%.v) \
     $(Compcertlib_FILES:%.v=QCP/SeparationLogic/compcert_lib/%.v) \
     $(Auxlibs_FILES:%.v=QCP/SeparationLogic/auxlibs/%.v) \
     $(FIXPOINT_FILES:%.v=fixedpoints/%.v) \
     $(MONAD_FILES) \
     $(EncRelSeq_FILES:%.v=EncRelSeq/%.v) \
-# 	$(Language_FILES:%.v=Language/%.v) \
+	$(Language_FILES:%.v=Language/%.v) \
 # 	$(Examples_FILES:%.v=Examples/%.v) \
 
 $(FILES:%.v=%.vo): %.vo: %.v

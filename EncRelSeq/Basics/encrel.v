@@ -50,7 +50,8 @@ Section normal_validity_soundness.
       subst.
       do 2 eexists. split;[ | eauto].
       unfold weakestpre.
-      cbn;intros.
+      sets_unfold.
+      intros.
       sets_unfold in H. subst.
       eapply Hhnrm;eauto.
     - unfold valid_RelTriples, valid_triple.
@@ -66,7 +67,7 @@ Section normal_validity_soundness.
       specialize (HT H) as ?.
       specialize (H0 _ Heval). 
       unfold encode_asrt in *. 
-      simpl_hdefs. unfold weakestpre in *.  simpl in *.
+      simpl_hdefs. unfold weakestpre in *. sets_unfold in H0.  
       destruct H0 as [σₕ' [cₕ' [? ?]]];subst.
       do 2 eexists.
       split;eauto.

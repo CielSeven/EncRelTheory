@@ -219,7 +219,7 @@ Proof.
   - intros st1 ?.
     unfold encode_asrt, lift, basicasrt.andp, Aspec. simpl.
     do 2 eexists. split;[ | eauto].
-    unfold StateRelHoare.weakestpre.
+    unfold StateRelHoare.weakestpre. sets_unfold. 
     intros. auto.
   - intros st1 HQ.
     unfold encode_asrt, lift, basicasrt.andp, Aspec in HQ.

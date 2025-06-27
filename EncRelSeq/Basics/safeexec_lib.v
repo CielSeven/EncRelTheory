@@ -44,7 +44,7 @@ Section  safe_rules.
     specialize (H (fun x => s.(nrm) st x)).
     assert ((exists σₕ0 : Σ, P σₕ0 /\ safe σₕ0 s (fun x : Σ => nrm s st x))).
     { eexists;splits;eauto. 
-      unfold safe. simpl. unfold weakestpre. auto. }
+      unfold safe. simpl. sets_unfold. unfold weakestpre. auto. }
     specialize (H H2);clear H2.
     destructs H. 
     specialize (H2 st0 (Logic.eq_refl _)).

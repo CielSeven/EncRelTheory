@@ -78,7 +78,7 @@ Section practical_validity_soundness.
         split;[ | eauto].
         unfold config_refinement ;cbn;sets_unfold.
         split.
-        { intros. 
+        { intros. sets_unfold in H2. 
         destruct H2 as [_ ?].
         auto. }
         intros.

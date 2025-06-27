@@ -151,7 +151,7 @@ Proof.
     intros.
     destruct H0 as (? & ? & ? &  (? & ?) & ?).
     subst x0.
-    unfold safe in H0. simpl_hdefs. sets_unfold in H0.
+    unfold safe in H0. simpl_hdefs. sets_unfold in H0. sets_unfold. 
     do 2 eexists.
     split;eauto.
     split;eauto.
@@ -159,9 +159,9 @@ Proof.
     unfold lift, Aspec, andp, encode_asrt, comp_proj, comp, derivable1, proj1. 
     intros.
     destruct H0 as (? & ? & (? & ? & ? & ? & ? & ? & ?)).
-    subst x0 x2. simpl_hdefs. 
+    subst x0 x2. simpl_hdefs.
     do 2 eexists.
-    split;eauto.
+    split;eauto. 
 Qed.
 
 

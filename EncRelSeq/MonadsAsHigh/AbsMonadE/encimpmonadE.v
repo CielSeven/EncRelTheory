@@ -563,7 +563,8 @@ Proof.
     eapply derivable1_andp_mono;[ | reflexivity].
     eapply derivable1_andp_mono;[ | reflexivity].
     apply coq_prop_imply.
-    unfold Exec. simpl_hdefs. sets_unfold. unfold weakestpre. 
+    unfold Exec. simpl_hdefs. sets_unfold. unfold weakestpre.
+    sets_unfold.  
     intros [σₕ' [? ?]].
     destruct H1.
     specialize (H2 _ σₕ' (ltac:(unfold_monad;auto))).

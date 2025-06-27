@@ -116,12 +116,12 @@ Proof.
   - intros st1 ?.
     unfold encode_asrt, lift, basicasrt.andp, Aspec. simpl.
     do 2 eexists. split;[ | eauto].
-    unfold weakestpre.
+    unfold weakestpre. sets_unfold. 
     intros. auto.
   - intros st1 HQ.
     unfold encode_asrt, lift, basicasrt.andp, Aspec in HQ.
     destruct HQ as [σₕ' [cₕ' [? [? ?]]]]. subst. simpl_hdefs.
-    rewrite weakestpre_skip in H. simpl in H.
+    rewrite weakestpre_skip in H. sets_unfold  in H.
     specialize (HHT _ HPH _ H).
     do 2 eexists. cbv. split;eauto.
 Qed.
@@ -149,7 +149,7 @@ Proof.
     intros.
     destruct H0 as (? & ? & ? &  (? & ?) & ?).
     subst x0.
-    unfold safe in H0. simpl_hdefs. sets_unfold in H0.
+    unfold safe in H0. simpl_hdefs. sets_unfold in H0. sets_unfold. 
     do 2 eexists.
     split;eauto.
     split;eauto.

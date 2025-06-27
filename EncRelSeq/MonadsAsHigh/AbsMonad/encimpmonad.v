@@ -448,6 +448,7 @@ Proof.
   eapply hoare_conseq;eauto.
   - intros st1 ?.
     unfold encode_asrt, lift, basicasrt.andp, Aspec. simpl.
+    sets_unfold. 
     do 2 eexists. split;[ | eauto].
     unfold weakestpre. auto.
   - intros st1 HQ.
