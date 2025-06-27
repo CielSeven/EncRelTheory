@@ -32,9 +32,6 @@ Sets_FILES = \
 FIXPOINT_FILES = \
   Coqlib.v LiftConstructors.v  PartialOrder_Setoid.v  KnasterTarski.v  BourbakiWitt.v AllFramework.v SetsFixedpoints.v
 
-AsrtLogic_FILES = \
-	SLInterface1.v SLInterface2.v 
-
 Basics_FILES = \
 	basictacs.v basicasrt.v semantics.v hoarelogic.v \
 	relasrt.v relhoarelogic.v encdefs.v safeexec_lib.v encrel.v smallstep2deno.v enc_rules.v \
@@ -55,7 +52,6 @@ AbsMonadE_FILES = \
 	relhoarelogic.v encrel.v encimpmonadE.v \
 
 EncRelSeq_FILES = \
-	$(AsrtLogic_FILES:%.v=AsrtLogic/%.v) \
 	$(Basics_FILES:%.v=Basics/%.v) \
 	$(UBErrorHandling_FILES:%.v=UBError/%.v) \
 	$(Functioncall_FILES:%.v=Functioncall/%.v) \

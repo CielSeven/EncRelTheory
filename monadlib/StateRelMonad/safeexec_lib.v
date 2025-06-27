@@ -51,9 +51,9 @@ Section  safeexec_rules.
     unfold hs_eval, valid_angelic_triple. unfold_monad.
     split;intros.
     - specialize (H _ H0) as (? & ? & ?).
-      eexists. splits;eauto.
+      sets_unfold. eexists. splits;eauto.
     - specialize (H _ H0) as (? & ? & ? & ? & ?). subst.
-      eexists. splits;eauto.
+      sets_unfold in H. eexists. splits;eauto.
   Qed. 
 
   Lemma highstependret_derive : forall  {A : Type} (c1: program Σ A)  (P  : Σ -> Prop) a P',
@@ -65,6 +65,7 @@ Section  safeexec_rules.
     destructs H0. 
     simpl in *.
     specialize (H _ H0) as [σₕ' [? ?]].
+    sets_unfold. sets_unfold in H1. 
     exists σₕ'.
     splits;auto.
     intros.
@@ -94,6 +95,7 @@ Section  safeexec_rules.
     destructs H0. 
     simpl in *.
     specialize (H _ H0) as [σₕ' [? ?]].
+    sets_unfold. sets_unfold in H1.
     exists σₕ'.
     splits;auto.
     intros.
@@ -199,9 +201,11 @@ Section  safeexec_rules.
   Proof.
     unfold Exec;simpl;unfold weakestpre;intros;split;intros.
     - destruct H as (? & ? & ? & ?).
+      sets_unfold. sets_unfold in H.
       eexists.
       split;eauto.
     - destruct H as (? & (? & ?) & ?).
+      sets_unfold. sets_unfold in H0.
       do 2 eexists.
       split;eauto.
   Qed. 
@@ -210,7 +214,7 @@ Section  safeexec_rules.
   c2 ⊆ c1 ->
   Exec P c1 X -> Exec P c2 X.
   Proof.
-    unfold Exec;simpl;unfold weakestpre; intros.
+    unfold Exec;simpl;unfold weakestpre; sets_unfold. intros.
     destructs H0.
     eexists.
     split;eauto.
@@ -225,18 +229,15 @@ Section  safeexec_rules.
     Exec P c X1 ->
     Exec P c X2.
   Proof.
-    unfold Exec;simpl;unfold weakestpre; intros Hx [s [H1 H2]].
+    unfold Exec;simpl;unfold weakestpre;sets_unfold. intros Hx [s [H1 H2]].
     exists s; split; auto.
-    intros a s' H3.
-    apply Hx.
-    apply H2; auto.
   Qed.
 
   Lemma Exec_proequiv: forall {A : Type} (c1 c2: program Σ A)  (P  : Σ -> Prop) X,
     c1 == c2 ->
     Exec P c1 X -> Exec P c2 X.
   Proof.
-    unfold Exec;simpl;unfold weakestpre; intros.
+    unfold Exec;simpl;unfold weakestpre;sets_unfold. intros.
     destructs H0.
     eexists.
     split;eauto.
