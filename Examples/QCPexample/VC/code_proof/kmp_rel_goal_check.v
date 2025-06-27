@@ -1,4 +1,4 @@
-From Examples.QCP Require Import kmp_rel_goal kmp_rel_proof_auto kmp_rel_proof_manual.
+From Examples.QCPexample Require Import kmp_rel_goal kmp_rel_proof_auto kmp_rel_proof_manual.
 
 Module VC_Correctness : VC_Correct.
   Include common_strategy_proof.

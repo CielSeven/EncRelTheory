@@ -11,9 +11,9 @@ COQDEP=$(COQBIN)coqdep$(SUF)
 DIRS = \
 	Examples Language auxlib EncRelSeq compcert_lib sets unifysl fixedpoints monadlib 
  
-COQ_FLAG = -R $(QCP_DIR)sets SetsClass -R $(QCP_DIR)unifysl Logic -R $(QCP_DIR)compcert_lib compcert.lib -R $(QCP_DIR)auxlibs AUXLib -R EncRelSeq EncRelSeq -R Language LangLib -R Examples Examples -R fixedpoints FP -R monadlib MonadLib -R $(QCP_DIR)SeparationLogic SimpleC.SL -R $(QCP_DIR)examples SimpleC.EE -R Examples/QCPexample Examples.QCP
+COQ_FLAG = -R $(QCP_DIR)sets SetsClass -R $(QCP_DIR)unifysl Logic -R $(QCP_DIR)compcert_lib compcert.lib -R $(QCP_DIR)auxlibs AUXLib -R EncRelSeq EncRelSeq -R Language LangLib -R Examples Examples -R fixedpoints FP -R monadlib MonadLib -R $(QCP_DIR)SeparationLogic SimpleC.SL -R $(QCP_DIR)examples SimpleC.EE
  
-DEP_FLAG = -R $(QCP_DIR)sets SetsClass -R $(QCP_DIR)unifysl Logic -R $(QCP_DIR)compcert_lib compcert.lib -R $(QCP_DIR)auxlibs AUXLib -R EncRelSeq EncRelSeq -R Language LangLib -R Examples Examples -R fixedpoints FP -R monadlib MonadLib -R $(QCP_DIR)SeparationLogic SimpleC.SL -R $(QCP_DIR)examples SimpleC.EE -R Examples/QCPexample Examples.QCP
+DEP_FLAG = -R $(QCP_DIR)sets SetsClass -R $(QCP_DIR)unifysl Logic -R $(QCP_DIR)compcert_lib compcert.lib -R $(QCP_DIR)auxlibs AUXLib -R EncRelSeq EncRelSeq -R Language LangLib -R Examples Examples -R fixedpoints FP -R monadlib MonadLib -R $(QCP_DIR)SeparationLogic SimpleC.SL -R $(QCP_DIR)examples SimpleC.EE
 
 Compcertlib_FILES = \
   Coqlib.v Integers.v Zbits.v 
@@ -118,7 +118,7 @@ $(strategy_FILE_NAME:%=Examples/QCPexample/VC/strategy_proof/%_strategy_goal.v) 
 
 $(VC_code_FILE_NAME:%=Examples/QCPexample/VC/code_proof/%_goal.v) : Examples/QCPexample/VC/code_proof/%_goal.v: Examples/QCPexample/annotated_C/%.c
 	@echo CODE_PROOF_GEN $*.c
-	@$(SymExec_DIR)symexec$(SYM_SUF) --goal-file=Examples/QCPexample/VC/code_proof/$*_goal.v --proof-auto-file=Examples/QCPexample/VC/code_proof/$*_proof_auto.v --proof-manual-file=Examples/QCPexample/VC/code_proof/$*_proof_manual.v --input-file=Examples/QCPexample/annotated_C/$*.c  -slp Examples/QCPexample/annotated_C/ Examples.QCP.strategy -slp QCP/QCP_examples/ SimpleC.EE -IQCP/QCP_examples --coq-logic-path=Examples.QCP --no-exec-info
+	@$(SymExec_DIR)symexec$(SYM_SUF) --goal-file=Examples/QCPexample/VC/code_proof/$*_goal.v --proof-auto-file=Examples/QCPexample/VC/code_proof/$*_proof_auto.v --proof-manual-file=Examples/QCPexample/VC/code_proof/$*_proof_manual.v --input-file=Examples/QCPexample/annotated_C/$*.c  -slp Examples/QCPexample/annotated_C/ Examples.QCPexample.VC.strategy_proof -slp QCP/QCP_examples/ SimpleC.EE -IQCP/QCP_examples --coq-logic-path=Examples.QCPexample --no-exec-info
 
 example_gen : \
 	$(strategy_FILE_NAME:%=Examples/QCPexample/VC/strategy_proof/%_strategy_goal.v) \

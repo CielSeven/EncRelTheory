@@ -1,4 +1,4 @@
-From Examples.QCP Require Import sll_merge_rel_goal sll_merge_rel_proof_auto sll_merge_rel_proof_manual.
+From Examples.QCPexample Require Import sll_merge_rel_goal sll_merge_rel_proof_auto sll_merge_rel_proof_manual.
 
 Module VC_Correctness : VC_Correct.
   Include common_strategy_proof.

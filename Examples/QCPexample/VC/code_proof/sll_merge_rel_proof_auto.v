@@ -9,7 +9,7 @@ Require Import Coq.Sorting.Permutation.
 From AUXLib Require Import int_auto Axioms Feq Idents List_lemma VMap.
 Require Import SetsClass.SetsClass. Import SetsNotation.
 From SimpleC.SL Require Import Mem SeparationLogic.
-From Examples.QCP Require Import sll_merge_rel_goal.
+From Examples.QCPexample Require Import sll_merge_rel_goal.
 Require Import Logic.LogicGenerator.demo932.Interface.
 Local Open Scope Z_scope.
 Local Open Scope sets.
