@@ -35,29 +35,27 @@ Basics_FILES = \
 	relasrt.v relhoarelogic.v encdefs.v safeexec_lib.v encrel.v smallstep2deno.v enc_rules.v \
 
 UBErrorHandling_FILES = \
-	errsem.v hoarelogic.v relhoarelogic.v safeexec_lib.v encrel.v smallstep2deno.v enc_rules.v \
+	errsem.v hoarelogic.v relhoarelogic.v safeexec_lib.v encrel.v smallstep2deno.v enc_rules.v 
 
 Functioncall_FILES = \
-	callsem.v contexthoare.v contexthoare_imp.v enc_contexthoare.v \
-	# enc_contexthoareimp.v 
+	callsem.v contexthoare.v contexthoare_imp.v enc_contexthoare.v enc_contexthoareimp.v 
 
 AbsSep_FILES = \
 	sepRel.v
 
 AbsMonad_FILES = \
-	enc_rules.v encimpmonad.v encrel.v hoarelogic.v 
+	relhoarelogic.v encrel.v encimpmonad.v \
 	
 AbsMonadE_FILES = \
-	encimpmonadE.v encrel.v hoarelogic.v 
+	relhoarelogic.v encrel.v encimpmonadE.v \
 
 EncRelSeq_FILES = \
 	$(AsrtLogic_FILES:%.v=AsrtLogic/%.v) \
 	$(Basics_FILES:%.v=Basics/%.v) \
 	$(UBErrorHandling_FILES:%.v=UBError/%.v) \
 	$(Functioncall_FILES:%.v=Functioncall/%.v) \
-	# $(AbsSep_FILES:%.v=AbsSep/%.v) \
-	# $(AbsMonad_FILES:%.v=AbsMonad/%.v) \
-	# $(AbsMonadE_FILES:%.v=AbsMonadE/%.v) \
+	$(AbsMonad_FILES:%.v=MonadsAsHigh/AbsMonad/%.v) \
+	$(AbsMonadE_FILES:%.v=MonadsAsHigh/AbsMonadE/%.v) \
 
 Unify_FILES = \
    Interface.v 

@@ -25,6 +25,17 @@ Definition Hoare {Σ A: Type}
     P σ1 -> c.(nrm) σ1 a σ2 -> Q a σ2)
   /\ (forall (σ1: Σ), P σ1 -> c.(err) σ1 -> False)).
 
+Definition valid_angelic_triple {Σ A: Type}
+  (P: Σ -> Prop)
+  (c: program Σ A)
+  (Q: A -> Σ -> Prop): Prop := 
+    forall s1, P s1 -> exists a s2, (s1, a, s2) ∈ c.(nrm) /\ Q a s2.
+
+Definition weakestpre {Σ A: Type}
+  (c: program Σ A)
+  (Q: A -> Σ -> Prop): Σ -> Prop := 
+    fun σ =>  ~ c.(err) σ /\ forall r σ', (σ, r, σ') ∈ c.(nrm) -> Q r σ'.
+
 Lemma Hoare_proequiv:
   forall {A Σ: Type} (c1 c2: program Σ A) (P: Σ -> Prop) (Q: A -> Σ -> Prop),
     c1 == c2 ->

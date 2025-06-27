@@ -11,7 +11,7 @@ From AUXLib Require Import Feq Idents  List_lemma VMap int_auto ListLib.
 From compcert.lib Require Import Integers.
 From LangLib.ImpP Require Import PermissionModel Mem mem_lib Imp Assertion ImpTactics ImpHoareTactics slllib ArrayLib. 
 From EncRelSeq Require Import callsem basicasrt contexthoare_imp. 
-From EncRelSeq.AbsMonad Require Import  encimpmonad.
+From EncRelSeq.MonadsAsHigh.AbsMonad Require Import  encimpmonad.
 Require Import MonadLib.MonadLib.
 Import StateRelMonad.
 From Examples Require Import MergeSort CmergesortArray.
@@ -36,14 +36,14 @@ Local Open Scope monad.
 Definition merge_spec := {|
   FS_With := ((list Z) -> unit -> Prop) * (int64) * Z * Z * Z;
   FS_Pre := fun '(X, xv, p, q, r) =>
-            (EX lx ly, !! (safeExec ATrue (merge_rel lx ly) X) &&
+            (EX lx ly, !! (Exec ATrue (merge_rel lx ly) X) &&
             !! (0 <= p <= q /\ q < r <= Int64.max_signed)%Z &&
             GV _arg1 ↦ₗ xv && GV _arg2 ↦ₗ (Int64.repr p) && 
             GV _arg3 ↦ₗ (Int64.repr q) && GV _arg4 ↦ₗ (Int64.repr r) &&
             store_int_array ➀ (Int64.add xv (Int64.repr p)) (q - p + 1) lx ** 
             store_int_array ➀ (Int64.add xv (Int64.repr (q + 1))) (r - q) ly);
   FS_Post := fun '(X, xv, p, q, r) =>
-            (EX lr, !! (safeExec ATrue (return lr) X) &&
+            (EX lr, !! (Exec ATrue (return lr) X) &&
             store_int_array ➀ (Int64.add xv (Int64.repr p)) (r - p + 1) lr );
 |}. 
 
@@ -534,7 +534,7 @@ Proof.
       (* abs step *)
       rewrite (gmergesortrec_unfold lx) in H.
       unfold gmergesortrec_f in H. 
-      apply safeExec_choice_left in H.
+      apply Exec_choice_left in H.
       revert H; apply (highstependret_derive _ _ _ (fun _ => ATrue)).
       hnf.
       intros ? _; exists tt.
@@ -578,7 +578,7 @@ Proof.
     rewrite (gmergesortrec_unfold lx) in H.
     unfold gmergesortrec_f in H.
     unfold gmergesortrec_loc0.
-    apply safeExec_choice_right in H.
+    apply Exec_choice_right in H.
     unfold seq in H.
     prove_by_one_abs_step tt.
     abs_test_step.

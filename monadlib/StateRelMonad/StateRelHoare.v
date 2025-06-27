@@ -16,6 +16,18 @@ Definition Hoare {Σ A: Type}
   (Q: A -> Σ -> Prop): Prop := 
     forall s1 a s2, P s1 -> (s1, a, s2) ∈ c -> Q a s2.
 
+Definition valid_angelic_triple {Σ A: Type}
+  (P: Σ -> Prop)
+  (c: program Σ A)
+  (Q: A -> Σ -> Prop): Prop := 
+    forall s1, P s1 -> exists a s2, (s1, a, s2) ∈ c /\ Q a s2.
+
+Definition weakestpre {Σ A: Type}
+  (c: program Σ A)
+  (Q: A -> Σ -> Prop): Σ -> Prop := 
+    fun σ =>  forall r σ', c σ r σ' -> Q r σ'.
+
+Section  HoareRules.
 Theorem Hoare_bind {Σ A B: Type}:
   forall (P: Σ -> Prop)
          (f: program Σ A)
@@ -497,6 +509,7 @@ Proof.
   destruct H0; subst; tauto.
 Qed.
   
+End  HoareRules.
 (** Hoare Tactics *)
 
 Tactic Notation "hoare_bind" uconstr(H) :=

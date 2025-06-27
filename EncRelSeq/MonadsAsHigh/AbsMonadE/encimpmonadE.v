@@ -1,8 +1,9 @@
 
 From AUXLib Require Import List_lemma.
 From SetsClass Require Import SetsClass.
-From EncRelSeq Require Import callsem basicasrt. 
-From EncRelSeq Require Export contexthoare  contexthoare_imp AbsMonadE.hoarelogic  AbsMonadE.encrel .
+From EncRelSeq.Basics Require Import basictacs basicasrt relasrt encdefs.
+From EncRelSeq.Functioncall Require Import callsem contexthoare contexthoare_imp.
+From EncRelSeq.MonadsAsHigh.AbsMonadE Require Import relhoarelogic encrel.
 Require Import MonadLib.MonadLib.
 Import StateRelMonadErr.
 Require Import Coq.Lists.List.
@@ -23,7 +24,7 @@ Module RelJoinStateGlobalEnvAbsMonad.
 Import practicaldeno.
 Import RelHoarePracticalDenoAsbMonad.
 Import ContextualJoinStateGlobalEnv.
-Import EncPracticalDenoAbsMonad.
+
 Section contextual_relationaltriples.
   Context {lgst : lgstate}.
   Context {callc: @calllang_envstate local_cstate global_cstate}.
@@ -53,7 +54,7 @@ Section contextual_relationaltriples.
       forall lgst2, 
         (χ f).(nrm) (mk_gstate lst1.(genv) lst1.(st_mem)) lgst2 -> ((hstmt).(err) hst1) \/
         exists hst2 hstmt2, 
-        (- hst1, hstmt -) ↪ (- hst2, hstmt2 -) /\
+        ( hst1, hstmt ) ↪ ( hst2, hstmt2 ) /\
         exists lm2, join lm2 lmf lgst2.(gst_mem) /\
         fspec.(rFS_Post) w ((mk_lstate lst1.(lenv) lgst2.(ggenv) lm2), hst2, hstmt2).
 
@@ -65,7 +66,7 @@ Section contextual_relationaltriples.
     forall lst2, (evalnrm (fun f => (χ f).(nrm)) c) lst1 lst2 ->
     ((hstmt1).(err) hst1) \/
     exists hst2 hstmt2, 
-    (- hst1, (hstmt1) -) ↪ (- hst2, (hstmt2) -) /\
+    ( hst1, (hstmt1) ) ↪ ( hst2, (hstmt2) ) /\
     exists lm2, join lm2 lmf lst2.(st_mem) /\
     Q ((mk_lstate lst2.(lenv) lst2.(genv) lm2), hst2, hstmt2).
 
@@ -84,7 +85,7 @@ Section contextual_relationaltriples.
     forall lgst2, 
       (χ f).(nrm) (mk_gstate lst1.(genv) lst1.(st_mem)) lgst2 -> ((hstmt).(err) hst1) \/
       exists hst2 hstmt2, 
-      (- hst1, hstmt -) ↪ (- hst2, hstmt2 -) /\
+      ( hst1, hstmt ) ↪ ( hst2, hstmt2 ) /\
       exists lm2, join lm2 lmf lgst2.(gst_mem) /\
       fspec.(rFS_Post) w ((mk_lstate lst1.(lenv) lgst2.(ggenv) lm2), hst2, hstmt2)) Γ.
   Proof.
@@ -135,7 +136,7 @@ Notation " '(|' Γ '|)'  " := (encode_relfuncspecs Γ)  (at level 20, no associa
 (*************************************************************************************************************)
 (*******************************     soundness proof for valid_contextualrelT    *****************************)
 (*************************************************************************************************************)
-Require Import Coq.Logic.Classical_Prop.
+Import Coq.Logic.Classical_Prop.
 
 Section contextual_validity_soundness.
   Context {lgst : lgstate}.
@@ -177,7 +178,7 @@ Section contextual_validity_soundness.
           { unfold encode_asrt.
             do 2 eexists.
             split;eauto.
-            unfold safe.
+            simpl_hdefs. unfold weakestpre. sets_unfold.
             split;auto.
             intros.
             subst X.
@@ -192,7 +193,7 @@ Section contextual_validity_soundness.
           { unfold encode_asrt.
             do 2 eexists.
             split;eauto.
-            unfold safe.
+            simpl_hdefs. unfold weakestpre. sets_unfold.
             split;auto.
             intros.
             subst X.
@@ -204,7 +205,7 @@ Section contextual_validity_soundness.
           destruct H2 as (lm2 & Hjoin & hst2 & hstmt2 & [? ?] & HQ).
           do 2 eexists.
           split;eauto.
-          unfold sem_eval.
+          unfold config_refinement. 
           split;intros.
           { subst X. eapply H3;eauto. }  
           contradiction.
@@ -239,14 +240,14 @@ Section contextual_validity_soundness.
           split;eauto.
           exists hst2, hstmt2.
           split;auto.
-          unfold safe.
-          split;auto.
+          simpl_hdefs. unfold weakestpre.  split; auto.
+          intros. apply HHnrm; eauto. apply Hheval1;auto.
       + apply funcspecs_equivforall.
         apply IHΓ.
         apply relfuncspecs_equivforall;auto.
   Qed.
 
-  Theorem validity_lemma {A: Type}: forall (Δ : funcspecs) (Γ : relfuncspecs) (P: @relasrt local_cstate Σₕ (program Σₕ A)) (cₗ: Langstmts) 
+  Theorem encoding_correctness {A: Type}: forall (Δ : funcspecs) (Γ : relfuncspecs) (P: @relasrt local_cstate Σₕ (program Σₕ A)) (cₗ: Langstmts) 
     (Q : @relasrt local_cstate Σₕ (program Σₕ A)),
     Δ ⩅ Γ  ⊢ ⟨ P ⟩ cₗ ⟨ Q ⟩ <-> Δ ⩅ Γ ⊢ₑ ⟨ P ⟩ cₗ ⟨ Q ⟩.
   Proof.
@@ -269,11 +270,11 @@ Section contextual_validity_soundness.
       eexists.
       split;eauto.
       do 2 eexists. split;eauto.
-      unfold safe.
+      simpl_hdefs. unfold weakestpre. sets_unfold.
       split;[cbn;auto | ].
       cbn;intros.
       sets_unfold in H. subst.
-      eapply Hhnrm;eauto.
+      eapply Hhnrm;eauto. apply Hheval. auto.
     - unfold valid_contextualreltriple, valid_contextualrelT, valid_contextualtriple.
       intros HT χ HDelta HGamma lst1 lm1 lmf hst1 hstmt1 Hframe HP.
       specialize (HT (fun r hst => (hstmt1).(nrm) hst1 r  hst) χ).
@@ -292,7 +293,7 @@ Section contextual_validity_soundness.
         {| lenv := lenv lst1; genv := genv lst1; st_mem := lm1 |}).
         { unfold encode_asrt.
           do 2 eexists. split;eauto.
-          unfold safe.
+          simpl_hdefs. unfold weakestpre. sets_unfold.
           split;auto. 
         }
         specialize (HT H2) as [? ?].
@@ -305,7 +306,7 @@ Section contextual_validity_soundness.
         {| lenv := lenv lst1; genv := genv lst1; st_mem := lm1 |}).
         { unfold encode_asrt, lift.
           do 2 eexists. split;eauto.
-          unfold safe.
+          simpl_hdefs. unfold weakestpre. sets_unfold.
           split;auto. 
         }
         specialize (HT H1) as [? ?].
@@ -314,42 +315,37 @@ Section contextual_validity_soundness.
         destruct H3 as [hst2 [hstmt2 [? ?]]];subst.
         do 2 eexists.
         split;eauto.
-        unfold sem_eval;cbn.
+        unfold config_refinement;cbn.
         split.
         { intros. 
-        unfold safe in H3.
+        unfold weakestpre in H3.
         destruct H3 as [_ ?].
         sets_unfold in H3.
         auto. }
         intros.
-        unfold safe in H3.
+        unfold weakestpre in H3.
         destruct H3 as [? _].
         contradiction.
   Qed. 
   
 End contextual_validity_soundness.
 
+Local Open Scope asrt_scope. 
+Notation " Δ ⩅ Γ '⊢' '⟨' P '⟩' c '⟨' Q '⟩'" := (valid_contextualreltriple Δ Γ P c Q) (at level 71, no associativity).
 Notation " Δ ⩅ Γ '⊢ₑ' '⟨' P '⟩' c '⟨' Q '⟩'" := (valid_contextualrelT Δ Γ P c Q) (at level 71, no associativity).
 
-End RelJoinStateGlobalEnvAbsMonad.
 
-Module RelJoinStateGlobalEnvAbsMonadRules.
-Import practicaldeno.
-Import RelHoarePracticalDenoAsbMonad.
-Import ContextualJoinStateGlobalEnv.
-Import EncPracticalDenoAbsMonad.
-Import RelJoinStateGlobalEnvAbsMonad.
 (**********************************************************************************)
 (*    encode asrt rules                                                           *)
 (**********************************************************************************)
-Section  RAssertion.
+Section  SepRAssertion.
   Context {lgst : lgstate}.
   Context {callc: @calllang_envstate local_cstate global_cstate}.
   
-  Context {Σₕ A: Type}.
+  Context {Σₕ: Type}.
 
-  Definition relexpr {A: Type} : Type := local_cstate * Σₕ * (program Σₕ A).
-  Definition rjoin {A: Type} : (@relexpr A) -> (@relexpr A) -> (relexpr) -> Prop :=
+  Definition relexpr {A:Type}: Type := local_cstate * Σₕ * (program Σₕ A).
+  Definition rjoin {A:Type}: (@relexpr A) -> (relexpr) -> (relexpr) -> Prop :=
     fun '(σₗ1, σₕ1, cₕ1) '(σₗ2, σₕ2, cₕ2) '(σₗ3, σₕ3, cₕ3) =>
         join σₗ1.(st_mem) σₗ2.(st_mem) σₗ3.(st_mem) /\ 
         σₗ1.(lenv) = σₗ2.(lenv) /\ σₗ2.(lenv) = σₗ3.(lenv) /\
@@ -357,72 +353,56 @@ Section  RAssertion.
         σₕ1 = σₕ2 /\ σₕ2 = σₕ3 /\ 
         cₕ1 = cₕ2 /\ cₕ2 = cₕ3.
 
-  Definition ris_unit {A: Type}: (@relexpr A) -> Prop := fun '(σₗ1, σₕ1, cₕ1) => is_unit σₗ1.(st_mem).
+  Definition ris_unit {A:Type}: (@relexpr A) -> Prop := fun '(σₗ1, σₕ1, cₕ1) => is_unit σₗ1.(st_mem).
 
 
-  #[export] Instance reljoinm {A: Type}: @JoinM (@relexpr A) := {
+  #[export] Instance reljoinm {A:Type}: @JoinM (@relexpr A) := {
     join := rjoin;
     is_unit := ris_unit;
   }. 
+  Definition SepAhst {A:Type} (P : Σₕ -> Prop ): @relasrt local_cstate Σₕ (program Σₕ A):= fun '(σₗ, σₕ, cₕ) =>  P σₕ /\ is_unit σₗ.(st_mem).
 
-  Definition Alst (P : local_cstate -> Prop ): @relasrt local_cstate Σₕ (program Σₕ A):= fun '(σₗ, σₕ, cₕ) => P σₗ .
-
-  Definition Ahst (P : Σₕ -> Prop ): @relasrt local_cstate Σₕ (program Σₕ A):= fun '(σₗ, σₕ, cₕ) =>  P σₕ /\ is_unit σₗ.(st_mem).
-
-  Definition Aspec (cₕ : program Σₕ A) : @relasrt local_cstate Σₕ (program Σₕ A):= fun '(σₗ, σₕ, c) =>  c = cₕ /\ is_unit σₗ.(st_mem).
-End RAssertion.
-
-Notation " ⌊ P ⌋ " := (Alst P) (at level 22, no associativity).
-Notation " ⌈ P ⌉ " := (Ahst P) (at level 22, no associativity).
-Local Open Scope asrt_scope. 
+  Definition SepAspec {A:Type} (cₕ : (program Σₕ A)) : @relasrt local_cstate Σₕ (program Σₕ A):= fun '(σₗ, σₕ, c) =>  c = cₕ /\ is_unit σₗ.(st_mem).
+End SepRAssertion.
 
 Section  EncodeRules.
   Context {lgst : lgstate}.
   Context {callc: @calllang_envstate local_cstate global_cstate}.
   Context {lmaxioms: @JoinMAxioms memory memm}.
-  Context {Σₕ A: Type}.
-
-Lemma encode_derives: forall X (P: @relasrt local_cstate Σₕ (program Σₕ A)) (P' : @relasrt local_cstate Σₕ (program Σₕ A)),
-P |-- P' -> [|P|](X) |-- [|P'|](X).
-Proof.
-  intros.
-  unfold derivable1, encode_asrt.
-  intros.
-  my_destruct local_cstate Σₕ (program Σₕ A) H0.
-  do 2 eexists.
-  split;eauto. 
-Qed.
+  Context {Σₕ: Type}.
 
 
-Lemma encode_alst_andp: forall X (P: @asrt local_cstate) (P' : @asrt Σₕ) (s: program Σₕ A),
- [|Aspec s ** Alst P ** Ahst P'|](X) --||--  !! (safeExec P' s X) && P. (*// safeexec *)
+Local Open Scope sets_scope.
+Ltac destructs A H:= rel_destruct local_cstate Σₕ Langstmts ((program Σₕ A)) H.
+
+Lemma encode_decomposed_sepcon {A:Type}: forall X (P: @asrt local_cstate) (P' : @asrt Σₕ) (s: (program Σₕ A)),
+ [| ⌊ P ⌋ ** SepAhst P' ** SepAspec s|](X) --||--  !! (Exec P' s X) && P. 
 Proof.
   intros.
   intros σₗ;split.
-  { unfold derivable1, sepcon, andp, coq_prop, encode_asrt, andp, Alst, Ahst, Aspec, safeExec, safe.
+  { unfold derivable1, sepcon, andp, coq_prop, encode_asrt, andp, Alst, SepAhst, SepAspec, Exec. simpl_hdefs. sets_unfold.
   intros.
-  my_destruct local_cstate Σₕ (program Σₕ A) H.
+  destructs A H.
   simpl in *. 
   destruct x as ((? & ?) & ?). destruct x0 as ((? & ?) & ?).
   destruct x1 as ((? & ?) & ?). destruct x2 as ((? & ?) & ?).
   simpl in *.
-  my_destruct local_cstate Σₕ (program Σₕ A) H0.
-  my_destruct local_cstate Σₕ (program Σₕ A) H2.
+  destructs A H4.
+  destructs A H2.
   subst.
   destruct_st σₗ. destruct_st l. destruct_st l0. destruct_st l1. destruct_st l2.
-  cbn in *. subst. 
-  destruct H3. destruct H4. subst.
-  apply join_comm in H2.
-  apply unit_spec in H2;auto.
+  cbn in *. subst. destructs A H1. subst. 
+  destructs A H0. subst.
+  apply unit_spec in H1;auto.
   apply unit_spec in H0;auto.
   subst.
   split;auto.
   eexists;
   split;eauto. }
 
-  unfold derivable1, sepcon, coq_prop, encode_asrt, andp, Alst, Ahst, Aspec, safeExec, safe.
+  unfold derivable1, sepcon, andp, coq_prop, encode_asrt, andp, Alst, SepAhst, SepAspec, Exec. simpl_hdefs. sets_unfold.
   intros.
-  my_destruct local_cstate Σₕ (program Σₕ A) H.
+  destructs A H.
   do 2 eexists.
   split;eauto.
   destruct_st σₗ.
@@ -431,290 +411,169 @@ Proof.
   exists ({| lenv := l; genv := g; st_mem := m0 |}, σₕ, s).
   cbn.
   splits;auto.
-  exists ({| lenv := l; genv := g; st_mem := m0 |}, σₕ, s), ({| lenv := l; genv := g; st_mem := m |}, σₕ, s).
+  exists ({| lenv := l; genv := g; st_mem := m |}, σₕ, s), ({| lenv := l; genv := g; st_mem := m0 |}, σₕ, s).
   cbn.
   splits;auto.
-  apply join_comm;auto.
 Qed.
-
-Lemma encode_andp_split : forall X (x y: @relasrt local_cstate Σₕ (program Σₕ A)), [| x && y |](X) |-- [| x |](X) && [| y |](X).
-Proof.
-  intros.
-  unfold derivable1, encode_asrt, andp.
-  intros.
-  my_destruct local_cstate Σₕ (program Σₕ A) H.
-  split.
-  all :do 2 eexists;
-      split;eauto. 
-Qed.
-
-Lemma encode_andp_merge : forall X (x y: @relasrt local_cstate Σₕ (program Σₕ A)), [| x |](X) && [| y |](X) |-- [| x && y |](X).
-Proof.
-  intros. 
-  unfold derivable1, encode_asrt, andp.
-  intros.
-  my_destruct local_cstate Σₕ (program Σₕ A) H.
-  do 2 eexists;
-      split;eauto. 
-Abort.
-(* ATTENTION : THE REVERSE IS WRONG *)
-
-
-Lemma encode_exp_intro : forall {A: Type} X (P : A ->   @relasrt local_cstate Σₕ (program Σₕ A)), EX v, [|P v|](X) |-- [|EX v, (P v)|](X) .
-Proof.
-  intros.
-  unfold derivable1, encode_asrt, exp.
-  intros.
-  my_destruct local_cstate Σₕ (program Σₕ A) H.
-  do 2 eexists.
-  split;eauto.
-Qed.
-
-Lemma encode_expunit_equiv : forall X (P :  @relasrt local_cstate Σₕ (program Σₕ A)), EX (v : unit), [|P|](X) --||-- [|P|](X) .
-Proof.
-  intros;split;intros.
-  - my_destruct local_cstate Σₕ (program Σₕ A) H.
-    auto.
-  - 
-  unfold derivable1, encode_asrt, exp, exp in *.
-  my_destruct local_cstate Σₕ (program Σₕ A) H.
-  do 3 eexists.
-  split;eauto.
-Qed.
-
-
-Lemma encode_exp_equiv : forall {A: Type} X (P : A ->  @relasrt local_cstate Σₕ (program Σₕ A)), EX v, [|P v|](X) --||-- [|EX v, (P v)|](X) .
-Proof.
-  intros;split;intros.
-  - apply encode_exp_intro.
-    auto.
-  - 
-  unfold derivable1, encode_asrt, exp, exp in *.
-  my_destruct local_cstate Σₕ (program Σₕ A) H.
-  do 3 eexists.
-  split;eauto.
-Qed.
-
-Lemma encode_prop_andp : forall (B: Prop) X (P:  @relasrt local_cstate Σₕ (program Σₕ A)), [| !! B && P |](X) --||--  !! B && [| P |](X).
-Proof.
-  intros.
-  unfold logic_equiv, encode_asrt, andp, andp, coq_prop, coq_prop.
-  split;intros.
-  - my_destruct local_cstate Σₕ (program Σₕ A) H.
-    split;auto.
-    do 2 eexists.
-    split;eauto.
-  - my_destruct local_cstate Σₕ (program Σₕ A) H.
-    do 2 eexists.
-    split;eauto.
-Qed.
-
-(**********************************************************************************)
-(*    relation asrt rules                                                         *)
-(**********************************************************************************)
-Lemma derives_imply_lderi : forall (P P' : @relasrt local_cstate Σₕ (program Σₕ A)) ,
- P |-- P' ->
- (forall X,  [| P |] (X)  |-- [| P' |] (X) ).
-Proof.
-  unfold derivable1, encode_asrt.
-  intros.
-  my_destruct local_cstate Σₕ (program Σₕ A) H0.
-  do 2 eexists;split;eauto. 
-Qed.
-
-
-Lemma lderi_imply_derives : forall P (P': @asrt local_cstate),
- P |-- P' ->
- @Alst lgst Σₕ  A P  |-- Alst P' .
-Proof.
-  unfold derivable1,  Alst.
-  intros.
-  destruct st as ((? & ?) & ?).
-  auto.
-Qed.
-
-Lemma hderi_imply_derives : forall P P',
- P |-- P' ->
- @Ahst lgst Σₕ  A P  |-- Ahst P' .
-Proof.
-  unfold derivable1,  Ahst.
-  intros. destruct st as ((? & ?) & ?). destruct H0. split; auto.
-Qed.
-
 
 End  EncodeRules.
+
 
 (**********************************************************************************)
 (*    hoare rules                                                                 *)
 (**********************************************************************************)
-Section  HoareRules.
+Section  encrules.
   Context {lgst : lgstate}.
   Context {callc: @calllang_envstate local_cstate global_cstate}.
   Context {lmaxioms: @JoinMAxioms memory memm}.
 
-  Context {Σₕ A: Type}.
+  Context {Σₕ: Type}.
+  Context (Δ : funcspecs).
+  Context (Γ : @relfuncspecs lgst Σₕ).
 
+  Local Open Scope sets_scope.
 
-Lemma rh_hoare_conseq : forall Δ Γ c (P P' Q Q': @relasrt local_cstate Σₕ (program Σₕ A)),
-  P |-- P' ->
-  Q' |--  Q ->
-  Δ ⩅ Γ ⊢ₑ ⟨ P' ⟩ c ⟨ Q' ⟩ ->
-  Δ ⩅ Γ ⊢ₑ ⟨ P ⟩ c ⟨ Q ⟩.
-Proof.
-  unfold valid_contextualrelT; simpl. intros * HP' HQ' HT.
-  intros.
-  specialize (HT X).
-  eapply hoare_conseq;[ | | exact HT].
-  eapply encode_derives;eauto.
-  eapply encode_derives;eauto.
-Qed.
+  Ltac destructs A H:= rel_destruct local_cstate Σₕ Langstmts ((program Σₕ A)) H.
+
+  
 (**********************************************************************************)
 (*    trans reltriple into hoare triple                                           *)
 (**********************************************************************************)
-Lemma  reltriple_triple_equiv : forall Δ Γ (P: @asrt local_cstate) Ps (s: program Σₕ A) c Q Ps' s',
-  Δ ⩅ Γ ⊢ₑ ⟨ Aspec s ** Alst P ** Ahst Ps ⟩ c ⟨ Aspec s' **  Alst Q ** Ahst Ps' ⟩ <->
-  (forall X, 
-   Δ ++ (|Γ|) ⊢ {{!! safeExec Ps s X && P}} c {{!! safeExec Ps' s' X && Q}}).
-Proof.
-  intros;split.
-  - intros.
-  specialize (H X).
-  eapply hoare_conseq;eauto.
-  eapply (logic_equiv_derivable1_2 (encode_alst_andp X P Ps s)).
-  apply (logic_equiv_derivable1_1 (encode_alst_andp X Q Ps' s')).
-  - unfold valid_contextualrelT; intros.
-    specialize (H X).
-    eapply hoare_conseq;eauto.
-    apply (logic_equiv_derivable1_1 (encode_alst_andp X P Ps s)).
-    apply (logic_equiv_derivable1_2 (encode_alst_andp X Q Ps' s')).
-Qed.
 
-Lemma  reltriple_triple_equiv1 : forall  Δ Γ (P: @asrt local_cstate) Ps (s: program Σₕ A) c Q,
-  Δ ⩅ Γ ⊢ₑ ⟨ Aspec s **  Alst P ** Ahst Ps ⟩ c ⟨ Q ⟩ <->
-  (forall X,  
-    Δ ++ (|Γ|)  ⊢ {{!! safeExec Ps s X && P}} c {{[|Q|](X)}}).
-Proof.
-  intros;split.
-  - intros.
-  specialize (H X).
-  eapply hoare_conseq;eauto.
-  apply (logic_equiv_derivable1_2 (encode_alst_andp X P Ps s)).
-  cbv. auto.
-  - unfold valid_contextualrelT; intros.
-    specialize (H X).
+  Lemma  reltriple_triple_equiv1 {A: Type}: forall P Ps (s: program Σₕ A) c Q,
+    Δ ⩅ Γ ⊢ ⟨ ⌊ P ⌋ && ⌈ Ps ⌉ && [ s ]ₕ ⟩ c ⟨ Q ⟩ <->
+    (forall X, (Δ ++ (| Γ |)) ⊢ {{!! Exec Ps s X && P}} c {{[| Q |](X)}}).
+  Proof.
+    intros;split.
+    - intros. apply encoding_correctness in H. 
+    specialize (H X). simpl_ldefs.
     eapply hoare_conseq;eauto.
-    apply (logic_equiv_derivable1_1 (encode_alst_andp X P Ps s)).
+    apply (logic_equiv_derivable1_2 (encode_decomposed X P Ps s)).
     cbv. auto.
-Qed.
+    - intros. apply encoding_correctness.
+      unfold valid_contextualrelT. intros.
+      specialize (H X).
+      eapply hoare_conseq;eauto.
+      apply (logic_equiv_derivable1_1 (encode_decomposed X P Ps s)).
+      cbv. auto.
+  Qed.
 
-End HoareRules.
+  Lemma  reltriple_triple_equiv {A R: Type}: forall P Ps (s: program Σₕ R) c B Q Ps',
+    Δ ⩅ Γ ⊢ ⟨ ⌊ P ⌋ && ⌈ Ps ⌉ && [ s ]ₕ ⟩ c ⟨EX (r: R) (a:A), !! (B a r) && ⌊ Q a r ⌋ && ⌈ Ps' a r⌉ && [ ret r ]ₕ ⟩ <->
+    (forall X : R -> Σₕ -> Prop,
+    (Δ ++ (| Γ |)) ⊢ {{!! Exec Ps s X && P}} c {{EX r a, !! Exec (Ps' a r) (ret r) X && !! (B a r) && (Q a r)}}).
+  Proof.
+    intros;split.
+    - intros.
+      apply encoding_correctness in H.
+    specialize (H X).  simpl_ldefs. 
+    eapply hoare_conseq;eauto.
+    eapply (logic_equiv_derivable1_2 (encode_decomposed X P Ps s)).
+    apply logic_equiv_derivable1_1.
+    eapply logic_equiv_trans.
+    apply logic_equiv_symm; apply (encode_exp_equiv _ _ ).
+    apply ex_logic_euiqv_elim_both;intros r.
+    apply encode_normal_form.
+    - intros. apply encoding_correctness.
+      unfold valid_contextualrelT. intros.
+      specialize (H X). 
+      eapply hoare_conseq;eauto.
+      apply (logic_equiv_derivable1_1 (encode_decomposed X P Ps s)).
+      apply logic_equiv_derivable1_2.
+      eapply logic_equiv_trans.
+      apply logic_equiv_symm; apply (encode_exp_equiv _ _ ).
+      apply ex_logic_euiqv_elim_both;intros r.
+      apply encode_normal_form.
+  Qed.
 
-Section  composition_rules.
+  Lemma high_focus_as_conseqpre {A B: Type} cₗ (cₕ1: program Σₕ A) (cₕ2: A -> program Σₕ B) F P R Q:
+    forall X a,
+    MonadErrHoare.valid_angelic_triple P cₕ1 (fun r σ => r = a /\ R σ) -> 
+    (Δ ++ (| Γ |)) ⊢ {{!! Exec R (cₕ2 a) X && F}} cₗ {{[|Q|](X)}} ->
+    (Δ ++ (| Γ |)) ⊢ {{!! Exec P (bind cₕ1 cₕ2) X && F}} cₗ {{[|Q|](X)}}.
+  Proof.
+    intros.
+    eapply hoare_conseq_pre;[ | eauto].
+    apply derivable1_andp_mono;[ | reflexivity].
+    apply coq_prop_imply.
+    eapply highstepbind_derive.
+    eapply hs_eval_equiv_angelic_triple;auto.
+  Qed.
 
-Import MonadNotation.
-  Local Open Scope monad.
-  Context {lgst : lgstate}.
-  Context {callc: @calllang_envstate local_cstate global_cstate}.
-  Context {lmaxioms: @JoinMAxioms memory memm}.
-
-  Context {Σₕ A: Type}.
-  Definition link {Σₗ Σₕ: Type} (P: @binasrt Σₗ Σₕ) (P': @asrt Σₕ) : @asrt Σₗ:=
-    fun σₗ =>  exists σₕ, P (σₗ, σₕ) /\  P' σₕ.
-(*************************************************************************************)
-(*    vertical composition rule                                                      *)
-(*                                                                                   *)
-(*  ⟨ P * cₕ ⟩  c  ⟨ Q * skip ⟩                        { Pₕ } cₕ { Qₕ }                 *)
-(* ________________________________________________________________________________  *)
-(* {λ σₗ. ∃ σₕ. P(σₗ, σₕ) /\ Pₕ' (σₕ) } c {λ σₗ. ∃ σₕ. Q(σₗ, σₕ) /\ Qₕ (σₕ) }              *)
-(*************************************************************************************)
-Lemma rh_hoare_vc :forall Δ Γ c (sₕ : program Σₕ A) P Q Pₕ Qₕ,
-Δ ⩅ Γ ⊢ₑ ⟨ lift P sₕ ⟩ c ⟨ EX r : A, lift Q (return r) ⟩ ->
-Hoare Pₕ sₕ Qₕ ->
-Δ ++ (|Γ|)  ⊢ {{link P Pₕ}} c {{EX r, link (Q) (Qₕ r)}}.
+  Lemma comp_fc_as_conseq {A:Type}: forall 
+  P (cₗ: Langstmts) (cₕ: program Σₕ A) Q (Pₕ: @asrt Σₕ) Qₕ,
+  ((forall X,  (Δ ++ (| Γ |)) ⊢ {{ [|↑ P && [cₕ ]ₕ|](X) }} cₗ {{ [|EX a, ↑ Q a && [ret a ]ₕ|](X) }})) -> 
+  MonadErrHoare.Hoare Pₕ cₕ Qₕ ->
+   (Δ ++ (| Γ |)) ⊢ {{ P ⋈_π Pₕ }} cₗ {{ EX a, (Q a) ⋈_π (Qₕ a) }}.
 Proof.
-  unfold valid_reltriple; intros * HRT HHT.
-  unfold valid_triple in HHT.
-  unfold valid_triple.
-  intros χ Hcallees lst1 * Hjoin HP.
-  destruct HP as [σₕ [? HPH]].
-  destruct HHT as [HHnrm HHerr].
-  specialize (HHerr _ HPH).
-  (*将high level 终止状态指定为满足条件的初始状态经过从cₕ能到达的集合*)
-  specialize (HRT  (fun r (x: Σₕ) => (sₕ.(nrm)) σₕ r x) _ Hcallees lst1 _ _ Hjoin).
-  assert (([|lift P sₕ|](fun (r : A) (x : Σₕ) => sₕ.(nrm) σₕ r x))
-  {| lenv := lenv lst1; genv := genv lst1; st_mem := m1 |}).
-  { unfold encode_asrt, lift.
-    exists σₕ, sₕ.
+  intros * HRT HHT.
+  eapply hoare_conseq_pre.  
+  { apply (logic_equiv_derivable1_2 (comp_proj_equiv _ _ )). }
+  eapply hoare_exists_intro; intros σₕ.
+  eapply hoare_coqprop_preintro. intros HPH.
+  specialize (HRT (fun r (x: Σₕ) => cₕ.(nrm) σₕ r x)).
+  eapply hoare_conseq;eauto.
+  - intros st1 ?.
+    unfold encode_asrt, lift, basicasrt.andp, Aspec. simpl.
+    do 2 eexists. split;[ | eauto].
+    unfold MonadErrHoare.weakestpre.
+    destruct HHT.
+    specialize (H1 _ HPH).
     split;auto.
-    unfold safe.
-    split;auto.  }
-  specialize (HRT H0) as [HRerr HRT].
-  clear H0.
-  split;auto.
-  intros * Hceval.
-  specialize (HRT _ Hceval) as  [? [Hjoin2 HRQ]].
-  unfold encode_asrt, lift, exp in *.
-  destruct HRQ as [σₕ' [cₕ' [? [? [? ?]]]]]. subst cₕ'.
-  unfold safe, ret in H0. cbn in H0.
-  destruct H0.
-  specialize (H2 x0 σₕ' (ltac:(simpl;auto))).
-  specialize (HHnrm x0 _ σₕ' HPH H2) as HHQ.
-  eexists;split;eauto.
-  exists x0.
-  unfold link.
-  eexists.
-  eauto.
+  - intros st1 HQ.
+    unfold encode_asrt, lift, basicasrt.andp, Aspec in HQ.
+    destruct HQ as [σₕ' [cₕ' [? [? [? ?]]]]]. subst. simpl_hdefs.
+    unfold MonadErrHoare.weakestpre in H. sets_unfold in H.
+    destruct H.
+    specialize (H1 x σₕ' (ltac:(unfold_monad;auto))).
+    destruct HHT. 
+    specialize (H2 _ _ _ HPH H1).
+    exists x.
+    do 2 eexists. cbv. split;eauto.
 Qed.
 
 
-Lemma rh_hoare_vc_safeexec {U V: Type}:forall Δ c (sₕ :  U -> program Σₕ A) P Ps Q Qs B1 B2 Pₕ Qₕ u,
+Lemma rh_hoare_vc_safeexec {A U V: Type}:forall Δ c (sₕ :  U -> program Σₕ A) P Ps Q Qs B1 B2 Pₕ Qₕ u,
   (Hoare (Pₕ) (sₕ u) (Qₕ)) ->
-  (forall X,  Δ ⊢ {{EX (u: U), !! safeExec (Ps u) (sₕ u) X && !! (B1 u) && (P u)}} c 
-      {{EX (r: A) (v: V), !! safeExec (Qs v r) (return r) X && !! (B2 v r) && (Q v r) }}) ->
+  (forall X,  Δ ⊢ {{EX (u: U), !! Exec (Ps u) (sₕ u) X && !! (B1 u) && (P u)}} c 
+      {{EX (r: A) (v: V), !! Exec (Qs v r) (ret r) X && !! (B2 v r) && (Q v r) }}) ->
   (Δ  ⊢ {{ !! (exists s, Ps u s /\ Pₕ s) && !! (B1 u) && (P u) }} c 
         {{EX r v, !! (exists s, Qs v r s /\ Qₕ r s) && !! (B2 v r) && (Q v r) }}).
 Proof.
-  unfold valid_triple; intros * HHT HRT.
-  intros χ Hcallees lst1 * Hjoin HP.
-  destruct HP as [[[σₕ [? HPH]] HBH] HP].
-  destruct HHT as [HHnrm HHerr].
-  specialize (HHerr _ HPH).
-  (* specialize (HHT σₕ HPH) as HHnrm. *)
-  (*将high level 终止状态指定为满足条件的初始状态经过从cₕ能到达的集合*)
-  specialize (HRT  (fun r (x: Σₕ) =>  (sₕ u).(nrm) σₕ r x) _ Hcallees lst1 _ _ Hjoin).
-  assert ((EX u0 : U, !! safeExec (Ps u0) (sₕ u0) (fun (r : A) (x : Σₕ) => (sₕ u).(nrm) σₕ r x) && !! B1 u0 && P u0)
-  {| lenv := lenv lst1; genv := genv lst1; st_mem := m1 |}).
-  { exists u.
-    unfold andp, coq_prop in *. 
-    splits;try tauto.
-    unfold safeExec.
-    exists σₕ.
-    split;try tauto.
-    unfold safe.
-    split;auto. }
-  specialize (HRT H0) as [HRerr HRT].
-  clear H0.
-  split;auto.
-  intros * Hceval.
-  specialize (HRT _ Hceval) as  [? [Hjoin2 HRQ]].
-  destruct HRQ as [r [v HRQ]].
-  unfold andp, coq_prop in HRQ. simpl in HRQ.
-  destruct HRQ as [[? ?] ?].
-  destruct H0 as [σₕ' [? ?]].
-  unfold safe, ret in H3. cbn in H3.
-  destruct H3 as [_ H3].
-  specialize (H3 r σₕ' (ltac:(unfold_monad;auto))).
-  specialize (HHnrm r _ σₕ' HPH H3) as HHQ.
-  eexists;split;eauto.
-  exists r, v.
-  unfold link, andp, coq_prop.
-  simpl.
-  splits;auto.
-  eexists.
-  eauto.
-Qed.
-End composition_rules.
-End RelJoinStateGlobalEnvAbsMonadRules.
+  intros * HHT HRT.
+  eapply hoare_conseq_pre.
+  { eapply logic_equiv_derivable1_1. apply logic_equiv_andp_assoc.  }
+  eapply hoare_coqprop_preintro;intros [σₕ [? HPH]].
+  specialize (HRT (fun r (x: Σₕ) => (sₕ u).(nrm) σₕ r x)).
+  eapply hoare_conseq;eauto.
+  - eapply shallow_exp_right with (x:= u).
+    eapply derivable1_andp_mono;[ | reflexivity].
+    eapply logic_equiv_derivable1_2.
+    apply prop_andp_elim_equiv.
+    unfold Exec. simpl_hdefs. sets_unfold. eexists. 
+    split;[ eauto | ].
+    unfold MonadErrHoare.weakestpre.
+    destruct HHT.
+    specialize (H1 _ HPH).
+    split;auto.
+  - apply shallow_exp_left; intros a.
+    apply shallow_exp_left; intros v.
+    eapply shallow_exp_right with (x:= a).
+    eapply shallow_exp_right with (x:= v).
+    eapply derivable1_andp_mono;[ | reflexivity].
+    eapply derivable1_andp_mono;[ | reflexivity].
+    apply coq_prop_imply.
+    unfold Exec. simpl_hdefs. sets_unfold. unfold weakestpre. 
+    intros [σₕ' [? ?]].
+    destruct H1.
+    specialize (H2 _ σₕ' (ltac:(unfold_monad;auto))).
+    destruct HHT. 
+    specialize (H3 _ _ _ HPH H2).
+    eexists. split;eauto.
+  Qed.
+
+End encrules.
+End RelJoinStateGlobalEnvAbsMonad.
 
 
 

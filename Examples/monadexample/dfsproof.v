@@ -36,7 +36,7 @@ Fact push_stack_fact {V: Type}: forall (v: V) P,
 Proof.
   intros.
   unfold push_stack.
-  eapply Hoare_conseq_post; [| apply Hoare_update].
+  eapply Hoare_conseq_post; [ | apply Hoare_update].
   firstorder.
 Qed.
 
@@ -45,7 +45,7 @@ Fact pop_stack_fact {V: Type}: forall P,
 Proof.
   intros.
   unfold pop_stack.
-  eapply Hoare_conseq_post; [| apply Hoare_step].
+  eapply Hoare_conseq_post; [ | apply Hoare_step].
   firstorder.
 Qed.
 
@@ -54,7 +54,7 @@ Fact visit_fact {V: Type}: forall (v: V) P,
 Proof.
   intros.
   unfold visit.
-  eapply Hoare_conseq_post; [| apply Hoare_update].
+  eapply Hoare_conseq_post; [ | apply Hoare_update].
   firstorder.
 Qed.
 
@@ -271,7 +271,7 @@ Proof.
   rewrite bind_choice_equiv; apply Hoare_choice.
   - (* Branch 1 *)
     rewrite branch1_equiv.
-    eapply Hoare_conseq_post; [|apply branch1_prop_proof].
+    eapply Hoare_conseq_post; [ |apply branch1_prop_proof].
     unfold branch1_prop; intros.
     destruct H as (s' & ? & ? & ? & ? & ?).
     unfold neighbor_inv in *; intros.
@@ -282,7 +282,7 @@ Proof.
     simpl in H5.
     left; apply (H3 v); auto.
   - (*Branch 2*)
-    eapply Hoare_conseq_post; [|apply branch2_prop_proof].
+    eapply Hoare_conseq_post; [ |apply branch2_prop_proof].
     unfold branch2_prop; intros.
     destruct H as (s' & ? & ? & ? & ?).
     unfold neighbor_inv, neighbor_visited in *. 
@@ -347,7 +347,7 @@ Lemma DFS_prop (u:V):
                       all_neighbor_visit s).
 Proof.
   unfold DFS.
-  eapply Hoare_bind; [apply loop_pre |].
+  eapply Hoare_bind; [apply loop_pre | ].
   simpl; intros _.
   apply Hoare_repeat_break' with (P:= fun v s => DFS_inv s u v); 
   intros v; unfold DFS_inv.

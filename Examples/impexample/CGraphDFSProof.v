@@ -11,7 +11,7 @@ From AUXLib Require Import Feq Idents  List_lemma VMap int_auto ListLib.
 From compcert.lib Require Import Integers.
 From LangLib.ImpP Require Import PermissionModel Mem mem_lib Imp Assertion ImpTactics ImpHoareTactics slllib GraphAdjList. 
 From EncRelSeq Require Import callsem basicasrt contexthoare_imp. 
-From EncRelSeq.AbsMonad Require Import  encimpmonad.
+From EncRelSeq.MonadsAsHigh.AbsMonad Require Import  encimpmonad.
 Require Import MonadLib.MonadLib.
 Import StateRelMonad.
 From AUXLib Require Import GraphLib.
@@ -25,7 +25,6 @@ Import NormalImpHoareRules.
 Import NormalImpHoareTac.
 Import CDFS_AdjList.
 Import RelImpAbsMonad.
-Import RelImpAbsMonadRules.
 
 Import SetsNotation.
 Local Open Scope sets.
@@ -50,13 +49,13 @@ Definition dfs_rec_spec := {|
             (EX vis cvis, 
             !! (vlis_prop pg vertexl) && !! (pg.(vvalid) xv) && 
             !! (vis_func vis cvis) &&  !! (vis = ∅)  &&
-            !! (safeExec (fun s => s.(visited) = vis /\ s.(stack) = nil) (DFS pg xv) X) &&
+            !! (Exec (fun s => s.(visited) = vis /\ s.(stack) = nil) (DFS pg xv) X) &&
             GV _arg1 @ vptr ↦ₗ xv && 
             @graphrep E_Order Gsh ➀ pg (dfs_field cvis) );
   FS_Post := fun '(X, pg, vertexl,  E_Order, Gsh, xv) =>
             (EX vis cvis, 
             !! (vis_func vis cvis) &&  
-            !! (safeExec  (fun s => s.(visited) = vis /\ s.(stack) = nil) 
+            !! (Exec  (fun s => s.(visited) = vis /\ s.(stack) = nil) 
                           (return tt) X) &&
             @graphrep E_Order Gsh ➀ pg (dfs_field cvis) )
 |}.
@@ -70,7 +69,7 @@ Definition dfs_rec_spec_aux := {|
             !! (vis_func vis cvis) &&  !! (~ vis xv) && 
             !! (out_edges pg v e) &&
             !! (pg.(dst) e = xv) &&
-            !! safeExec
+            !! Exec
               (fun s : state Z => visited s = vis /\ stack s = v :: stk)
               (DFS pg xv) X &&
             GV _arg1 @ vptr ↦ₗ xv && 
@@ -79,7 +78,7 @@ Definition dfs_rec_spec_aux := {|
             (EX vis_new cvis, 
             !! (vis_func vis_new cvis) &&  !! (vis_new xv) && 
             !! (forall w, vis w -> vis_new w ) &&
-            !! (safeExec  (fun s => s.(visited) = vis_new /\ s.(stack) = stk) 
+            !! (Exec  (fun s => s.(visited) = vis_new /\ s.(stack) = stk) 
                           (repeat_break (body_DFS pg) v) X) &&
             @graphrep E_Order Gsh ➀ pg (dfs_field cvis) )
 |}. 
@@ -235,7 +234,7 @@ Proof.
   !! (el1 ++ el2 = el) && 
   !! (vis_func vis_loop cvis_loop) && 
   !! (isvalidptr v_ptr) && 
-  !! (safeExec
+  !! (Exec
        (fun s : state Z =>
         visited s = vis_loop /\ stack s =  nil)
        (repeat_break (body_DFS pg) v_ptr) X) && 
@@ -339,12 +338,12 @@ Proof.
       rewrite (repeat_break_unfold _ _ ) in H5.
       unfold body_DFS in H5 at 1.
       prog_nf in H5;safe_choice_l H5.
-      prog_nf in H5;apply safeExec_any_bind with (a:= (pg.(dst) e)) in H5.
-      prog_nf in H5;eapply safeExec_testst_bind in H5.
+      prog_nf in H5;apply Exec_any_bind with (a:= (pg.(dst) e)) in H5.
+      prog_nf in H5;eapply Exec_testst_bind in H5.
       2: { intros st [ ? ?].
         rewrite H11.
         apply H2. auto. }
-      prog_nf in H5;eapply safeExec_test_bind in H5.
+      prog_nf in H5;eapply Exec_test_bind in H5.
       2: {  exists e. 
         assert (In e el). { rewrite <- H1. apply in_cons_app. }
         constructor;auto.
@@ -518,7 +517,7 @@ Proof.
       unfold body_DFS in H6 at 1.
       prog_nf in H6.
       safe_choice_r H6.
-      prog_nf in H6. apply safeExec_testst_bind in H6.
+      prog_nf in H6. apply Exec_testst_bind in H6.
       2: { intros st [? ?] v ?.
            rewrite H1.
            destruct H10.
@@ -528,7 +527,7 @@ Proof.
            unfold out_edges.
            auto. }
       prog_nf in H6. safe_choice_r H6.
-      prog_nf in H6. apply safeExec_testst_bind in H6.
+      prog_nf in H6. apply Exec_testst_bind in H6.
       2: { intros ? [? ?]. auto. }
       auto.
     + cbn [edge_storage].
@@ -573,7 +572,7 @@ Proof.
   !! (el1 ++ el2 = el) && 
   !! (vis_func vis_loop cvis_loop) && 
   !! (isvalidptr v_ptr) &&  !! (vis_loop v_ptr) &&
-  !! (safeExec
+  !! (Exec
        (fun s : state Z =>
         visited s = vis_loop /\ stack s =  u_ptr :: recstk)
        (repeat_break (body_DFS pg) v_ptr) X) && 
@@ -681,12 +680,12 @@ Proof.
       rewrite (repeat_break_unfold _ _ ) in H5.
       unfold body_DFS in H5 at 1.
       prog_nf in H5. safe_choice_l H5.
-      prog_nf in H5. apply safeExec_any_bind with (a:= (pg.(dst) e)) in H5.
-      prog_nf in H5. eapply safeExec_testst_bind in H5.
+      prog_nf in H5. apply Exec_any_bind with (a:= (pg.(dst) e)) in H5.
+      prog_nf in H5. eapply Exec_testst_bind in H5.
       2: { intros st [ ? ?].
         rewrite H11.
         apply H2. auto. }
-      prog_nf in H5. eapply safeExec_test_bind in H5.
+      prog_nf in H5. eapply Exec_test_bind in H5.
       2: { exists e. 
         assert (In e el). { rewrite <- H1. apply in_cons_app. }
         constructor;auto.
@@ -860,7 +859,7 @@ Proof.
       rewrite (repeat_break_unfold _ _ ) in H7.
       unfold body_DFS in H7 at 1.
       prog_nf in H7. safe_choice_r H7.
-      prog_nf in H7. apply safeExec_testst_bind in H7.
+      prog_nf in H7. apply Exec_testst_bind in H7.
       2: { intros st [? ?] v ?.
            rewrite H1.
            destruct H10.

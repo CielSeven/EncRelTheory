@@ -822,6 +822,26 @@ Module sepRules := LogicTheorem asrts sepPrimitiveRule.
 
 End sep_rules.
 
+Ltac st_destruct Σ H :=
+  match type of H with
+  | exists (_ : ?A), _ =>  
+              match A with 
+              | Σ => let σ := fresh "st" in destruct H as [σ H];st_destruct Σ H
+              | _ => destruct H as [? H];st_destruct Σ H
+              end
+  | (@exp _ ?t ?P) _ => match t with 
+              | Σ => let σ := fresh "σ" in destruct H as [σ H];st_destruct Σ H
+              | _ => destruct H as [? H];st_destruct Σ H
+              end 
+  | _ /\ _ => let H0 := fresh "H" in 
+              destruct H as [H H0];
+              st_destruct Σ H;
+              st_destruct Σ H0
+  | _ \/ _ => destruct H as [H | H];
+              st_destruct Σ H
+  | _ => (discriminate || contradiction  || idtac)
+  end.
+
 
 
 Ltac one_destruct Σ Prog H :=

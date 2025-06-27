@@ -11,7 +11,7 @@ From FP Require Import PartialOrder_Setoid BourbakiWitt.
 From compcert.lib Require Import Integers.
 From LangLib.ImpP Require Import PermissionModel Mem mem_lib Imp Assertion ImpTactics ImpEHoareTactics slllib ArrayLib. 
 From EncRelSeq Require Import callsem basicasrt contexthoare_imp. 
-From EncRelSeq.AbsMonadE Require Import encimpmonadE.
+From EncRelSeq.MonadsAsHigh.AbsMonadE Require Import encimpmonadE.
 Require Import MonadLib.MonadLib.
 Import StateRelMonadErr.
 From MonadLib.Examples Require Import kmp.
@@ -27,7 +27,6 @@ Import PracticalImpHoareTac.
 Import PracticalImpHoareArrayRules.
 Import CKMP.
 Import RelJoinStateGlobalEnvAbsMonad.
-Import RelJoinStateGlobalEnvAbsMonadRules.
 
 
 Import ImpRules.
@@ -40,14 +39,14 @@ Local Open Scope monad.
 Definition inner_spec := {|
   FS_With := (Z -> unit -> Prop) * Z * Z * list Z * list Z * addr * addr * Z * Z ;
   FS_Pre := fun '(X, n, m, strl, nextl, str, vnext, ch, j) =>
-            (!! (safeExec ATrue (inner_loop 0 strl nextl ch j) X) &&
+            (!! (Exec ATrue (inner_loop 0 strl nextl ch j) X) &&
              !! (m <= n) && !! (n < Int64.max_signed) && 
              GV _arg1 @ vptr ↦ₗ str && GV _arg2 @ vptr ↦ₗ vnext && 
              GV _arg3 @ vint ↦ₗ ch && GV _arg4 @ vint ↦ₗ j &&
              store_char_array ➀ str (n + 1) (strl ++ (0:: nil)) **
              store_int_array ➀ vnext m nextl );
   FS_Post := fun '(X, n, m, strl, nextl, str, vnext, ch, j) =>
-            (EX rv, !! (safeExec ATrue (return rv) X) && !! (0 <= rv) && !! (rv < m + 1) &&
+            (EX rv, !! (Exec ATrue (return rv) X) && !! (0 <= rv) && !! (rv < m + 1) &&
              GV _ret1 @ vint ↦ₗ rv && 
              store_char_array ➀ str (n + 1) (strl ++ (0:: nil)) **
              store_int_array ➀ vnext m nextl );
@@ -58,13 +57,13 @@ Definition inner_spec := {|
 Definition constr_spec := {|
   FS_With := (list Z -> unit -> Prop) * Z  * list Z * addr * addr  ;
   FS_Pre := fun '(X, n, strl, str, vnext) =>
-            (EX nextl, !! (safeExec ATrue (constr_loop 0 strl) X) &&
+            (EX nextl, !! (Exec ATrue (constr_loop 0 strl) X) &&
             !! (0 < n) && !! (n < Int64.max_signed) && 
              GV _arg1 @ vptr ↦ₗ str && GV _arg2 @ vptr ↦ₗ vnext && GV _arg5 @ vint ↦ₗ n && 
              store_char_array ➀ str (n + 1) (strl ++ (0:: nil)) **
              store_int_array ➀ vnext n nextl );
   FS_Post := fun '(X, n, strl, str, vnext) =>
-            (EX nextl, !! (safeExec ATrue (return nextl) X) && 
+            (EX nextl, !! (Exec ATrue (return nextl) X) && 
              store_char_array ➀ str (n + 1) (strl ++ (0:: nil)) **
              store_int_array ➀ vnext n nextl );
 |}. 
@@ -131,13 +130,13 @@ Ltac allocisvalidptr_one v pv :=
 Definition inner_spec_aux {B: Type}:= {|
   FS_With := (Z -> MonadErrBasic.program unit B) * (B -> unit -> Prop) * Z * Z * list Z * list Z * addr * addr * Z * Z ;
   FS_Pre := fun '(f, X, n, m, strl, nextl, str, vnext, ch, j) =>
-            (!! (safeExec ATrue (bind (inner_loop 0 strl nextl ch j) f) X) &&
+            (!! (Exec ATrue (bind (inner_loop 0 strl nextl ch j) f) X) &&
              !! (m <= n) && !! (n < Int64.max_signed) && 
              GV _arg1 @ vptr ↦ₗ str && GV _arg2 @ vptr ↦ₗ vnext && GV _arg3 @ vint ↦ₗ ch && GV _arg4 @ vint ↦ₗ j &&
              store_char_array ➀ str (n + 1) (strl ++ (0:: nil)) **
              store_int_array ➀ vnext m nextl );
   FS_Post := fun '(f, X, n, m, strl, nextl, str, vnext, ch, j) =>
-            (EX rv, !! (safeExec ATrue (f rv) X) && !! (0 <= rv) && !! (rv < m + 1) &&
+            (EX rv, !! (Exec ATrue (f rv) X) && !! (0 <= rv) && !! (rv < m + 1) &&
              GV _ret1 @ vint ↦ₗ rv && 
              store_char_array ➀ str (n + 1) (strl ++ (0:: nil)) **
              store_int_array ➀ vnext m nextl );
@@ -152,7 +151,7 @@ Proof.
   unfoldfspec.
   intros (((((((((f & X) & n) & m) & strl) & nextl) & str) & vnext) & ch) & j).
   Intros.
-  apply safeExec_bind in H as [X' [Hpre Hpost]].
+  apply Exec_bind in H as [X' [Hpre Hpost]].
   Exists (X', n, m, strl, nextl, str, vnext, ch, j).
   entailer!.
   unfold wand_env.
@@ -216,7 +215,7 @@ Proof.
   (* While _i < _n *)
   eapply hoare_conseq_pre.
   { instantiate (1:= EX i nextl0 nextl1 j , 
-    !! (safeExec ATrue (constr_loop_from 0 strl i nextl0 j) X) &&
+    !! (Exec ATrue (constr_loop_from 0 strl i nextl0 j) X) &&
     !! (1 <= i <= n) &&
     LV _i @ vint ↦ₗ i && LV _j @ vint ↦ₗ j &&  LV _n @ vint ↦ₗ n && LV _vnext @ vptr ↦ₗ vnext && LV _str @ vptr ↦ₗ str &&
     store_char_array ➀ str (n + 1) (strl ++ (0:: nil)) **
@@ -406,7 +405,7 @@ Proof.
   (* While 0 < _j && _str_j != _ch  *)
   eapply hoare_conseq_pre.
   { instantiate (1:= EX j, 
-    !! (safeExec ATrue (inner_loop 0 strl nextl ch j) X) &&
+    !! (Exec ATrue (inner_loop 0 strl nextl ch j) X) &&
     !! ( Znth j (strl ++ 0 :: nil) 0 <= Byte.max_signed /\ Znth j (strl ++ 0 :: nil) 0 >= Byte.min_signed) &&
       LV _str_j  @ vint ↦ₗ  (Znth j (strl ++ 0 :: nil) 0) &&
       LV _j @ vint ↦ₗ j &&  LV _ch @ vint ↦ₗ ch && LV _vnext @ vptr ↦ₗ vnext && LV _str @ vptr ↦ₗ str &&

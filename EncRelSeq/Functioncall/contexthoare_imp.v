@@ -235,6 +235,74 @@ Lemma hoare_conseq {lgst : lgstate} {callc: @calllang_envstate local_cstate glob
     split;eauto.
   Qed.
 
+(* rule Conseq-Pre *)
+Lemma hoare_conseq_pre {lgst : lgstate} {callc: @calllang_envstate local_cstate global_cstate}: forall Δ c P P' Q,
+  P |-- P' ->
+  Δ ⊢ {{P'}} c {{Q}} -> 
+  Δ ⊢ {{P}} c {{Q}}.
+Proof.
+  intros. apply (hoare_conseq _ _ P P' Q Q); auto.
+  reflexivity.
+Qed.
+
+Lemma hoare_conseq_post {lgst : lgstate} {callc: @calllang_envstate local_cstate global_cstate}: forall Δ c P Q Q',
+  Q' |-- Q ->
+  Δ ⊢ {{P}} c {{Q'}} -> 
+  Δ ⊢ {{P}} c {{Q}}.
+Proof.
+  intros. apply (hoare_conseq _ _ P P Q Q'); auto.
+  reflexivity.
+Qed.
+(* rule ExIntro *)
+Lemma hoare_exists_intro {lgst : lgstate} {callc: @calllang_envstate local_cstate global_cstate}: forall  Δ  c (A : Type) P Q,
+  (forall (v: A), Δ ⊢ {{P v}} c {{Q}}) ->
+   Δ ⊢ {{EX v, P v}} c {{Q}}.
+Proof.
+  unfold valid_contextualtriple_nrm. simpl. intros * HT * Hcallees.
+  unfold valid_triple_nrm.
+  intros * Hmem HP.
+  destruct HP.
+  specialize (HT x _ Hcallees _ _ _ Hmem H).
+  auto.
+Qed.
+
+Lemma hoare_exists_r {lgst : lgstate} {callc: @calllang_envstate local_cstate global_cstate}: forall  Δ  c (A : Type) P Q (v: A),
+  Δ ⊢ {{P}} c {{Q v}} ->
+  Δ ⊢ {{P}} c {{EX v, Q v}}.
+Proof.
+  unfold valid_contextualtriple_nrm. simpl. intros * HT * Hcallees.
+  unfold valid_triple_nrm.
+  intros * Hmem HP.
+  specialize (HT _ Hcallees _ _ _ Hmem HP) as HT.
+  intros.
+  specialize (HT _ H) as [? [? ?]].
+  eexists. split;eauto.
+  exists v. auto.
+Qed.
+
+Lemma hoare_coqprop_preintro {lgst : lgstate} {callc: @calllang_envstate local_cstate global_cstate} : forall  Δ c P Q (P': Prop),
+  (P' -> Δ ⊢ {{P}} c {{Q}})->
+  Δ ⊢ {{!! P' && P}} c {{Q}}.
+Proof.
+  unfold valid_contextualtriple_nrm. simpl. intros * HT * Hcallees.
+  unfold valid_triple_nrm.
+  intros * Hmem HP.
+  destruct HP. unfold coq_prop in H.
+  specialize (HT H _ Hcallees _ _ _ Hmem H0) as HT.
+  auto.
+Qed.
+
+Lemma hoare_coqprop_postintro {lgst : lgstate} {callc: @calllang_envstate local_cstate global_cstate} : forall  Δ c P Q (P': Prop),
+  P' -> Δ ⊢ {{P}} c {{Q}}->
+  Δ ⊢ {{P}} c {{!! P' &&  Q}}.
+Proof.
+  intros.
+  eapply hoare_conseq_post;eauto.
+  pose proof (prop_add_left Q P').
+  apply logic_equiv_derivable1 in H1 as [? ?]; eauto.
+  apply coq_prop_right;auto.
+Qed.
+
 Section contextual_soundness.
 
   Context {lgst : lgstate}.
@@ -430,6 +498,75 @@ Lemma hoare_conseq {lgst : lgstate} {callc: @calllang_envstate local_cstate glob
     eexists.
     split;eauto.
   Qed.
+
+(* rule Conseq-Pre *)
+Lemma hoare_conseq_pre {lgst : lgstate} {callc: @calllang_envstate local_cstate global_cstate}: forall Δ c P P' Q,
+  P |-- P' ->
+  Δ ⊢ {{P'}} c {{Q}} -> 
+  Δ ⊢ {{P}} c {{Q}}.
+Proof.
+  intros. apply (hoare_conseq _ _ P P' Q Q); auto.
+  reflexivity.
+Qed.
+
+Lemma hoare_conseq_post {lgst : lgstate} {callc: @calllang_envstate local_cstate global_cstate}: forall Δ c P Q Q',
+  Q' |-- Q ->
+  Δ ⊢ {{P}} c {{Q'}} -> 
+  Δ ⊢ {{P}} c {{Q}}.
+Proof.
+  intros. apply (hoare_conseq _ _ P P Q Q'); auto.
+  reflexivity.
+Qed.
+(* rule ExIntro *)
+Lemma hoare_exists_intro {lgst : lgstate} {callc: @calllang_envstate local_cstate global_cstate}: forall  Δ  c (A : Type) P Q,
+  (forall (v: A), Δ ⊢ {{P v}} c {{Q}}) ->
+   Δ ⊢ {{EX v, P v}} c {{Q}}.
+Proof.
+  unfold valid_contextualtriple. simpl. intros * HT * Hcallees.
+  unfold valid_triple.
+  intros * Hmem HP.
+  destruct HP.
+  specialize (HT x _ Hcallees _ _ _ Hmem H) as [HTerr HT].
+  split;auto.
+Qed.
+
+Lemma hoare_exists_r {lgst : lgstate} {callc: @calllang_envstate local_cstate global_cstate}: forall  Δ  c (A : Type) P Q (v: A),
+  Δ ⊢ {{P}} c {{Q v}} ->
+  Δ ⊢ {{P}} c {{EX v, Q v}}.
+Proof.
+  unfold valid_contextualtriple. simpl. intros * HT * Hcallees.
+  unfold valid_triple.
+  intros * Hmem HP.
+  specialize (HT _ Hcallees _ _ _ Hmem HP) as [HTerr HT].
+  split;auto.
+  intros.
+  specialize (HT _ H) as [? [? ?]].
+  eexists. split;eauto.
+  exists v. auto.
+Qed.
+
+Lemma hoare_coqprop_preintro {lgst : lgstate} {callc: @calllang_envstate local_cstate global_cstate} : forall  Δ c P Q (P': Prop),
+  (P' -> Δ ⊢ {{P}} c {{Q}})->
+  Δ ⊢ {{!! P' && P}} c {{Q}}.
+Proof.
+  unfold valid_contextualtriple. simpl. intros * HT * Hcallees.
+  unfold valid_triple.
+  intros * Hmem HP.
+  destruct HP. unfold coq_prop in H.
+  specialize (HT H _ Hcallees _ _ _ Hmem H0) as [HTerr HT].
+  split;auto.
+Qed.
+
+Lemma hoare_coqprop_postintro {lgst : lgstate} {callc: @calllang_envstate local_cstate global_cstate} : forall  Δ c P Q (P': Prop),
+  P' -> Δ ⊢ {{P}} c {{Q}}->
+  Δ ⊢ {{P}} c {{!! P' &&  Q}}.
+Proof.
+  intros.
+  eapply hoare_conseq_post;eauto.
+  pose proof (prop_add_left Q P').
+  apply logic_equiv_derivable1 in H1 as [? ?]; eauto.
+  apply coq_prop_right;auto.
+Qed.
 
 Section contextual_soundness.
 

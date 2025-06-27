@@ -271,3 +271,119 @@ Local Open Scope asrt_scope.
 
 End HoarePracticalDenoRules.
 
+
+
+
+(* use part of practical deno as normal deno *)
+Module HoareNormalDeno2.
+Export practicaldeno.
+
+Definition valid_triple {Σ: Type}: @HT_validity Σ (@denosem Σ) :=
+  fun P c Q =>
+  forall st1, P st1 -> 
+  forall st2, c.(nrm) st1 st2 -> Q st2.
+
+Definition valid_angelic_triple {Σ: Type}: @HT_validity Σ (@denosem Σ) :=
+  fun P c Q =>
+  forall st1, P st1 -> 
+  exists st2, c.(nrm) st1 st2 /\ Q st2.
+
+
+Definition weakestpre {Σ: Type}: @Deno_weakestpre Σ (@denosem Σ) (@asrt Σ) :=
+    fun c X => 
+      fun σ => forall σ', c.(nrm) σ σ' -> σ' ∈ X.
+
+
+  Local Open Scope asrt_scope.  
+
+  Lemma hoare_conseq {Σ: Type}: forall c (P P' Q Q': @asrt Σ),
+  P |-- P' ->
+  Q' |-- Q ->
+  valid_triple P' c Q' ->
+  valid_triple P c Q.
+  Proof.
+    unfold valid_triple. simpl. intros * HP' HQ' HT.
+    intros * HP.
+    specialize (HT _ (HP' _ HP) ) as HT.
+    intros * Heval.
+    specialize (HT _ Heval).
+    eapply HQ';eauto.
+  Qed.
+
+  (* rule Conseq-Pre *)
+  Lemma hoare_conseq_pre {Σ: Type}: forall c P P' (Q: @asrt Σ),
+  P |-- P' ->
+  valid_triple P' c Q ->
+  valid_triple P c Q.
+  Proof.
+    intros. apply (hoare_conseq _  P P' Q Q); auto.
+    reflexivity.
+  Qed.
+
+  Lemma hoare_conseq_post {Σ: Type}: forall c P (Q: @asrt Σ) Q',
+    Q' |-- Q ->
+    valid_triple P c Q' ->
+    valid_triple P c Q.
+  Proof.
+    intros. apply (hoare_conseq _ P P Q Q'); auto.
+    reflexivity.
+  Qed.
+
+  (* rule ExIntro *)
+  Lemma hoare_exists_intro {Σ: Type}: forall c (A : Type) (P : A -> @asrt Σ) P',
+    (forall v, valid_triple (P v) c P') ->
+    valid_triple (exp P) c P'.
+  Proof.
+    unfold valid_triple. simpl. intros * HT.
+    intros * HP.
+    destruct HP.
+    specialize (HT x _  H) as HT.
+    auto.
+  Qed.
+
+  Lemma hoare_exists_r {Σ: Type}: forall c (A : Type) (v : A) P (P' : A -> @asrt Σ),
+    valid_triple P c (P' v) ->
+    valid_triple P c (exp P').
+  Proof.
+    unfold valid_triple. simpl. intros * HT.
+    intros * HP.
+    specialize (HT _ HP) as  HT.
+    intros * Hev.
+    specialize (HT _ Hev). intuition. exists v. auto.
+  Qed.
+
+  Lemma hoare_coqprop_preintro {Σ: Type}: forall c P (Q: @asrt Σ) (P' : Prop),
+    (P' -> valid_triple P c Q)->
+    valid_triple (!! P'  && P) c Q.
+  Proof.
+    unfold valid_triple, andp, coq_prop; intros.
+    destruct H0 as [? ?].
+    specialize (H H0 st1).
+    intuition eauto.
+  Qed.
+
+  Lemma hoare_coqprop_postintro {Σ: Type}: forall c P (Q: @asrt Σ) (P' : Prop),
+    P' -> valid_triple P c Q ->
+    valid_triple P c (!! P'  && Q) .
+  Proof.
+    intros.
+    eapply hoare_conseq_post;eauto.
+    pose proof (prop_add_left Q P').
+    apply logic_equiv_derivable1 in H1 as [? ?]; eauto.
+    apply coq_prop_right;auto.
+  Qed.
+
+  Lemma weakestpre_skip {Σ: Type}: forall (P:  @asrt Σ),
+    weakestpre PracticalDenoConstructs.skip P == P.
+  Proof.
+    intros.
+    unfold weakestpre. simpl. sets_unfold. 
+    split;intros. apply H;auto.
+    subst;auto.
+  Qed.
+
+Notation " '⊢∀' '{{' P '}}' c '{{' Q '}}'" := (valid_triple P c  Q) (at level 71, no associativity).
+Notation " '⊢∃' '{{' P '}}' c '{{' Q '}}'" := (valid_angelic_triple P c  Q) (at level 71, no associativity).
+Notation " 'wlp' c Q" := (weakestpre c Q) (at level 71, no associativity).
+
+End HoareNormalDeno2.

@@ -93,8 +93,8 @@ Section split_rec_rel_monad.
 
 
   Lemma split_rel_eval_xnotnil: forall z x p q,
-    forall P X, safeExec P (split_rec_rel' (z::x, p, q)) X ->
-                safeExec P (x <- split_rec_rel' (x, q, z::p) ;; reversepair x ) X.
+    forall P X, Exec P (split_rec_rel' (z::x, p, q)) X ->
+                Exec P (x <- split_rec_rel' (x, q, z::p) ;; reversepair x ) X.
   Proof. 
     unfold split_rel, reversepair. intros.
     erewrite (program_para_equiv (split_rec_rel_unfold)) in H.
@@ -244,7 +244,7 @@ Proof.
 
   intros [[l1' l2'] l3'].
   unfold merge_body.
-  destruct l1' as [ | x l1']; [| destruct l2' as [| y l2']].
+  destruct l1' as [ | x l1']; [ | destruct l2' as [ | y l2']].
   + hoare_auto.
     rewrite H; simpl.
     apply Permutation_app_comm.
@@ -258,7 +258,7 @@ Proof.
       rewrite (Permutation_app_comm _ [x]).
       reflexivity.
     - rewrite H0.
-      apply Permutation_app; [reflexivity |].
+      apply Permutation_app; [reflexivity | ].
       rewrite ! app_assoc.
       rewrite (Permutation_app_comm _ [y]).
       reflexivity.
@@ -271,11 +271,11 @@ Lemma incr_app_cons: forall l1 x l2,
 Proof.
   intros.
   simpl in H0.
-  destruct l1 as [| a l1]; simpl in *.
+  destruct l1 as [ | a l1]; simpl in *.
   { tauto. }
   revert a H; induction l1; simpl; intros.
   + tauto.
-  + split; [tauto |].
+  + split; [tauto | ].
     apply IHl1.
     tauto.
 Qed.
@@ -285,11 +285,11 @@ Lemma incr_app_cons_inv1: forall l1 x l2,
   incr (l1 ++ [x]).
 Proof.
   intros.
-  destruct l1 as [| a l1]; simpl in *.
+  destruct l1 as [ | a l1]; simpl in *.
   { tauto. }
   revert a H; induction l1; simpl; intros.
   + tauto.
-  + split; [tauto |].
+  + split; [tauto | ].
     apply IHl1.
     tauto.
 Qed.
@@ -326,7 +326,7 @@ Proof.
   clear l1 l2 H H0.
   intros [[l1 l2] l3].
   unfold merge_body.
-  destruct l1 as [ | x l1]; [| destruct l2 as [| y l2]].
+  destruct l1 as [ | x l1]; [ | destruct l2 as [ | y l2]].
   + hoare_auto. tauto.
   + hoare_auto. tauto.
   + hoare_auto.
@@ -386,7 +386,7 @@ Proof.
   simpl;intros * H [[l0 l1] l2]. simpl.
   destruct l0.
   - hoare_auto. split;auto. lia.
-  - eapply Hoare_bind;[apply H |].
+  - eapply Hoare_bind;[apply H | ].
     simpl.
     intros [? ?].
     unfold reversepair.
@@ -491,10 +491,10 @@ Proof.
     eapply ext_split_fact.
     intros [l1 l2].
     apply Hoare_stateless;intros.
-    eapply Hoare_bind;[ apply H |].
+    eapply Hoare_bind;[ apply H | ].
     intros lp;simpl.
     apply Hoare_stateless;intros.
-    eapply Hoare_bind;[ apply H |].
+    eapply Hoare_bind;[ apply H | ].
     intros lq;simpl.
     apply Hoare_stateless;intros.
     eapply Hoare_conseq_post.

@@ -18,6 +18,7 @@ From EncRelSeq.Basics Require Import basictacs basicasrt relasrt hoarelogic.
 
 Import SetsNotation.
 Local Open Scope sets_scope.
+Local Open Scope asrt_scope.
 
 Class lowlevel_defs (Σₗ Progₗ: Type) : Type :=
   { lowlevel_valid_triple: @HT_validity Σₗ Progₗ
@@ -61,7 +62,7 @@ Arguments safe {Σₕ Progₕ Postasrt}%type_scope {HDefs}.
 Arguments Exec {Σₕ Progₕ Postasrt}%type_scope {HDefs}. 
 Arguments encode_asrt {Σₗ Σₕ Progₕ Postasrt}%type_scope {HDefs}.
 
-Notation " '[|' P '|]' '(' x ')' " := (encode_asrt P x)  (at level 20, no associativity). 
+Notation " '[|' P '|]' '(' x ')' " := (encode_asrt P x)  (at level 20, no associativity) : asrt_scope. 
 
 Ltac simpl_hdefs:= simpl (highlevel_wlp) in *.
 
@@ -76,7 +77,6 @@ Section  EncodeLemmas.
   Context {LDefs: lowlevel_defs Σₗ Progₗ}.
   Context {HDefs: highlevel_defs Σₕ Progₕ Postasrt}.
 
-Local Open Scope asrt_scope.
 Ltac destructs H := rel_destruct Σₗ Σₕ Progₗ Progₕ H.
 
 
@@ -201,6 +201,7 @@ Proof.
   apply logic_equiv_andp_mono;[ | apply logic_equiv_refl].
   apply logic_equiv_andp_comm.
 Qed.
+
 
 Lemma encode_derives: forall X (P: @relasrt Σₗ Σₕ Progₕ) (P' : @relasrt Σₗ Σₕ Progₕ),
   P |-- P' -> 
