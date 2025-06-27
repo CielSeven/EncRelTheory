@@ -2,6 +2,15 @@
 From EncRelSeq.Basics Require Import basictacs basicasrt.
 Require Import Logic.LogicGenerator.demo932.Interface2.
 
+Module Type sepLang.
+(* primitive_types *)
+  Parameter state : Type .
+  Definition expr := (state -> Prop) .
+  Parameter join : (state -> state -> state -> Prop) .
+  Parameter is_unit : (state -> Prop) .
+End sepLang.
+
+
 Module Type sepRuleSig (Names: sepLang).
   Include sepLang.
   Axiom unit_join : (forall n : state, exists u : state, is_unit u /\ join n u n) .

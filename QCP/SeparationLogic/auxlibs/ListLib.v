@@ -209,6 +209,25 @@ Proof.
       reflexivity.
 Qed.
 
+Lemma Znth_replace_Znth: forall {A} n l (v a0: A),
+  0 <= n < Zlength l ->
+  Znth n (replace_Znth n v l) a0 = v.
+Proof.
+  intros.
+  rewrite Zlength_correct in H.
+  unfold Znth, replace_Znth.
+  assert (Z.to_nat n < length l)%nat by lia. clear H.
+  set (m := Z.to_nat n) in *; clearbody m; clear n.
+  revert dependent l.
+  induction m;intros.
+  + destruct l; simpl in *; auto. lia.
+  + destruct l;simpl in *.
+    - lia.
+    - rewrite IHm.
+      reflexivity.
+      lia.
+Qed.
+
 Lemma replace_Znth_nothing : forall {A} n (l: list A) (a: A),
   n >= Zlength l -> replace_Znth n a l = l.
 Proof.

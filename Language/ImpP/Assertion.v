@@ -9,7 +9,7 @@ From FP Require Import SetsFixedpoints.
 From compcert.lib Require Import Integers.
 
 From EncRelSeq Require Import  callsem basicasrt contexthoare_imp.
-From LangLib.ImpP Require Import PermissionModel Mem mem_lib Imp.
+From LangLib.ImpP Require Import PermissionModel Mem mem_lib Imp Seplogicrules.
 
 
 
@@ -126,7 +126,7 @@ Proof.
   intros.
   split.
   eapply sepcon_andp_prop1.
-  eapply sepcon_andp_prop2_.
+  eapply derivable1_sepcon_coq_prop_andp_r.
 Qed.
 
 

@@ -11,9 +11,9 @@ COQDEP=$(COQBIN)coqdep$(SUF)
 DIRS = \
 	Examples Language auxlib EncRelSeq compcert_lib sets unifysl fixedpoints monadlib 
  
-COQ_FLAG = -R $(QCP_DIR)sets SetsClass -R $(QCP_DIR)unifysl Logic -R $(QCP_DIR)compcert_lib compcert.lib -R $(QCP_DIR)auxlibs AUXLib -R EncRelSeq EncRelSeq -R Language LangLib -R Examples Examples -R fixedpoints FP -R monadlib MonadLib -R $(QCP_DIR)SeparationLogic SimpleC.SL -R $(QCP_DIR)examples SimpleC.EE
+COQ_FLAG = -R $(QCP_DIR)sets SetsClass -R $(QCP_DIR)unifysl Logic -R $(QCP_DIR)compcert_lib compcert.lib -R $(QCP_DIR)auxlibs AUXLib -R EncRelSeq EncRelSeq -R Language LangLib -R Examples Examples -R fixedpoints FP -R monadlib MonadLib -R $(QCP_DIR)SeparationLogic SimpleC.SL -R $(QCP_DIR)examples SimpleC.EE -R $(QCP_DIR)StrategyLib SimpleC.StrategyLib
  
-DEP_FLAG = -R $(QCP_DIR)sets SetsClass -R $(QCP_DIR)unifysl Logic -R $(QCP_DIR)compcert_lib compcert.lib -R $(QCP_DIR)auxlibs AUXLib -R EncRelSeq EncRelSeq -R Language LangLib -R Examples Examples -R fixedpoints FP -R monadlib MonadLib -R $(QCP_DIR)SeparationLogic SimpleC.SL -R $(QCP_DIR)examples SimpleC.EE
+DEP_FLAG = -R $(QCP_DIR)sets SetsClass -R $(QCP_DIR)unifysl Logic -R $(QCP_DIR)compcert_lib compcert.lib -R $(QCP_DIR)auxlibs AUXLib -R EncRelSeq EncRelSeq -R Language LangLib -R Examples Examples -R fixedpoints FP -R monadlib MonadLib -R $(QCP_DIR)SeparationLogic SimpleC.SL -R $(QCP_DIR)examples SimpleC.EE -R $(QCP_DIR)StrategyLib SimpleC.StrategyLib
 
 Compcertlib_FILES = \
   Coqlib.v Integers.v Zbits.v 
@@ -78,7 +78,7 @@ MONAD_FILES = \
 
 Language_FILES = \
 	ImpP/Mem.v ImpP/PermissionModel.v ImpP/mem_lib.v ImpP/Imp.v \
-	ImpP/Seplogicrules.v  ImpP/Assertion.v ImpP/ImpTactics.v  ImpP/ImpHoareTactics.v ImpP/ImpEHoareTactics.v \
+	ImpP/Seplogicrules.v ImpP/Assertion.v ImpP/ImpTactics.v  ImpP/ImpHoareTactics.v ImpP/ImpEHoareTactics.v \
 	ImpP/slllib.v ImpP/ArrayLib.v ImpP/bst_lib.v ImpP/GraphAdjList.v
 
 Examples_FILES = \
@@ -87,6 +87,64 @@ Examples_FILES = \
 	impEexample/Ckmp.v  impEexample/CkmpProof.v \
 	impexample/CBSTInsert.v monadexample/bst.v  impexample/CBSTInsProof.v \
 	impexample/CGraphDFS.v monadexample/dfs.v monadexample/dfsproof.v impexample/CGraphDFSProof.v
+
+
+SL_FILES = \
+  CommonAssertion.v Assertion.v Mem.v ConAssertion.v \
+  NestedCriticalSTS.v CriticalSTS.v \
+  IntLib.v ArrayLib.v StoreAux.v pocv02.v SeparationLogic.v CNotation.v
+
+StrategyLib_FILES = \
+  DepList.v Mapping.v
+
+Qcp_Examples_FILES = \
+  poly_sll_lib.v poly_sll_goal.v poly_sll_goal_check.v poly_sll_proof_auto.v poly_sll_proof_manual.v \
+  sll_lib.v sll_goal.v sll_goal_check.v sll_proof_auto.v sll_proof_manual.v \
+  sll_merge_lib.v sll_merge_goal.v sll_merge_goal_check.v sll_merge_proof_auto.v sll_merge_proof_manual.v \
+	sll_insert_sort_lib.v sll_insert_sort_goal.v sll_insert_sort_goal_check.v sll_insert_sort_proof_auto.v sll_insert_sort_proof_manual.v \
+	functional_queue_lib.v functional_queue_goal.v functional_queue_goal_check.v functional_queue_proof_auto.v functional_queue_proof_manual.v \
+	dll_queue_lib.v dll_queue_goal.v dll_queue_goal_check.v dll_queue_proof_auto.v dll_queue_proof_manual.v \
+	sll_queue_lib.v sll_queue_goal.v sll_queue_goal_check.v sll_queue_proof_auto.v sll_queue_proof_manual.v \
+	simple_arith/abs_goal.v simple_arith/abs_goal_check.v simple_arith/abs_proof_auto.v simple_arith/abs_proof_manual.v \
+	simple_arith/add_goal.v simple_arith/add_goal_check.v simple_arith/add_proof_auto.v simple_arith/add_proof_manual.v \
+	simple_arith/max3_goal.v simple_arith/max3_goal_check.v simple_arith/max3_proof_auto.v simple_arith/max3_proof_manual.v \
+	simple_arith/gcd_goal.v simple_arith/gcd_goal_check.v simple_arith/gcd_proof_auto.v simple_arith/gcd_proof_manual.v \
+	simple_arith/Apos_lib.v simple_arith/Always_pos_goal.v simple_arith/Always_pos_goal_check.v simple_arith/Always_pos_proof_auto.v simple_arith/Always_pos_proof_manual.v \
+	simple_arith/PDiv_lib.v simple_arith/div_test_goal.v simple_arith/div_test_goal_check.v simple_arith/div_test_proof_auto.v simple_arith/div_test_proof_manual.v \
+	simple_arith/exgcd_goal.v simple_arith/exgcd_goal_check.v simple_arith/exgcd_proof_auto.v simple_arith/exgcd_proof_manual.v \
+	sum_goal.v sum_goal_check.v sum_proof_auto.v sum_proof_manual.v \
+	bst_lib.v bst_insert_goal.v bst_insert_goal_check.v bst_insert_proof_auto.v bst_insert_proof_manual.v \
+	bst_insert_rec_goal.v bst_insert_rec_goal_check.v bst_insert_rec_proof_auto.v bst_insert_rec_proof_manual.v \
+	bst_fp_lib.v bst_fp_insert_goal.v bst_fp_insert_goal_check.v bst_fp_insert_proof_auto.v bst_fp_insert_proof_manual.v \
+	bst_fp_delete_goal.v bst_fp_delete_goal_check.v bst_fp_delete_proof_auto.v bst_fp_delete_proof_manual.v \
+	swap_lib.v swap_goal.v swap_goal_check.v swap_proof_auto.v swap_proof_manual.v \
+	eval_lib.v eval_goal.v eval_goal_check.v eval_proof_auto.v eval_proof_manual.v \
+	bst_delete_rec_goal.v bst_delete_rec_goal_check.v bst_delete_rec_proof_auto.v bst_delete_rec_proof_manual.v \
+	bst_delete_rec2_goal.v bst_delete_rec2_goal_check.v bst_delete_rec2_proof_auto.v bst_delete_rec2_proof_manual.v \
+	fme/algorithm.v fme/implement.v fme/implement_lemma.v fme/fme_lib.v fme/fme_goal.v fme/fme_goal_check.v fme/fme_proof_auto.v fme/fme_proof_manual.v \
+	typeinfer/correct_impl.v typeinfer/repr_subst_prop.v typeinfer/sol_prop.v typeinfer/sound_pv.v typeinfer/type_infer_lib.v typeinfer/typeinfer_lib.v typeinfer/typeinfer_goal.v typeinfer/typeinfer_goal_check.v typeinfer/typeinfer_proof_auto.v typeinfer/typeinfer_proof_manual.v \
+  
+StrategyProof_FILES = \
+	common_strategy_goal.v common_strategy_proof.v common_strategy_goal_check.v \
+	poly_sll_strategy_goal.v poly_sll_strategy_proof.v poly_sll_strategy_goal_check.v \
+	sll_shape_strategy_goal.v sll_shape_strategy_proof.v sll_shape_strategy_goal_check.v \
+	sll_strategy_goal.v sll_strategy_proof.v sll_strategy_goal_check.v \
+	dll_queue_strategy_goal.v dll_queue_strategy_proof.v dll_queue_strategy_goal_check.v \
+	functional_queue_strategy_goal.v functional_queue_strategy_proof.v functional_queue_strategy_goal_check.v \
+	sll_queue_strategy_goal.v sll_queue_strategy_proof.v sll_queue_strategy_goal_check.v \
+	int_array_strategy_goal.v int_array_strategy_proof.v int_array_strategy_goal_check.v \
+	bst_strategy_goal.v bst_strategy_proof.v bst_strategy_goal_check.v \
+	bst_fp_strategy_goal.v bst_fp_strategy_proof.v bst_fp_strategy_goal_check.v \
+	eval_strategy_goal.v eval_strategy_proof.v eval_strategy_goal_check.v \
+	char_array_strategy_goal.v char_array_strategy_proof.v char_array_strategy_goal_check.v \
+	fme/fme_strategy_goal.v fme/fme_strategy_proof.v fme/fme_strategy_goal_check.v \
+	typeinfer/typeinfer_strategy_goal.v typeinfer/typeinfer_strategy_proof.v typeinfer/typeinfer_strategy_goal_check.v \
+
+Qcp_Unify_FILES = \
+   Interface.v 
+	
+Auto_Examples_FILES = \
+	sll_shape_lib.v sll_auto_goal.v sll_auto_goal_check.v sll_auto_proof_auto.v sll_auto_proof_manual.v \
 
 VC_code_FILE_NAME = \
 	kmp_rel sll_merge_rel  
@@ -125,6 +183,18 @@ example_gen : \
 	$(strategy_FILE_NAME:%=Examples/QCPexample/VC/strategy_proof/%_strategy_goal.v) \
 	$(VC_code_FILE_NAME:%=Examples/QCPexample/VC/code_proof/%_goal.v)
 
+QCPEXAMPLE = \
+	$(Qcp_Unify_FILES:%.v=QCP/SeparationLogic/unifysl/LogicGenerator/demo932/%.v) \
+	$(SL_FILES:%.v=QCP/SeparationLogic/SeparationLogic/%.v) \
+	$(Qcp_Examples_FILES:%.v=QCP/SeparationLogic/examples/%.v) \
+	$(StrategyProof_FILES:%.v=QCP/SeparationLogic/examples/%.v) \
+	$(Auto_Examples_FILES:%.v=QCP/SeparationLogic/examples/%.v) \
+	$(MonadExampleQCP) \
+
+$(QCPEXAMPLE:%.v=%.vo): %.vo: %.v
+	@echo COQC $*.v
+	@$(COQC) $(COQ_FLAG) $(CURRENT_DIR)/$*.v
+
 
 FILES = \
 	$(Unify_FILES:%.v=QCP/SeparationLogic/unifysl/LogicGenerator/demo932/%.v) \
@@ -134,7 +204,6 @@ FILES = \
     $(FIXPOINT_FILES:%.v=fixedpoints/%.v) \
     $(MONAD_FILES) \
 	$(EncRelSeq_FILES:%.v=EncRelSeq/%.v) \
-	$(MonadExampleQCP) \
 	$(Language_FILES:%.v=Language/%.v) \
 	$(Examples_FILES:%.v=Examples/%.v) \
 
@@ -157,23 +226,24 @@ enctheory: $(EncRelSeq_FILES:%.v=EncRelSeq/%.vo)
 monads: $(MONAD_FILES:%.v=%.vo)
 	@echo "====== monadlib built ======"
 
-examples: $(Examples_FILES:%.v=Examples/%.vo)
-
 language: $(Language_FILES:%.v=Language/%.vo)
+	@echo "====== monadlib built ======"
 
+encexample: $(FILES:%.v=%.vo)
 
 all: \
-  example_gen \
   $(FILES:%.v=%.vo) \
+  example_gen \
+  $(QCPEXAMPLE:%.v=%.vo) \
 
 _CoqProject:
 	@echo $(COQ_FLAG) > _CoqProject
 
 depend:
-	$(COQDEP) $(DEP_FLAG) $(FILES) > .depend
+	@$(COQDEP) $(DEP_FLAG) $(FILES) $(QCPEXAMPLE) > .depend
 
 .depend:
-	@$(COQDEP) $(DEP_FLAG) $(FILES) > .depend
+	@$(COQDEP) $(DEP_FLAG) $(FILES) $(QCPEXAMPLE) > .depend
 
 clean: 
 	@rm -f $(FILES:%.v=%.glob)  
@@ -181,6 +251,11 @@ clean:
 	@rm -f $(FILES:%.v=%.vok)  
 	@rm -f $(FILES:%.v=%.vos)  
 	@rm -f $(FILES:%.v=.%.aux)  
+	@rm -f $(QCPEXAMPLE:%.v=%.glob)  
+	@rm -f $(QCPEXAMPLE:%.v=%.vo)  
+	@rm -f $(QCPEXAMPLE:%.v=%.vok)  
+	@rm -f $(QCPEXAMPLE:%.v=%.vos)  
+	@rm -f $(QCPEXAMPLE:%.v=.%.aux)  
 	@rm -f .depend
 
 .PHONY: clean depend
