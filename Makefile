@@ -11,9 +11,9 @@ COQDEP=$(COQBIN)coqdep$(SUF)
 DIRS = \
 	Examples Language auxlib EncRelSeq compcert_lib sets unifysl fixedpoints monadlib 
  
-COQ_FLAG = -R $(QCP_DIR)sets SetsClass -R $(QCP_DIR)unifysl Logic -R $(QCP_DIR)compcert_lib compcert.lib -R $(QCP_DIR)auxlibs AUXLib -R EncRelSeq EncRelSeq -R Language LangLib -R Examples Examples -R fixedpoints FP -R monadlib MonadLib
-
-DEP_FLAG = -R $(QCP_DIR)sets SetsClass -R $(QCP_DIR)unifysl Logic -R $(QCP_DIR)compcert_lib compcert.lib -R $(QCP_DIR)auxlibs AUXLib -R EncRelSeq EncRelSeq -R Language LangLib -R Examples Examples -R fixedpoints FP -R monadlib MonadLib
+COQ_FLAG = -R $(QCP_DIR)sets SetsClass -R $(QCP_DIR)unifysl Logic -R $(QCP_DIR)compcert_lib compcert.lib -R $(QCP_DIR)auxlibs AUXLib -R EncRelSeq EncRelSeq -R Language LangLib -R Examples Examples -R fixedpoints FP -R monadlib MonadLib -R $(QCP_DIR)SeparationLogic SimpleC.SL -R $(QCP_DIR)examples SimpleC.EE
+ 
+DEP_FLAG = -R $(QCP_DIR)sets SetsClass -R $(QCP_DIR)unifysl Logic -R $(QCP_DIR)compcert_lib compcert.lib -R $(QCP_DIR)auxlibs AUXLib -R EncRelSeq EncRelSeq -R Language LangLib -R Examples Examples -R fixedpoints FP -R monadlib MonadLib -R $(QCP_DIR)SeparationLogic SimpleC.SL -R $(QCP_DIR)examples SimpleC.EE
 
 Compcertlib_FILES = \
   Coqlib.v Integers.v Zbits.v 
@@ -87,6 +87,43 @@ Examples_FILES = \
 	impexample/CBSTInsert.v monadexample/bst.v  impexample/CBSTInsProof.v \
 	impexample/CGraphDFS.v monadexample/dfs.v monadexample/dfsproof.v impexample/CGraphDFSProof.v
 
+VC_code_FILE_NAME = \
+	kmp_rel sll_merge_rel  
+
+VC_lib_FILES = \
+	kmp_lib.v kmp_rel_lib.v sll_merge_rel_lib.v 
+
+VC_code_proof_FILES = \
+	$(VC_code_FILE_NAME:%=VC/code_proof/%_goal.v) \
+  $(VC_code_FILE_NAME:%=VC/code_proof/%_proof_auto.v) \
+  $(VC_code_FILE_NAME:%=VC/code_proof/%_proof_manual.v) \
+  $(VC_code_FILE_NAME:%=VC/code_proof/%_goal_check.v) \
+
+strategy_FILE_NAME = \
+	safeexec safeexecE
+
+strategy_proof_FILES = \
+	$(strategy_FILE_NAME:%=VC/strategy_proof/%_strategy_goal.v) \
+	$(strategy_FILE_NAME:%=VC/strategy_proof/%_strategy_proof.v) \
+	$(strategy_FILE_NAME:%=VC/strategy_proof/%_strategy_goal_check.v)
+
+MonadExampleQCP = \
+	$(VC_code_proof_FILES:%=Examples/QCPexample/%) \
+	$(VC_lib_FILES:%.v=Examples/QCPexample/lib/%.v) \
+	$(strategy_proof_FILES:%=Examples/QCPexample/%) \
+
+$(strategy_FILE_NAME:%=Examples/QCPexample/VC/strategy_proof/%_strategy_goal.v) : Examples/QCPexample/VC/strategy_proof/%_strategy_goal.v: Examples/QCPexample/annotated_C/%.strategies
+	@echo STRATEGIES_PROOF_GEN $*.strategies
+	@$(SymExec_DIR)StrategyCheck$(SYM_SUF) --strategy-folder-path=Examples/QCPexample/VC/strategy_proof/ --input-file=Examples/QCPexample/annotated_C/$*.strategies --no-exec-info
+
+$(VC_code_FILE_NAME:%=Examples/QCPexample/VC/code_proof/%_goal.v) : Examples/QCPexample/VC/code_proof/%_goal.v: Examples/QCPexample/annotated_C/%.c
+	@echo CODE_PROOF_GEN $*.c
+	@$(SymExec_DIR)symexec$(SYM_SUF) --goal-file=Examples/QCPexample/VC/code_proof/$*_goal.v --proof-auto-file=Examples/QCPexample/VC/code_proof/$*_proof_auto.v --proof-manual-file=Examples/QCPexample/VC/code_proof/$*_proof_manual.v --input-file=Examples/QCPexample/annotated_C/$*.c  -slp Examples/QCPexample/annotated_C/ Examples.QCPexample.VC.strategy_proof -slp QCP/QCP_examples/ SimpleC.EE -IQCP/QCP_examples --coq-logic-path=Examples.QCPexample --no-exec-info
+
+example_gen : \
+	$(strategy_FILE_NAME:%=Examples/QCPexample/VC/strategy_proof/%_strategy_goal.v) \
+	$(VC_code_FILE_NAME:%=Examples/QCPexample/VC/code_proof/%_goal.v)
+
 
 FILES = \
 	$(Unify_FILES:%.v=QCP/SeparationLogic/unifysl/LogicGenerator/demo932/%.v) \
@@ -95,7 +132,8 @@ FILES = \
     $(Auxlibs_FILES:%.v=QCP/SeparationLogic/auxlibs/%.v) \
     $(FIXPOINT_FILES:%.v=fixedpoints/%.v) \
     $(MONAD_FILES) \
-    $(EncRelSeq_FILES:%.v=EncRelSeq/%.v) \
+		$(EncRelSeq_FILES:%.v=EncRelSeq/%.v) \
+		$(MonadExampleQCP) \
 	$(Language_FILES:%.v=Language/%.v) \
 # 	$(Examples_FILES:%.v=Examples/%.v) \
 
@@ -104,6 +142,7 @@ $(FILES:%.v=%.vo): %.vo: %.v
 	@$(COQC) $(COQ_FLAG) $(CURRENT_DIR)/$*.v
 
 all: \
+	example_gen \
   $(FILES:%.v=%.vo) \
 
 _CoqProject:
