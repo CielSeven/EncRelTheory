@@ -575,25 +575,14 @@ Proof. cbv;intros.
         destruct H as (? & ? & ? & ? & ? & ?).
         split;auto.
         do 2 eexists. split;eauto. Qed.
-        
+
+Lemma derivable1_sepcon_coq_prop_andp_r : (forall (P : expr) (Q : Prop) (R : expr), derivable1 (andp (coq_prop Q) (sepcon P R)) (sepcon P (andp (coq_prop Q) R))) .
+Proof. cbv;intros.
+        destruct H as (? & ? & ? & ? & ? & ?).
+        do 2 eexists. split;eauto. Qed.
+
+
 End sepcon_connectives_lemmas.
-
-Module Type sepLang.
-(* primitive_types *)
-  Parameter state : Type .
-  Definition expr := (state -> Prop) .
-  Parameter join : (state -> state -> state -> Prop) .
-  Parameter is_unit : (state -> Prop) .
-End sepLang.
-
-Module Type sepRuleSig (Names: sepLang).
-  Include sepLang.
-  Axiom unit_join : (forall n : state, exists u : state, is_unit u /\ join n u n) .
-  Axiom unit_spec : (forall n m u : state, is_unit u -> join n u m -> n = m) .
-  Axiom join_comm : (forall m1 m2 m : state, join m1 m2 m -> join m2 m1 m) .
-  Axiom join_assoc : (forall mx my mz mxy mxyz : state, join mx my mxy -> join mxy mz mxyz -> exists myz : state, join my mz myz /\ join mx myz mxyz) .
-End sepRuleSig.
-
 
 Ltac st_destruct Σ H :=
   match type of H with

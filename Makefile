@@ -54,7 +54,7 @@ EncRelSeq_FILES = \
 	$(AbsMonadE_FILES:%.v=MonadsAsHigh/AbsMonadE/%.v) \
 
 Unify_FILES = \
-   Interface.v 
+   Interface2.v 
 
 SetMonad_Files = \
 	Monad.v SetBasic.v SetHoare.v FixpointLib.v SetMonad.v
@@ -77,7 +77,8 @@ MONAD_FILES = \
 
 
 Language_FILES = \
-	ImpP/Mem.v ImpP/PermissionModel.v ImpP/mem_lib.v ImpP/Imp.v ImpP/Assertion.v ImpP/ImpTactics.v  ImpP/ImpHoareTactics.v ImpP/ImpEHoareTactics.v \
+	ImpP/Mem.v ImpP/PermissionModel.v ImpP/mem_lib.v ImpP/Imp.v \
+	ImpP/Seplogicrules.v  ImpP/Assertion.v ImpP/ImpTactics.v  ImpP/ImpHoareTactics.v ImpP/ImpEHoareTactics.v \
 	ImpP/slllib.v ImpP/ArrayLib.v ImpP/bst_lib.v ImpP/GraphAdjList.v
 
 Examples_FILES = \
@@ -94,7 +95,7 @@ VC_lib_FILES = \
 	kmp_lib.v kmp_rel_lib.v sll_merge_rel_lib.v 
 
 VC_code_proof_FILES = \
-	$(VC_code_FILE_NAME:%=VC/code_proof/%_goal.v) \
+  $(VC_code_FILE_NAME:%=VC/code_proof/%_goal.v) \
   $(VC_code_FILE_NAME:%=VC/code_proof/%_proof_auto.v) \
   $(VC_code_FILE_NAME:%=VC/code_proof/%_proof_manual.v) \
   $(VC_code_FILE_NAME:%=VC/code_proof/%_goal_check.v) \
@@ -132,17 +133,37 @@ FILES = \
     $(Auxlibs_FILES:%.v=QCP/SeparationLogic/auxlibs/%.v) \
     $(FIXPOINT_FILES:%.v=fixedpoints/%.v) \
     $(MONAD_FILES) \
-		$(EncRelSeq_FILES:%.v=EncRelSeq/%.v) \
-		$(MonadExampleQCP) \
+	$(EncRelSeq_FILES:%.v=EncRelSeq/%.v) \
+	$(MonadExampleQCP) \
 	$(Language_FILES:%.v=Language/%.v) \
-# 	$(Examples_FILES:%.v=Examples/%.v) \
+	$(Examples_FILES:%.v=Examples/%.v) \
 
 $(FILES:%.v=%.vo): %.vo: %.v
 	@echo COQC $*.v
 	@$(COQC) $(COQ_FLAG) $(CURRENT_DIR)/$*.v
 
+
+
+sets: $(Sets_FILES:%.v=QCP/SeparationLogic/sets/%.vo)
+	@echo "====== sets built ======"
+
+
+fixpoints: $(FIXPOINT_FILES:%.v=fixedpoints/%.vo)
+	@echo "====== fixedpoints built ======"
+
+enctheory: $(EncRelSeq_FILES:%.v=EncRelSeq/%.vo)
+	@echo "====== enctheory built ======"
+
+monads: $(MONAD_FILES:%.v=%.vo)
+	@echo "====== monadlib built ======"
+
+examples: $(Examples_FILES:%.v=Examples/%.vo)
+
+language: $(Language_FILES:%.v=Language/%.vo)
+
+
 all: \
-	example_gen \
+  example_gen \
   $(FILES:%.v=%.vo) \
 
 _CoqProject:
