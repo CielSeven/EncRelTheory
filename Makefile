@@ -220,6 +220,27 @@ $(FILES:%.v=%.vo): %.vo: %.v
 	@$(COQC) $(COQ_FLAG) $(CURRENT_DIR)/$*.v
 
 
+TEST_VC_code_FILE_NAME = \
+	test  
+
+TEST_VC_code_proof_FILES = \
+  $(TEST_VC_code_FILE_NAME:%=VC/code_proof/%_goal.v) \
+  $(TEST_VC_code_FILE_NAME:%=VC/code_proof/%_proof_auto.v) \
+  $(TEST_VC_code_FILE_NAME:%=VC/code_proof/%_proof_manual.v) \
+  $(TEST_VC_code_FILE_NAME:%=VC/code_proof/%_goal_check.v) \
+
+TESTExampleQCP = \
+	$(TEST_VC_code_proof_FILES:%=Examples/QCPexample/%) \
+
+$(TESTExampleQCP:%.v=%.vo): %.vo: %.v
+	@echo COQC $*.v
+	@$(COQC) $(COQ_FLAG) $(CURRENT_DIR)/$*.v
+
+
+$(TEST_VC_code_FILE_NAME:%=Examples/QCPexample/VC/code_proof/%_goal.v) : Examples/QCPexample/VC/code_proof/%_goal.v: Examples/QCPexample/annotated_C/%.c
+	@echo CODE_PROOF_GEN $*.c
+	@$(SymExec_DIR)symexec$(SYM_SUF) --goal-file=Examples/QCPexample/VC/code_proof/$*_goal.v --proof-auto-file=Examples/QCPexample/VC/code_proof/$*_proof_auto.v --proof-manual-file=Examples/QCPexample/VC/code_proof/$*_proof_manual.v --input-file=Examples/QCPexample/annotated_C/$*.c  -slp Examples/QCPexample/annotated_C/ Examples.QCPexample.VC.strategy_proof -slp QCP/QCP_examples/ SimpleC.EE -IQCP/QCP_examples --coq-logic-path=Examples.QCPexample --no-exec-info
+
 
 sets: $(Sets_FILES:%.v=QCP/SeparationLogic/sets/%.vo)
 	@echo "====== sets built ======"
@@ -247,6 +268,14 @@ qcpexample:  example_gen \
 qcpfullexample:  example_gen \
   $(QCPFILES:%.v=%.vo) 
 	@echo "====== QCP full examples built ======"
+
+test_gen : \
+	$(TEST_VC_code_FILE_NAME:%=Examples/QCPexample/VC/code_proof/%_goal.v)
+
+checktest : test_gen \
+  $(TESTExampleQCP:%.v=%.vo) 
+	@echo "====== QCP test built ======"
+
 
 all: \
   $(FILES:%.v=%.vo) \
@@ -276,6 +305,16 @@ clean:
 	@rm -f **/.*.aux
 	@rm -f **/**/.*.aux
 	@rm -f .depend
+
+cleantest: 
+	@rm -f $(TESTExampleQCP:%.v=%.glob)  
+	@rm -f $(TESTExampleQCP:%.v=%.vo)  
+	@rm -f $(TESTExampleQCP:%.v=%.vok)  
+	@rm -f $(TESTExampleQCP:%.v=%.vos)  
+	@rm -f $(TESTExampleQCP:%.v=.%.aux)  
+	@rm -f $(TESTExampleQCP)
+
+
 
 .PHONY: clean depend
 .DEFAULT_GOAL := all
