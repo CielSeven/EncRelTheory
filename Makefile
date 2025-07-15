@@ -2,9 +2,9 @@ CURRENT_DIR=.
 QCP_DIR = QCP/SeparationLogic/
 
 COQBIN=        # Path to your Coq binaries, or leave empty if 'coqc' is in your PATH
-SymExec_DIR=   # Set to QCP/win-binary/ on Windows, or QCP/linux-binary/ on Linux
-SYM_SUF=       # Set to .exe on Windows; leave empty on Linux
-SUF=           # Set to .exe on Windows; leave empty on Linux
+SymExec_DIR=   # Set to QCP/win-binary/ on Windows, QCP/linux-binary/ on Linux, or QCP/mac-arm64-binary/ on MacOS
+SYM_SUF=       # Set to .exe on Windows; leave empty on Linux and MacOS
+SUF=           # Set to .exe on Windows; leave empty on Linux and MacOS
 
 -include CONFIGURE
 

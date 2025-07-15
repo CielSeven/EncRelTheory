@@ -48,9 +48,9 @@ This repository provides a machine-checked Rocq formalization of our encoding th
 2. **Configure Makefile**
     ```make
     COQBIN=        # Path to your Coq binaries, or leave empty if 'coqc' is in your PATH
-    SymExec_DIR=   # Set to QCP/win-binary/ on Windows, or QCP/linux-binary/ on Linux
-    SYM_SUF=       # Set to .exe on Windows; leave empty on Linux
-    SUF=           # Set to .exe on Windows; leave empty on Linux
+    SymExec_DIR=   # Set to QCP/win-binary/ on Windows, QCP/linux-binary/ on Linux, or QCP/mac-arm64-binary/ on MacOS
+    SYM_SUF=       # Set to .exe on Windows; leave empty on Linux and MacOS
+    SUF=           # Set to .exe on Windows; leave empty on Linux and MacOS
     ```
 3. **Build the separation logic backend**
    ```bash
@@ -64,6 +64,10 @@ This repository provides a machine-checked Rocq formalization of our encoding th
     make depend
     make -j5
     ```
+5. **Generate `_CoqProject`**
+   ```bash
+   make _CoqProject
+   ```
 ### Optional Builds
 
 - Only encoding theory:
