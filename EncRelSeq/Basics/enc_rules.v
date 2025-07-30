@@ -124,9 +124,8 @@ Proof.
     rewrite weakestpre_skip in H. sets_unfold  in H.
     specialize (HHT _ HPH _ H).
     do 2 eexists. cbv. split;eauto.
-Qed.
-
-Lemma comp_fc_as_conseq_convenienet {Σₗ Σₕ U V: Type}:forall 
+Qed. 
+Lemma comp_fc_as_conseq_convenient {Σₗ Σₕ U V: Type}:forall 
   (storeLowPre: U -> @asrt Σₗ) (storeHighPre: U -> @asrt Σₕ) (cₗ: denosem) (cₕ: denosem) 
   (storeLowPost: V -> @asrt Σₗ) (storeHighPost: V -> @asrt Σₕ) 
   (B1: U -> Prop) (B2: V -> Prop),

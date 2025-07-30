@@ -56,6 +56,12 @@ Definition assume {Σ : Type} (B: deno_test) : @denosem Σ  :=
   nrm := fun st1 st2 => B st1 /\ st2 = st1;
 |}.
 
+
+Definition choice {Σ : Type} (D1 D2: @denosem Σ) : @denosem Σ := 
+{|
+  nrm := D1.(nrm) ∪ D2.(nrm);
+|}.
+
 Definition notB {Σ : Type} (B: @deno_test Σ) : deno_test := fun st => ~ B st.
 
 Definition ife {Σ : Type} (B: deno_test) (D1 D2: @denosem Σ) : @denosem Σ :=

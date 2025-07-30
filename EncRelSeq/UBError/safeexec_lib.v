@@ -66,7 +66,7 @@ Section  safe_rules.
       splits;eauto.
   Qed.
   
-  Lemma Exec_imply_cont : forall (P P': @asrt Σ)  s ks,
+  Lemma Exec_Seq : forall (P P': @asrt Σ)  s ks,
     (forall X, Exec P s X -> Exec P' skip X) ->
     (forall X, Exec P (seq s ks) X -> Exec P' ks X).
   Proof. 
@@ -122,7 +122,7 @@ Section  safe_rules.
   ⊢∃ {{P}} s {{P'}} -> (forall ks X, Exec P (seq s ks) X -> Exec P' ks X).
   Proof.
     intros * H ks.
-    eapply Exec_imply_cont;eauto.
+    eapply Exec_Seq;eauto.
     eapply highstepend_derive;eauto.
   Qed.
 
