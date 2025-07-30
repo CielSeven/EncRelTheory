@@ -48,7 +48,7 @@ Definition dfs_rec_spec := {|
   FS_Pre := fun '(X, pg, vertexl, E_Order, Gsh, xv) =>
             (EX vis cvis, 
             !! (vlis_prop pg vertexl) && !! (pg.(vvalid) xv) && 
-            !! (vis_func vis cvis) &&  !! (vis = ∅)  &&
+            !! (vis_func vis cvis) &&  !! (~ vis xv)  &&
             !! (Exec (fun s => s.(visited) = vis /\ s.(stack) = nil) (DFS pg xv) X) &&
             GV _arg1 @ vptr ↦ₗ xv && 
             @graphrep E_Order Gsh ➀ pg (dfs_field cvis) );
@@ -205,7 +205,6 @@ Proof.
   funcproof_init.
   rename z into x. rename v into Gsh. rename l into vertexl. 
   rename v0 into E_Order.  rename v1 into pg. rename v2 into vis. rename v3 into cvis.
-   assert (~ vis x). { subst vis. auto. } clear H2. rename H4 into H2.
   (* _x := % _arg1; *)
   forward_simpl.
   (* [_x + 1]:= 1; *)
@@ -904,7 +903,7 @@ Proof.
     hoare_simpl_pre. destruct v as ((xv, vis), cvis).
     specialize (H (X, pg, vertexl, E_Order, Gsh, xv)). simpl in H.
     eapply hoare_conseq; [ | | apply H].
-    { Exists vis cvis. entailer!.  }
+    { Exists vis cvis. entailer!. destruct H2 as [? [? ?]]. subst. sets_unfold. auto.  }
     { Intros vis0 cvis0. Exists tt (xv, vis0, cvis0). entailer!. } }
   { clear H Hvc.
     entailer!.

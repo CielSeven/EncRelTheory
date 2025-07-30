@@ -126,6 +126,41 @@ Proof.
     do 2 eexists. cbv. split;eauto.
 Qed.
 
+Lemma comp_fc_as_conseq_convenienet {Σₗ Σₕ U V: Type}:forall 
+  (storeLowPre: U -> @asrt Σₗ) (storeHighPre: U -> @asrt Σₕ) (cₗ: denosem) (cₕ: denosem) 
+  (storeLowPost: V -> @asrt Σₗ) (storeHighPost: V -> @asrt Σₕ) 
+  (B1: U -> Prop) (B2: V -> Prop),
+  ((forall X, ⊢∀ {{ EX u, !! (Exec (storeHighPre u) cₕ X) && (storeLowPre u) }} 
+                cₗ {{ EX v, !! (Exec (storeHighPost v) (skip) X) && (storeLowPost v) }})) -> 
+  ⊢∀ {{ EX u, !! (B1 u) && (storeHighPre u) }} cₕ 
+      {{(fun st => forall v, storeHighPost v st -> B2 v)}} ->
+  (forall u, (B1 u) -> exists σₕ, (storeHighPre u σₕ)) ->
+  ⊢∀ {{ EX u, !! (B1 u) && (storeLowPre u)}} cₗ {{ EX v, !! (B2 v) && (storeLowPost v) }}.
+Proof.
+  intros * HRT HHT Hinhabitant.
+  eapply hoare_exists_intro; intros u.
+  eapply hoare_coqprop_preintro. intros HPH.
+  specialize (Hinhabitant u HPH) as [σₕ HHpre].
+  specialize (HRT (fun (x: Σₕ) => (nrm cₕ) σₕ x)).
+  eapply hoare_conseq;eauto.
+  - intros st1 ?.
+    unfold basicasrt.andp, basicasrt.exp, basicasrt.coq_prop, Exec. simpl.
+    eexists. split;[ | eauto].
+    unfold weakestpre. sets_unfold.
+    eexists. split; eauto. 
+  - intros st1 HQ.
+    unfold basicasrt.andp, basicasrt.exp, basicasrt.coq_prop, Exec in HQ. simpl in HQ.
+    destruct HQ as [v [HHQ HQ]]. 
+    destruct HHQ as [σₕ' [? ?]].
+    rewrite weakestpre_skip in H0. sets_unfold  in H0.
+    assert ((EX u : U, !! B1 u && storeHighPre u) σₕ).
+    { unfold basicasrt.andp, basicasrt.exp, basicasrt.coq_prop. eexists. eauto.  }
+    specialize (HHT _ H1 _ H0).
+    exists v.
+    specialize (HHT _ H).
+    cbv. split;auto.
+Qed.
+
 Lemma comp_refine_as_conseq  {Σ₁ Σ₂ Σ₃: Type}: forall
     (c₁: denosem) (c₂: denosem) (c₃:denosem) (P1 Q1: @binasrt Σ₁ Σ₂) (P2 Q2: @binasrt Σ₂ Σ₃) ,
     (forall X, ⊢∀ {{[|↑ P1 && [c₂ ]ₕ|](X)}} c₁ {{[|↑ Q1 && [skip ]ₕ|](X)}}) ->

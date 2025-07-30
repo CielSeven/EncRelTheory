@@ -120,6 +120,41 @@ Proof.
     split;eauto.
 Qed.
 
+Lemma encode_alst_andp : forall P1 X (P:  @relasrt Σₗ Σₕ  Progₕ), 
+  [| Alst P1 && P |](X) --||--  P1 && [| P |](X).
+Proof.
+  intros.
+  unfold logic_equiv, encode_asrt, andp, andp, coq_prop, coq_prop.
+  split;intros.
+  - destructs H.
+    split;auto.
+    do 2 eexists.
+    split;eauto.
+  - destructs H.
+    do 2 eexists.
+    split;eauto.
+Qed.
+
+Lemma encode_orp : forall X (P1 P2:  @relasrt Σₗ Σₕ  Progₕ), 
+  [| P1 || P2 |](X) --||--  [| P1 |](X) || [| P2 |](X).
+Proof.
+  intros.
+  unfold logic_equiv, encode_asrt, orp.
+  split;intros.
+  - destructs H.
+    left.
+    do 2 eexists.
+    split;eauto.
+    right.
+    do 2 eexists.
+    split;eauto.
+  - destructs H.
+    do 2 eexists.
+    split;eauto.
+    do 2 eexists.
+    split;eauto.
+Qed.
+
 
 Lemma encode_decomposed: forall X (P: @asrt Σₗ) (P' : @asrt Σₕ) cₕ,
   [|⌊ P ⌋ && ⌈ P' ⌉ && [cₕ ]ₕ|](X) --||-- !! Exec P' cₕ X && P.

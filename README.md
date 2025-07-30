@@ -18,7 +18,7 @@ This repository provides a machine-checked Rocq formalization of our encoding th
 - `fixpoints/`: Fixpoint combinator library used for loops and recursion.
 
 - `QCP/`: A standard Hoare logic tool
-  - `linux-binary/`, `win-binary/`: Precompiled QCP binaries
+  - `linux-binary/`, `win-binary/`, `mac-arm64-binary/`: Precompiled QCP binaries
   - `QCP_examples/`: Annotated C programs
   - `SeparationLogic/`: Rocq backend to check QCP-generated VCs
   - `tutorial/`: Step-by-step QCP usage guide
