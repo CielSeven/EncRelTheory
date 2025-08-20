@@ -1,0 +1,21 @@
+Copyright (c) 2025, [Shushu Wu / Shanghai Jiao Tong University]
+
+All rights reserved.
+
+This repository contains research artifacts related to the OOPSLA 25 paper
+"Encode the ∀∃ Relational Hoare Logic into Standard Hoare Logic."
+
+At present, this artifact is NOT open source. Permission is granted
+to view, download, and use the materials strictly for academic and research purposes. 
+Any form of redistribution, modification, or commercial use is prohibited
+without explicit written permission from the authors.
+
+Future Plans:
+- We are considering releasing the Relational Hoare Logic library
+  under an open-source license in the near future.
+- If and when that happens, this LICENSE file will be updated.
+- The QCP tool is unlikely to be released as open source.
+
+If you have questions about licensing or would like to request
+permissions beyond those granted above, please contact:
+[Ciel77@sjtu.edu.cn]
