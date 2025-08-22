@@ -73,7 +73,6 @@ Definition sol_no_loop (s: sol): Prop :=
   forall n t,
     s n = Some t -> ~ occur n t.
 
-(* notice that sol_valid_eq(s) do not mean there is no variable in TypeTree *)
 Definition sol_valid_eq (t1 t2: TypeTree) (s: sol): Prop :=
   type_subst t1 s = type_subst t2 s.
 
@@ -81,24 +80,10 @@ Definition sol_valid_eqs (eqns: list (TypeTree * TypeTree)) (s: sol): Prop :=
   forall t1 t2,
     In (t1, t2) eqns -> sol_valid_eq t1 t2 s.
 
-(* s1 s2 should be compressed *)
-(* Definition sol_refine (general specific: sol): Prop :=
-  forall n: TypeVarID,
-    match general n with
-    | Some t => specific n = Some (type_subst t specific)
-    | None => True
-    end. *)
-
-(* s1 s2 should be compressed *)
 Definition sol_refine_revised (general specific: sol): Prop :=
   forall t: TypeTree,
   type_subst t specific = type_subst (type_subst t general) specific.
 
-
-(* Definition sol_correct_eqs eqns (s: sol): Prop :=
-  forall s': sol,
-    sol_compressed s' ->
-    (sol_valid_eqs eqns s' <-> sol_refine s s'). *)
 
 Fixpoint no_var (t: TypeTree): Prop :=
   match t with
@@ -180,38 +165,11 @@ Inductive unify_rel: TypeTree -> TypeTree -> sol -> sol -> Prop :=
       (R2: repr_rel_node s t2 (TAtom n)),
       unify_rel t1 t2 s s.
 
-
-(* Definition sol_correct_iter (t1 t2: TypeTree) (s_pre s_post: sol): Prop :=
-  forall sf: sol,
-    sol_compressed sf ->
-    (sol_valid_eq t1 t2 sf /\ sol_refine s_pre sf <->
-     sol_refine s_post sf). *)
-
 Definition sol_correct_iter_revise1 (t1 t2: TypeTree) (s_pre s_post: sol): Prop :=
   forall sf: sol,
     sol_compressed sf ->
     (sol_valid_eq t1 t2 sf /\ sol_refine_revised s_pre sf <->
       sol_refine_revised s_post sf).
-
-(* Definition sol_correct_iter_revise2 (t1 t2: TypeTree) (s_pre s_post: sol): Prop :=
-  forall sf: sol,
-    sol_compressed sf ->
-    sol_no_var sf ->
-    (sol_valid_eq t1 t2 sf /\ sol_refine s_pre sf <->
-     sol_refine s_post sf). *)
-
-
-(* Definition unify_sound: Prop :=
-  forall t1 t2 s_pre s_post s_cpre,
-  sol_compress_to s_pre s_cpre ->
-  sol_no_loop s_pre ->
-  sol_finite s_cpre ->
-  unify_rel t1 t2 s_pre s_post ->
-  exists s_cpost,
-    sol_compress_to s_post s_cpost /\
-    sol_no_loop s_post /\
-    sol_finite s_cpost /\
-    sol_correct_iter t1 t2 s_cpre s_cpost. *)
 
 Definition unify_sound_revised1: Prop :=
   forall t1 t2 s_pre s_post s_cpre
@@ -225,15 +183,4 @@ Definition unify_sound_revised1: Prop :=
     sol_finite s_cpost /\
     sol_correct_iter_revise1 t1 t2 s_cpre s_cpost.
 
-(* Definition unify_sound_revised2: Prop :=
-  forall t1 t2 s_pre s_post s_cpre,
-  sol_compress_to s_pre s_cpre ->
-  sol_no_loop s_pre ->
-  sol_finite s_cpre ->
-  unify_rel t1 t2 s_pre s_post ->
-  exists s_cpost,
-    sol_compress_to s_post s_cpost /\
-    sol_no_loop s_post /\
-    sol_finite s_cpost /\
-    sol_correct_iter_revise2 t1 t2 s_cpre s_cpost. *)
 

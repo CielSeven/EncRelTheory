@@ -16,10 +16,10 @@ Local Open Scope string.
 Local Open Scope list.
 Import naive_C_Rules.
 Local Open Scope sac.
-Require Import common_strategy_goal.
-Require Import common_strategy_proof.
-Require Import int_array_strategy_goal.
-Require Import int_array_strategy_proof.
+From SimpleC.EE Require Import common_strategy_goal.
+From SimpleC.EE Require Import common_strategy_proof.
+From SimpleC.EE Require Import int_array_strategy_goal.
+From SimpleC.EE Require Import int_array_strategy_proof.
 
 (*----- Function arr_sum -----*)
 

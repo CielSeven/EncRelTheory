@@ -17,10 +17,10 @@ Local Open Scope list.
 Import naive_C_Rules.
 Require Import poly_sll_lib.
 Local Open Scope sac.
-Require Import common_strategy_goal.
-Require Import common_strategy_proof.
-Require Import poly_sll_strategy_goal.
-Require Import poly_sll_strategy_proof.
+From SimpleC.EE Require Import common_strategy_goal.
+From SimpleC.EE Require Import common_strategy_proof.
+From SimpleC.EE Require Import poly_sll_strategy_goal.
+From SimpleC.EE Require Import poly_sll_strategy_proof.
 
 (*----- Function reverse -----*)
 

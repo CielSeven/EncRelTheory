@@ -17,8 +17,8 @@ Local Open Scope list.
 Import naive_C_Rules.
 Require Import Apos_lib.
 Local Open Scope sac.
-Require Import common_strategy_goal.
-Require Import common_strategy_proof.
+From SimpleC.EE Require Import common_strategy_goal.
+From SimpleC.EE Require Import common_strategy_proof.
 
 (*----- Function Always_positive_simple -----*)
 
@@ -643,28 +643,6 @@ forall (c_pre: Z) (b_pre: Z) (a_pre: Z) ,
 .
 
 Definition Always_positive_safety_wit_16 := 
-forall (c_pre: Z) (b_pre: Z) (a_pre: Z) ,
-  [| (0 <> 0) |] 
-  &&  [| ((a_pre * c_pre ) <= 0) |] 
-  &&  [| (a_pre <> 0) |] 
-  &&  [| (INT_MIN < a_pre) |] 
-  &&  [| (a_pre <= INT_MAX) |] 
-  &&  [| (INT_MIN < b_pre) |] 
-  &&  [| (b_pre <= INT_MAX) |] 
-  &&  [| (INT_MIN < c_pre) |] 
-  &&  [| (c_pre <= INT_MAX) |]
-  &&  ((( &( "d" ) )) # Int  |-> 0)
-  **  ((( &( "delta2" ) )) # Int64  |-> (a_pre * c_pre ))
-  **  ((( &( "delta1" ) )) # Int64  |-> (b_pre * b_pre ))
-  **  ((( &( "delta0" ) )) # Int64  |-> (b_pre * b_pre ))
-  **  ((( &( "c" ) )) # Int  |-> c_pre)
-  **  ((( &( "b" ) )) # Int  |-> b_pre)
-  **  ((( &( "a" ) )) # Int  |-> a_pre)
-|--
-  [| False |]
-.
-
-Definition Always_positive_safety_wit_17 := 
 forall (c_pre: Z) (b_pre: Z) (a_pre: Z) (delta1: Z) (delta2: Z) (delta0: Z) (d: Z) ,
   [| (delta2 > delta1) |] 
   &&  [| (0 < d) |] 
@@ -692,7 +670,7 @@ forall (c_pre: Z) (b_pre: Z) (a_pre: Z) (delta1: Z) (delta2: Z) (delta0: Z) (d: 
   &&  [| ((INT_MIN) <= 0) |]
 .
 
-Definition Always_positive_safety_wit_18 := 
+Definition Always_positive_safety_wit_17 := 
 forall (c_pre: Z) (b_pre: Z) (a_pre: Z) (delta1: Z) (delta2: Z) (delta0: Z) (d: Z) ,
   [| (d = 0) |] 
   &&  [| (delta2 > delta1) |] 
@@ -720,7 +698,7 @@ forall (c_pre: Z) (b_pre: Z) (a_pre: Z) (delta1: Z) (delta2: Z) (delta0: Z) (d: 
   [| False |]
 .
 
-Definition Always_positive_safety_wit_19 := 
+Definition Always_positive_safety_wit_18 := 
 forall (c_pre: Z) (b_pre: Z) (a_pre: Z) (delta1: Z) (delta2: Z) (delta0: Z) (d: Z) ,
   [| ((delta1 - delta2 ) >= 0) |] 
   &&  [| ((d - 1 ) = 0) |] 
@@ -750,40 +728,9 @@ forall (c_pre: Z) (b_pre: Z) (a_pre: Z) (delta1: Z) (delta2: Z) (delta0: Z) (d: 
   &&  [| ((INT_MIN) <= 0) |]
 .
 
-Definition Always_positive_safety_wit_20 := 
-forall (c_pre: Z) (b_pre: Z) (a_pre: Z) (delta1: Z) (delta2: Z) (delta0: Z) (d: Z) ,
-  [| (0 <> 0) |] 
-  &&  [| ((delta1 - delta2 ) >= 0) |] 
-  &&  [| ((d - 1 ) = 0) |] 
-  &&  [| (delta2 <= delta1) |] 
-  &&  [| (0 < d) |] 
-  &&  [| (d <= 4) |] 
-  &&  [| (delta0 = (b_pre * b_pre )) |] 
-  &&  [| (delta2 = (a_pre * c_pre )) |] 
-  &&  [| (delta0 = (delta1 + ((4 - d ) * delta2 ) )) |] 
-  &&  [| ((a_pre * c_pre ) > 0) |] 
-  &&  [| (a_pre <> 0) |] 
-  &&  [| (INT_MIN < a_pre) |] 
-  &&  [| (a_pre <= INT_MAX) |] 
-  &&  [| (INT_MIN < b_pre) |] 
-  &&  [| (b_pre <= INT_MAX) |] 
-  &&  [| (INT_MIN < c_pre) |] 
-  &&  [| (c_pre <= INT_MAX) |]
-  &&  ((( &( "d" ) )) # Int  |-> 0)
-  **  ((( &( "delta0" ) )) # Int64  |-> delta0)
-  **  ((( &( "delta2" ) )) # Int64  |-> delta2)
-  **  ((( &( "delta1" ) )) # Int64  |-> (delta1 - delta2 ))
-  **  ((( &( "c" ) )) # Int  |-> c_pre)
-  **  ((( &( "b" ) )) # Int  |-> b_pre)
-  **  ((( &( "a" ) )) # Int  |-> a_pre)
-|--
-  [| False |]
-.
-
-Definition Always_positive_safety_wit_21 := 
+Definition Always_positive_safety_wit_19 := 
 forall (c_pre: Z) (b_pre: Z) (a_pre: Z) ,
-  [| (0 = 0) |] 
-  &&  [| ((a_pre * c_pre ) <= 0) |] 
+  [| ((a_pre * c_pre ) <= 0) |] 
   &&  [| (a_pre <> 0) |] 
   &&  [| (INT_MIN < a_pre) |] 
   &&  [| (a_pre <= INT_MAX) |] 
@@ -803,10 +750,9 @@ forall (c_pre: Z) (b_pre: Z) (a_pre: Z) ,
   &&  [| ((INT_MIN) <= 0) |]
 .
 
-Definition Always_positive_safety_wit_22 := 
+Definition Always_positive_safety_wit_20 := 
 forall (c_pre: Z) (b_pre: Z) (a_pre: Z) (delta1: Z) (delta2: Z) (delta0: Z) (d: Z) ,
-  [| (0 = 0) |] 
-  &&  [| ((delta1 - delta2 ) >= 0) |] 
+  [| ((delta1 - delta2 ) >= 0) |] 
   &&  [| ((d - 1 ) = 0) |] 
   &&  [| (delta2 <= delta1) |] 
   &&  [| (0 < d) |] 
@@ -834,7 +780,7 @@ forall (c_pre: Z) (b_pre: Z) (a_pre: Z) (delta1: Z) (delta2: Z) (delta0: Z) (d: 
   &&  [| ((INT_MIN) <= 0) |]
 .
 
-Definition Always_positive_safety_wit_23 := 
+Definition Always_positive_safety_wit_21 := 
 forall (c_pre: Z) (b_pre: Z) (a_pre: Z) (delta1: Z) (delta2: Z) (delta0: Z) (d: Z) ,
   [| (d <> 0) |] 
   &&  [| (delta2 > delta1) |] 
@@ -863,7 +809,7 @@ forall (c_pre: Z) (b_pre: Z) (a_pre: Z) (delta1: Z) (delta2: Z) (delta0: Z) (d: 
   &&  [| ((INT_MIN) <= 0) |]
 .
 
-Definition Always_positive_safety_wit_24 := 
+Definition Always_positive_safety_wit_22 := 
 forall (c_pre: Z) (b_pre: Z) (a_pre: Z) (delta1: Z) (delta2: Z) (delta0: Z) (d: Z) ,
   [| (a_pre > 0) |] 
   &&  [| (d <> 0) |] 
@@ -893,7 +839,7 @@ forall (c_pre: Z) (b_pre: Z) (a_pre: Z) (delta1: Z) (delta2: Z) (delta0: Z) (d: 
   &&  [| ((INT_MIN) <= 1) |]
 .
 
-Definition Always_positive_safety_wit_25 := 
+Definition Always_positive_safety_wit_23 := 
 forall (c_pre: Z) (b_pre: Z) (a_pre: Z) (delta1: Z) (delta2: Z) (delta0: Z) (d: Z) ,
   [| (a_pre <= 0) |] 
   &&  [| (d <> 0) |] 
@@ -1003,8 +949,7 @@ forall (c_pre: Z) (b_pre: Z) (a_pre: Z) ,
 
 Definition Always_positive_return_wit_2_1 := 
 forall (c_pre: Z) (b_pre: Z) (a_pre: Z) (delta1: Z) (delta2: Z) (delta0: Z) (d: Z) ,
-  [| (0 = 0) |] 
-  &&  [| ((delta1 - delta2 ) >= 0) |] 
+  [| ((delta1 - delta2 ) >= 0) |] 
   &&  [| ((d - 1 ) = 0) |] 
   &&  [| (delta2 <= delta1) |] 
   &&  [| (0 < d) |] 
@@ -1028,8 +973,7 @@ forall (c_pre: Z) (b_pre: Z) (a_pre: Z) (delta1: Z) (delta2: Z) (delta0: Z) (d: 
 
 Definition Always_positive_return_wit_2_2 := 
 forall (c_pre: Z) (b_pre: Z) (a_pre: Z) ,
-  [| (0 = 0) |] 
-  &&  [| ((a_pre * c_pre ) <= 0) |] 
+  [| ((a_pre * c_pre ) <= 0) |] 
   &&  [| (a_pre <> 0) |] 
   &&  [| (INT_MIN < a_pre) |] 
   &&  [| (a_pre <= INT_MAX) |] 
@@ -1132,8 +1076,6 @@ Axiom proof_of_Always_positive_safety_wit_20 : Always_positive_safety_wit_20.
 Axiom proof_of_Always_positive_safety_wit_21 : Always_positive_safety_wit_21.
 Axiom proof_of_Always_positive_safety_wit_22 : Always_positive_safety_wit_22.
 Axiom proof_of_Always_positive_safety_wit_23 : Always_positive_safety_wit_23.
-Axiom proof_of_Always_positive_safety_wit_24 : Always_positive_safety_wit_24.
-Axiom proof_of_Always_positive_safety_wit_25 : Always_positive_safety_wit_25.
 Axiom proof_of_Always_positive_entail_wit_1 : Always_positive_entail_wit_1.
 Axiom proof_of_Always_positive_entail_wit_2 : Always_positive_entail_wit_2.
 Axiom proof_of_Always_positive_return_wit_1 : Always_positive_return_wit_1.

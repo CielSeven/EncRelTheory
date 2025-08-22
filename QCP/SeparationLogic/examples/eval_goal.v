@@ -17,12 +17,12 @@ Local Open Scope list.
 Import naive_C_Rules.
 Require Import eval_lib.
 Local Open Scope sac.
-Require Import common_strategy_goal.
-Require Import common_strategy_proof.
-Require Import int_array_strategy_goal.
-Require Import int_array_strategy_proof.
-Require Import eval_strategy_goal.
-Require Import eval_strategy_proof.
+From SimpleC.EE Require Import common_strategy_goal.
+From SimpleC.EE Require Import common_strategy_proof.
+From SimpleC.EE Require Import int_array_strategy_goal.
+From SimpleC.EE Require Import int_array_strategy_proof.
+From SimpleC.EE Require Import eval_strategy_goal.
+From SimpleC.EE Require Import eval_strategy_proof.
 
 (*----- Function eval -----*)
 

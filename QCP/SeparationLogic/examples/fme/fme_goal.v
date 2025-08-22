@@ -18,8 +18,8 @@ Import naive_C_Rules.
 Require Import fme_lib.
 Import naive_C_Rules.
 Local Open Scope sac.
-Require Import common_strategy_goal.
-Require Import common_strategy_proof.
+From SimpleC.EE Require Import common_strategy_goal.
+From SimpleC.EE Require Import common_strategy_proof.
 Require Import fme_strategy_goal.
 Require Import fme_strategy_proof.
 

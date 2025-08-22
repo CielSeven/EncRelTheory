@@ -103,12 +103,6 @@ Proof. Admitted.
 Lemma proof_of_Always_positive_safety_wit_23 : Always_positive_safety_wit_23.
 Proof. Admitted. 
 
-Lemma proof_of_Always_positive_safety_wit_24 : Always_positive_safety_wit_24.
-Proof. Admitted. 
-
-Lemma proof_of_Always_positive_safety_wit_25 : Always_positive_safety_wit_25.
-Proof. Admitted. 
-
 Lemma proof_of_Always_positive_entail_wit_1 : Always_positive_entail_wit_1.
 Proof. Admitted. 
 
