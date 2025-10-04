@@ -7,9 +7,8 @@ Require Import Coq.Classes.Morphisms.
 Require Import Coq.micromega.Psatz.
 Require Import Coq.Sorting.Permutation.
 From AUXLib Require Import int_auto Axioms Feq Idents List_lemma VMap.
-Require Import SetsClass.SetsClass. Import SetsNotation.
+
 Local Open Scope Z_scope.
-Local Open Scope sets.
 Import ListNotations.
 Local Open Scope list.
 
@@ -140,7 +139,7 @@ Lemma replace_nth_app_l : forall {A} n (a: A) l1 l2,
   replace_nth n a (l1 ++ l2) = replace_nth n a l1 ++ l2.
 Proof.
   intros.
-  revert dependent l1.
+  generalize dependent l1.
   revert l2.
   induction n.
   + intros.
@@ -160,7 +159,7 @@ Lemma replace_nth_app_r: forall {A} n (a: A) l1 l2,
   replace_nth n a (l1 ++ l2) = replace_nth n a l1 ++ replace_nth (n - length l1) a l2.
 Proof.
   intros.
-  revert dependent l1.
+  generalize dependent l1.
   revert l2.
   induction n; intros.
   + destruct l1; simpl in *; try lia.
@@ -218,7 +217,7 @@ Proof.
   unfold Znth, replace_Znth.
   assert (Z.to_nat n < length l)%nat by lia. clear H.
   set (m := Z.to_nat n) in *; clearbody m; clear n.
-  revert dependent l.
+  generalize dependent l.
   induction m;intros.
   + destruct l; simpl in *; auto. lia.
   + destruct l;simpl in *.
@@ -237,7 +236,7 @@ Proof.
   assert (Z.to_nat n >= length l)%nat by lia.
   clear H. 
   set (m := Z.to_nat n) in *; clearbody m ; clear n.
-  revert dependent l.
+  generalize dependent l.
   induction m; intros. 
   + destruct l; simpl in * ; auto ; lia.
   + destruct l; simpl in * ; auto.
@@ -266,7 +265,7 @@ Proof.
   unfold Znth. 
   unfold sublist.
   rewrite firstn_app.
-  assert (length (firstn (Z.to_nat n) l) = Z.to_nat n) by (rewrite firstn_length; lia).
+  assert (length (firstn (Z.to_nat n) l) = Z.to_nat n) by (rewrite length_firstn; lia).
   rewrite firstn_all2; try lia. 
   replace (Z.to_nat (n + 1) - length (firstn (Z.to_nat n) l))%nat with 1%nat by lia.
   rewrite skipn_app.
@@ -286,13 +285,13 @@ Proof.
   assert (Z.of_nat (length l1) = hi).
   {
     rewrite Heql1.
-    rewrite firstn_length.
+    rewrite length_firstn.
     lia.
   }
   assert (length l = length l1 + length l2)%nat.
   {
     rewrite Heql1, Heql2.
-    rewrite firstn_length, skipn_length.
+    rewrite length_firstn, length_skipn.
     lia.
   }
   rewrite H2 in H0.
@@ -310,7 +309,7 @@ Proof.
   assert (Z.of_nat (length l1) = lo).
   {
     rewrite Heql1.
-    rewrite firstn_length.
+    rewrite length_firstn.
     lia.
   }
   rewrite firstn_app.
@@ -335,7 +334,7 @@ Lemma Zlength_app: forall {A} (l1 l2: list A),
 Proof.
   intros.
   rewrite !Zlength_correct.
-  rewrite app_length.
+  rewrite length_app.
   lia.
 Qed.
 
@@ -410,7 +409,7 @@ Proof.
   pose proof Zlength_correct l.
   rewrite Zlength_correct.
   unfold sublist.
-  rewrite skipn_length.
+  rewrite length_skipn.
   rewrite firstn_length_le by lia.
   lia.
 Qed.
@@ -520,7 +519,7 @@ Lemma sublist_length : forall {A : Type} lo hi (l : list A),
 Proof.
   intros.
   unfold sublist.
-  rewrite skipn_length, firstn_length.
+  rewrite length_skipn, length_firstn.
   lia.
 Qed.
 
@@ -530,7 +529,7 @@ Proof.
   intros. unfold Znth.
   pose proof (firstn_skipn (Z.to_nat lo) l).
   rewrite <- H2 at 2.
-  replace (Z.to_nat (lo + i)) with (length (firstn (Z.to_nat lo) l) + Z.to_nat i)%nat by (rewrite firstn_length ; lia).
+  replace (Z.to_nat (lo + i)) with (length (firstn (Z.to_nat lo) l) + Z.to_nat i)%nat by (rewrite length_firstn ; lia).
   rewrite app_nth2_plus.
   replace (skipn (Z.to_nat lo) l) with (sublist lo hi l ++ sublist hi (Z.of_nat (length l)) l) .
   - rewrite app_nth1 ; auto. 
@@ -602,7 +601,7 @@ Lemma sublist_nil {A: Type}:
 Proof.
   intros. unfold sublist.
   apply skipn_all2.
-  rewrite firstn_length; lia.
+  rewrite length_firstn; lia.
 Qed.
 
 Lemma sublist_of_nil {A: Type}:
@@ -632,8 +631,8 @@ Proof.
   intros.
   rewrite Zlength_correct.
   unfold sublist.
-  rewrite skipn_length.
-  rewrite firstn_length.
+  rewrite length_skipn.
+  rewrite length_firstn.
   reflexivity.
 Qed.
 
@@ -647,7 +646,7 @@ Proof.
   unfold sublist.
   repeat rewrite skipn_firstn.
   rewrite skipn_app.
-  pose proof (skipn_length (Z.to_nat lo) l1).
+  pose proof (length_skipn (Z.to_nat lo) l1).
   rewrite Zlength_correct in H.
   replace (length l1 - Z.to_nat lo)%nat with O in H1 by lia.
   rewrite length_zero_iff_nil in H1; rewrite H1.
@@ -821,7 +820,7 @@ Lemma interval_list_compress : forall l pace lo1 hi1 lo2 hi2, interval_list pace
   Forall (fun x => lo2 <= x /\ x + pace <= hi2) l -> interval_list pace lo2 hi2 l.
 Proof.
   intros.
-  revert dependent lo2. revert dependent hi2.
+  generalize dependent lo2. generalize dependent hi2.
   induction H; intros ; simpl.
   - constructor.
   - constructor ; auto.
@@ -836,7 +835,7 @@ lo <= hi ->
 interval_list pace lo hi l -> increasing l ->
 lo + (Zlength l) * (pace + 1) <= hi + pace + 1.
 Proof.
-  intros. revert dependent lo. 
+  intros. generalize dependent lo. 
   induction l; simpl ; intros; auto.
   - lia.
   - inversion H2 ; subst.

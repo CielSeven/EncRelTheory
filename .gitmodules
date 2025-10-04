@@ -1,0 +1,8 @@
+[submodule "monadlib"]
+	path = monadlib
+	url = https://bitbucket.org/Wushushu/monadlib.git
+	branch = examples
+[submodule "fixedpoints"]
+	path = fixedpoints
+	url = https://bitbucket.org/qinxiang-SJTU/fixedpoints.git
+	branch = master

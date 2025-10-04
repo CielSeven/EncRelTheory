@@ -58,7 +58,8 @@ End RAssertion.
 Notation " ↑ P " := (lift P) (at level 22, no associativity).
 Notation " ⌊ P ⌋ " := (Alst P) (at level 22, no associativity).
 Notation " ⌈ P ⌉ " := (Ahst P) (at level 22, no associativity).
-Notation " [ c ]ₕ " := (Aspec c) (at level 22, no associativity).
+(* use [ₕ ]ₕ since [ ] has been used for lists *)
+Notation " [ₕ c ]ₕ " := (Aspec c) (at level 22, no associativity).
 
 Ltac rel_destruct Σₗ Σₕ Progₗ Progₕ H :=
   match type of H with

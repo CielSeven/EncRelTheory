@@ -125,9 +125,9 @@ Class MallocFreeSeparationLogic
         {sepconL: SepconLanguage L}
         {empL: EmpLanguage L}
         (Gamma: Provable L) := {
-  MallocFreeSeparationLogic_NonsplitEmpSeparationLogic :>
+  MallocFreeSeparationLogic_NonsplitEmpSeparationLogic ::
     NonsplitEmpSeparationLogic L Gamma;
-  MallocFreeSeparationLogic_DupEmpSeparationLogic :>
+  MallocFreeSeparationLogic_DupEmpSeparationLogic ::
     DupEmpSeparationLogic L Gamma
 }.
 

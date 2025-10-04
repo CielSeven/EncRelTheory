@@ -72,9 +72,9 @@ Class AntiSymmetric_Setoid
 Class PartialOrder_Setoid
         (A: Type) {RA: Order A} {EA: Equiv A}: Prop :=
 {
-  PO_Reflexive_Setoid:> Reflexive_Setoid A;
-  PO_Transitive:> Transitive order_rel;
-  PO_AntiSymmetric_Setoid:> AntiSymmetric_Setoid A
+  PO_Reflexive_Setoid:: Reflexive_Setoid A;
+  PO_Transitive:: Transitive order_rel;
+  PO_AntiSymmetric_Setoid:: AntiSymmetric_Setoid A
 }.
 
 #[export] Instance PartialOrder_Setoid_Proper
@@ -134,7 +134,7 @@ Class OmegaCompletePartialOrder_Setoid
         {RA: Order A} {EA: Equiv A}
         {oLubA: OmegaLub A} {BotA: Bot A}: Prop :=
 {
-  oCPO_PartialOrder:> PartialOrder_Setoid A;
+  oCPO_PartialOrder:: PartialOrder_Setoid A;
   oCPO_completeness: forall T,
     increasing T -> is_omega_lub T (omega_lub T);
   bot_is_least: is_least bot

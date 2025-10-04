@@ -70,9 +70,9 @@ Definition tree_type := vint :: vint :: vptr :: vptr :: nil .
 
 
 Definition f_tree_ins : com := <{
-  _k := %_arg1;
-  _v := %_arg2;
-  _p := %_arg3;
+  _k := % _arg1;
+  _v := % _arg2;
+  _p := % _arg3;
   _break := 0;
 
   While _break != 1 Do

@@ -87,7 +87,7 @@ Proof.
     apply IHn. auto.
 Qed.
 
-Arguments list_split_nth _ n%nat.
+Arguments list_split_nth _ n%_nat.
 
 Lemma Forall2_length : forall (A B : Type) (P : A -> B -> Prop) xs ys,
   Forall2 P xs ys ->
@@ -116,13 +116,13 @@ Proof.
     destruct H as [_ ?].
     rewrite ! skipn_app in H.
     assert (n = length (firstn n xs)).
-    { rewrite firstn_length. rewrite min_l; auto. lia. }
+    { rewrite length_firstn. rewrite min_l; auto. lia. }
     assert (skipn n (firstn n xs) = nil).
     { transitivity (skipn (length (firstn n xs)) (firstn n xs)).
       - congruence.
       - apply skipn_all. }
     assert (n = length (firstn n ys)).
-    { rewrite firstn_length. rewrite min_l; auto. lia. }
+    { rewrite length_firstn. rewrite min_l; auto. lia. }
     assert (skipn n (firstn n ys) = nil).
     { transitivity (skipn (length (firstn n ys)) (firstn n ys)).
       - congruence.
@@ -179,7 +179,7 @@ Definition trivial_nperm (n : nat) := seq O n.
 Lemma trivial_nperm_nperm : forall n, nperm (trivial_nperm n).
 Proof.
   intros. unfold nperm, trivial_nperm.
-  rewrite seq_length.
+  rewrite length_seq.
   apply Permutation_refl.
 Qed.
 
@@ -249,8 +249,8 @@ Lemma map_find_index_same : forall l,
   map (find_index l) l = seq O (length l).
 Proof.
   intros. apply (nth_ext _ _ O O).
-  - rewrite map_length. rewrite seq_length. auto.
-  - intros. rewrite map_length in H0.
+  - rewrite length_map. rewrite length_seq. auto.
+  - intros. rewrite length_map in H0.
     rewrite seq_nth; auto. simpl.
     rewrite (map_nth_len _ _ _ _ _ _ O); auto.
     rewrite find_index_nth; auto.
@@ -259,7 +259,7 @@ Qed.
 Lemma do_nperm_length : forall (A : Type) s (l : list A) d,
   length (do_nperm s l d) = length s.
 Proof.
-  intros. unfold do_nperm. rewrite map_length. auto.
+  intros. unfold do_nperm. rewrite length_map. auto.
 Qed.
 
 Lemma nperm_range : forall s n0 d,
@@ -311,7 +311,7 @@ Proof.
   intros. unfold inverse_nperm, nperm.
   pose proof (Permutation_map (find_index s) H).
   rewrite map_find_index_same in H0.
-  - symmetry. rewrite map_length. rewrite seq_length. auto.
+  - symmetry. rewrite length_map. rewrite length_seq. auto.
   - apply nperm_NoDup. auto.
 Qed.
 
@@ -323,12 +323,12 @@ Definition inverse_nperm_compose_refl1 : forall (A : Type)
 Proof.
   intros. unfold do_nperm, inverse_nperm; simpl.
   apply (nth_ext _ _ d d).
-  { rewrite map_length. auto. }
-  intros. rewrite map_length in H1.
+  { rewrite length_map. auto. }
+  intros. rewrite length_map in H1.
   rewrite <- H0 in H1. rewrite map_map.
   rewrite (map_nth_len _ _ _ _ n _ O) by lia.
   rewrite (map_nth_len _ _ _ _ _ _ O).
-  2:{ rewrite seq_length. apply nperm_range; auto. lia. }
+  2:{ rewrite length_seq. apply nperm_range; auto. lia. }
   rewrite seq_nth.
   2:{ apply nperm_range; auto. lia. }
   simpl. rewrite find_index_nth; auto.
@@ -344,13 +344,13 @@ Definition inverse_nperm_compose_refl2 : forall (A : Type)
 Proof.
   intros. unfold do_nperm, inverse_nperm; simpl.
   apply (nth_ext _ _ d d).
-  { rewrite ! map_length. rewrite seq_length. auto. }
-  intros. rewrite map_length in H1. rewrite map_length in H1.
-  rewrite seq_length in H1.
+  { rewrite ! length_map. rewrite length_seq. auto. }
+  intros. rewrite length_map in H1. rewrite length_map in H1.
+  rewrite length_seq in H1.
   rewrite (map_nth_len _ _ _ _ n _ O).
-  2:{ rewrite map_length. rewrite seq_length. lia. }
+  2:{ rewrite length_map. rewrite length_seq. lia. }
   rewrite (map_nth_len _ _ _ _ n _ O).
-  2:{ rewrite seq_length. lia. }
+  2:{ rewrite length_seq. lia. }
   rewrite (map_nth_len _ _ _ _  _ _ O).
   2:{ rewrite seq_nth; auto. simpl.
       apply find_index_range.
@@ -404,8 +404,8 @@ Proof.
     rewrite <- (inverse_nperm_compose_refl2 _ s ys dy HPerm H0).
     apply Forall2_nperm_congr0; auto.
     + apply inverse_nperm_nperm. auto.
-    + rewrite do_nperm_length. unfold inverse_nperm. rewrite map_length.
-      rewrite seq_length. auto.
+    + rewrite do_nperm_length. unfold inverse_nperm. rewrite length_map.
+      rewrite length_seq. auto.
 Qed.
 
 Definition swap_nperm (n1 n2 n3 : nat) :=
@@ -414,10 +414,10 @@ Definition swap_nperm (n1 n2 n3 : nat) :=
 Definition swap_nperm_nperm : forall (n1 n2 n3 : nat), nperm (swap_nperm n1 n2 n3).
 Proof.
   intros. unfold nperm, swap_nperm.
-  rewrite ! app_length. rewrite seq_length. simpl.
+  rewrite ! length_app. rewrite length_seq. simpl.
   replace (2 + n1 + n2 + n3) with (n1 + (1 + n2 + (1 + n3))) by lia.
   rewrite (seq_app n1). apply Permutation_app; [apply Permutation_refl | ].
-  simpl. rewrite app_length. simpl. rewrite ! seq_length.
+  simpl. rewrite length_app. simpl. rewrite ! length_seq.
   rewrite (seq_app n2). simpl.
   rewrite ! (Permutation_app_comm (seq (S n1) n2)).
   simpl. apply perm_swap.
@@ -432,12 +432,12 @@ Proof.
   rewrite map_app. simpl. rewrite map_app. simpl.
   f_equal.
   { apply (nth_ext _ _ d d).
-    - rewrite map_length. rewrite seq_length. auto.
+    - rewrite length_map. rewrite length_seq. auto.
     - intros.
-      rewrite map_length in H. rewrite seq_length in H.
+      rewrite length_map in H. rewrite length_seq in H.
       rewrite (map_nth_len _ _ _ _ _ d O); auto.
       + rewrite seq_nth; auto. simpl. apply app_nth1. auto.
-      + rewrite seq_length. auto. }
+      + rewrite length_seq. auto. }
   f_equal.
   { rewrite app_nth2; try lia.
     replace (S (length l1 + length l2) - length l1) with (S (length l2)) by lia.
@@ -445,28 +445,28 @@ Proof.
     replace (length l2 - length l2) with 0 by lia. simpl. auto. }
   f_equal.
   { apply (nth_ext _ _ d d).
-    - rewrite map_length. rewrite seq_length. auto.
+    - rewrite length_map. rewrite length_seq. auto.
     - intros.
-      rewrite map_length in H. rewrite seq_length in H.
+      rewrite length_map in H. rewrite length_seq in H.
       rewrite (map_nth_len _ _ _ _ _ d O); auto.
       + rewrite seq_nth; auto. simpl. rewrite app_nth2; try lia.
         replace (S (length l1 + n) - length l1) with (S n) by lia.
         simpl. apply app_nth1. auto.
-      + rewrite seq_length. auto. }
+      + rewrite length_seq. auto. }
   f_equal.
   { rewrite app_nth2; try lia.
     replace (length l1 - length l1) with 0 by lia. simpl. auto. }
   { apply (nth_ext _ _ d d).
-    - rewrite map_length. rewrite seq_length. auto.
+    - rewrite length_map. rewrite length_seq. auto.
     - intros.
-      rewrite map_length in H. rewrite seq_length in H.
+      rewrite length_map in H. rewrite length_seq in H.
       rewrite (map_nth_len _ _ _ _ _ d O); auto.
       + rewrite seq_nth; auto. simpl. rewrite app_nth2; try lia.
         replace (S (S (length l1 + length l2 + n)) - length l1) with (2 + length l2 + n) by lia.
         simpl. rewrite app_nth2; try lia.
         replace (S (length l2 + n) - length l2) with (S n) by lia.
         simpl. auto.
-      + rewrite seq_length. auto. }
+      + rewrite length_seq. auto. }
 Qed.
 
 Definition list_swap_nperm (n1 n2 : nat) :=
@@ -476,7 +476,7 @@ Definition list_swap_nperm_nperm : forall (n1 n2 : nat),
   nperm (list_swap_nperm n1 n2).
 Proof.
   intros. unfold nperm, list_swap_nperm.
-  rewrite app_length. rewrite ! seq_length.
+  rewrite length_app. rewrite ! length_seq.
   replace (n2 + n1) with (n1 + n2) by lia.
   rewrite seq_app. simpl. apply Permutation_app_comm.
 Defined.
@@ -488,18 +488,18 @@ Proof.
   intros. unfold do_nperm, list_swap_nperm; simpl.
   rewrite map_app. simpl. f_equal.
   - apply (nth_ext _ _ d d).
-    { rewrite map_length. rewrite seq_length. auto. }
-    intros. rewrite map_length in H. rewrite seq_length in H.
+    { rewrite length_map. rewrite length_seq. auto. }
+    intros. rewrite length_map in H. rewrite length_seq in H.
     rewrite (map_nth_len _ _ _ _ _ d 0).
-    2:{ rewrite seq_length. lia. }
+    2:{ rewrite length_seq. lia. }
     rewrite seq_nth; auto. rewrite app_nth2; try lia.
     replace (length l1 + n - length l1) with n by lia.
     auto.
   - apply (nth_ext _ _ d d).
-    { rewrite map_length. rewrite seq_length. auto. }
-    intros. rewrite map_length in H. rewrite seq_length in H.
+    { rewrite length_map. rewrite length_seq. auto. }
+    intros. rewrite length_map in H. rewrite length_seq in H.
     rewrite (map_nth_len _ _ _ _ _ d 0).
-    2:{ rewrite seq_length. lia. }
+    2:{ rewrite length_seq. lia. }
     rewrite seq_nth; auto. simpl. rewrite app_nth1; try lia.
     auto.
 Qed.
@@ -560,7 +560,7 @@ Fixpoint Zseq (start : Z) (len : nat) : list Z :=
   | S len' => start :: Zseq (Z.succ start) len'
   end.
 
-Lemma Zseq_length : forall s n,
+Lemma Zlength_seq : forall s n,
   length (Zseq s n) = n.
 Proof.
   intros. revert s. induction n; intros; simpl; auto.

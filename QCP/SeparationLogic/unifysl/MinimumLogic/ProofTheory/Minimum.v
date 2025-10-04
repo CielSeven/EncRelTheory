@@ -14,7 +14,7 @@ Local Open Scope syntax.
 Definition multi_imp {L: Language} {minL: MinimumLanguage L} (xs: list expr) (y: expr): expr :=
   fold_right impp y xs.
 
-Class DerivableFromProvable (L: Language) {minL: MinimumLanguage L} (GammaP: Provable L) (GammaD: Derivable L): Type := {
+Class DerivableFromProvable (L: Language) {minL: MinimumLanguage L} (GammaP: Provable L) (GammaD: Derivable L):= {
   __derivable_provable: forall Phi y, derivable Phi y <->
                         exists xs, Forall (fun x => Phi x) xs /\ provable (multi_imp xs y)
 }.
@@ -38,22 +38,22 @@ Class MinimumDeduction (L: Language) {minL: MinimumLanguage L} (GammaD1: Derivab
   derivable1_axiom2: forall x y z, x --> y --> z |-- (x --> y) --> (x --> z)
 }.
 
-Class Derivable1FromProvable (L:Language) {minL: MinimumLanguage L} (GammaP:Provable L) (GammaD:Derivable1 L): Type := {
+Class Derivable1FromProvable (L:Language) {minL: MinimumLanguage L} (GammaP:Provable L) (GammaD:Derivable1 L):= {
   __derivable1_provable:forall x y,derivable1 x y <->
                         provable (impp x y)
 }.
 
 Class ProvableFromDerivable
-      (L: Language) (GammaP: Provable L) (GammaD: Derivable L): Type := {
+      (L: Language) (GammaP: Provable L) (GammaD: Derivable L):= {
   __provable_derivable: forall x, provable x <-> derivable empty_context x
 }.
 
-Class EquivProvable (L:Language) {minL: MinimumLanguage L} (GammaP:Provable L) (GammaL:LogicEquiv L): Type := {
+Class EquivProvable (L:Language) {minL: MinimumLanguage L} (GammaP:Provable L) (GammaL:LogicEquiv L):= {
   __logic_equiv_provable:forall x y, x --||-- y <->
                         provable (impp x y) /\ provable (impp y x)
 }.
 
-Class ProvableFromDerivable1 (L: Language) {minL: MinimumLanguage L} (GammaP: Provable L) (GammaD: Derivable1 L): Type := {
+Class ProvableFromDerivable1 (L: Language) {minL: MinimumLanguage L} (GammaP: Provable L) (GammaD: Derivable1 L):= {
   __provable_derivable1: forall x, provable x <-> derivable1 (impp x x) x
 }.
 

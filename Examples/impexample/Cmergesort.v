@@ -76,9 +76,9 @@ Definition _gmerge_sort := 6%positive.
   _arg3 : the secondary pointer address of the splited result2
 *)
 Definition f_split_while : com := <{
-  _x := %_arg1;
-  _p := %_arg2;
-  _q := %_arg3;
+  _x := % _arg1;
+  _p := % _arg2;
+  _q := % _arg3;
   While _x != ENull Do
     _t := [_x + 1];
     _pv := [_p];
@@ -95,9 +95,9 @@ Definition f_split_while : com := <{
       Skip
     End
   End;
-  %_arg1 := _x;
-  %_arg2 := _p;
-  %_arg3 := _q
+  % _arg1 := _x;
+  % _arg2 := _p;
+  % _arg3 := _q
 }>.
 
 (* function merge
@@ -107,8 +107,8 @@ Definition f_split_while : com := <{
 *)
 
 Definition f_merge : com := <{
-  _x := %_arg1;
-  _y := %_arg2;
+  _x := % _arg1;
+  _y := % _arg2;
   Alloc (_r, (cons vptr nil), 1);
   _t := _r;
   _break := 0;
@@ -137,7 +137,7 @@ Definition f_merge : com := <{
   End;
   _t := [_r];
   Free(_r);
-  %_ret1 := _t
+  % _ret1 := _t
 }>. 
 
 
@@ -148,32 +148,32 @@ Definition f_merge : com := <{
 *)
 
 Definition f_merge_sort : com := <{
-  _x := %_arg1;
+  _x := % _arg1;
   Alloc (_p, (cons vint nil), 1);
   [_p] := ENull;
   Alloc (_q, (cons vint nil), 1);
   [_q] := ENull;
-  %_arg1 := _x;
-  %_arg2 := _p;
-  %_arg3 := _q;
+  % _arg1 := _x;
+  % _arg2 := _p;
+  % _arg3 := _q;
   Call ( _split_while );
-  _p := %_arg2;
-  _q := %_arg3;
+  _p := % _arg2;
+  _q := % _arg3;
   _qv := [_q];
   _pv := [_p];
   Free(_p);
   Free(_q);
   If _qv == ENull Then
-    %_ret1 := _pv
+    % _ret1 := _pv
   Else
-    %_arg1 := _pv;
+    % _arg1 := _pv;
     Call ( _merge_sort );
-    _pv := %_ret1;
-    %_arg1 := _qv;
+    _pv := % _ret1;
+    % _arg1 := _qv;
     Call ( _merge_sort );
-    _qv := %_ret1;
-    %_arg1 := _pv;
-    %_arg2 := _qv;
+    _qv := % _ret1;
+    % _arg1 := _pv;
+    % _arg2 := _qv;
     Call ( _merge )
   End
 }>.
@@ -185,16 +185,16 @@ Definition f_merge_sort : com := <{
 *)
 
 Definition f_lengthle : com := <{
-  _x := %_arg1;
-  _n := %_arg4;
+  _x := % _arg1;
+  _n := % _arg4;
   While ( 0 < _n && _x != 0)  Do
     _n := _n - 1;
     _x := [_x + 1]
   End;
   If _n == 0  Then
-    %_ret1 := 1
+    % _ret1 := 1
   Else 
-    %_ret1 := 0
+    % _ret1 := 0
   End
 }>.
 
@@ -204,10 +204,10 @@ Definition f_lengthle : com := <{
 *)
 
 Definition f_gmerge_sort : com := <{
-  _x := %_arg1;
-  %_arg4 := 8;
+  _x := % _arg1;
+  % _arg4 := 8;
   Call ( _lengthle );
-  _n := %_ret1;
+  _n := % _ret1;
   If _n == 1 Then
     Call ( _ins_sort )
   Else
@@ -215,24 +215,24 @@ Definition f_gmerge_sort : com := <{
     [_p] := ENull;
     Alloc (_q, (cons vint nil), 1);
     [_q] := ENull;
-    %_arg1 := _x;
-    %_arg2 := _p;
-    %_arg3 := _q;
+    % _arg1 := _x;
+    % _arg2 := _p;
+    % _arg3 := _q;
     Call ( _split_while );
-    _p := %_arg2;
-    _q := %_arg3;
+    _p := % _arg2;
+    _q := % _arg3;
     _qv := [_q];
     _pv := [_p];
     Free(_p);
     Free(_q);
-    %_arg1 := _pv;
+    % _arg1 := _pv;
     Call ( _gmerge_sort );
-    _pv := %_ret1;
-    %_arg1 := _qv;
+    _pv := % _ret1;
+    % _arg1 := _qv;
     Call ( _gmerge_sort );
-    _qv := %_ret1;
-    %_arg1 := _pv;
-    %_arg2 := _qv;
+    _qv := % _ret1;
+    % _arg1 := _pv;
+    % _arg2 := _qv;
     Call ( _merge )
   End
 }>.

@@ -76,7 +76,7 @@ Definition _dfs_rec := 1%positive.
 (*************************************************************************************)
 
 Definition f_dfs_rec : com := <{
-  _x := %_arg1;
+  _x := % _arg1;
   [_x + 1] := 1;
   _e := [_x];
 
@@ -84,7 +84,7 @@ Definition f_dfs_rec : com := <{
     _v := [_e];
     _vis := [_v + 1];
     If _vis == 0 Then
-        %_arg1 := _v;
+        % _arg1 := _v;
         Call (_dfs_rec);
         _e := [_e + 1]
     Else

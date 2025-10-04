@@ -272,19 +272,19 @@ Notation " [| P |] " := (CRules.coq_prop P) (at level 29, no associativity) :sac
 Notation " 'TT' " := (CRules.truep) (at level 34, no associativity) : sac_scope.
 Notation "'EX' x , p " :=
   (CRules.exp (fun x => p))
-    (at level 45, x name, right associativity) : sac_scope.
+    (at level 45, x binder, right associativity) : sac_scope.
 Notation "'EX' x : t , p " :=
   (CRules.exp (fun x : t => p))
-    (at level 45, x name, right associativity) : sac_scope.
+    (at level 45, x binder, right associativity) : sac_scope.
 Notation "'EX' x .. y , p" :=
   (CRules.exp (fun x => .. (CRules.exp (fun y => p)) ..))
     (at level 45, x binder, right associativity) : sac_scope.
 Notation "'ALL' x , p " :=
   (CRules.allp _ (fun x => p))
-    (at level 45, x name, right associativity) : sac_scope.
+    (at level 45, x binder, right associativity) : sac_scope.
 Notation "'ALL' x : t , p " :=
   (CRules.allp _ (fun x : t => p))
-    (at level 45, x name, right associativity) : sac_scope.
+    (at level 45, x binder, right associativity) : sac_scope.
 Notation "'ALL' x .. y , p" :=
   (CRules.allp _ (fun x => .. (CRules.allp _ (fun y => p)) ..))
     (at level 45, x binder, right associativity) : sac_scope.

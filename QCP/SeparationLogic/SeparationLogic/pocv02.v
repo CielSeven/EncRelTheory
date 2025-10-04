@@ -32,6 +32,8 @@ Inductive dlist (A: Type) (P: A -> Type): list A -> Type :=
     else if Z.eqb n 2 then nat
     else bool
     . *)
+Arguments dnil {A}%_type_scope {P}%_function_scope.
+Arguments dcons {A}%_type_scope {P}%_function_scope. 
 
 Fixpoint dlist_eqb {A : Type} {P : A -> Type} (l1 l2 : list A)
                    (eqA : A -> A -> bool) (eqP : forall A B, P A -> P B -> bool)
@@ -50,7 +52,7 @@ Lemma dlist_eqb_true_base_eq :
            (forall (x : A) (y : A), eqA x y = true -> x = y) ->
            dlist_eqb _ _ eqA eqP dl1 dl2 = true -> l1 = l2.
     intros.
-    revert dependent l2.
+    generalize dependent l2.
     induction dl1; destruct dl2; intros.
     - reflexivity.
     - simpl in H0; discriminate.
@@ -73,7 +75,7 @@ Lemma dlist_eqb_true :
            (pf : l1 = l2),
            eq_rect _ (dlist A P) dl1 _ pf = dl2.
     intros.
-    revert dependent l2.
+    generalize dependent l2.
     induction dl1; destruct dl2; intros.
     - rewrite <- ProofIrrelevance.ProofIrrelevanceTheory.EqdepTheory.eq_rect_eq.
       reflexivity.
@@ -110,8 +112,8 @@ Definition dmap {A: Type} {P Q: A -> Type} (f: forall a: A, P a -> Q a):
   forall {l: list A} (x: dlist A P l), dlist A Q l :=
   fix dmap {l: list A} (x: dlist A P l): dlist A Q l :=
     match x as x0 in dlist _ _ l0 return dlist _ _ l0 with
-    | @dnil _ _ => dnil _ _
-    | @dcons _ _ a xa l1 xl1 => dcons _ _ a (f a xa) l1 (dmap xl1)
+    | @dnil _ _ => @dnil _ _
+    | @dcons _ _ a xa l1 xl1 => @dcons _ _ a (f a xa) l1 (dmap xl1)
     end.
 
 Lemma nil_map_inv: forall {A B: Type} {f: B -> A} {lB: list B},
@@ -172,14 +174,14 @@ Definition dlist_map_dlist_aux (A B: Type) (P: A -> Type) (f: B -> A):
     | @dnil _ _ => fun lB H_map =>
         @eq_rect _ _
           (dlist B (fun b => P (f b)))
-          (dnil _ _) _
+          (@dnil _ _) _
           (nil_map_inv H_map)
     | @dcons _ _ a xa lA1 x1 => fun lB H_map =>
         match cons_map_inv H_map with
         | @existT _ _ b (@exist _ _ lB1 (conj H0 (conj H1 H2))) =>
             @eq_rect _ _
               (dlist B (fun b => P (f b)))
-              (dcons _ _
+              (@dcons _ _
                  b
                  (@eq_rect _ _ P xa _ H1)
                  lB1
@@ -196,9 +198,9 @@ Definition dlist_dlist_map (A B: Type) (P: A -> Type) (f: B -> A):
   forall l: list B, dlist B (fun b => P (f b)) l -> dlist A P (map f l) :=
   fix dlist_dlist_map l x :=
     match x as x0 in dlist _ _ l0 return dlist A P (map f l0) with
-    | @dnil _ _ => dnil _ _
+    | @dnil _ _ => @dnil _ _
     | @dcons _ _ b xb l1 x1 =>
-        dcons _ _ (f b) xb (map f l1) (dlist_dlist_map l1 x1)
+        @dcons _ _ (f b) xb (map f l1) (dlist_dlist_map l1 x1)
     end.
 
 Lemma dmap_dmap: forall A P Q R
@@ -454,6 +456,8 @@ Inductive environment (ty_env : TypeMapping) : Type :=
        (prop_env : PropMapping ty_env)
 .
 
+Arguments GEnv {ty_env}.
+
 Definition get_tm_env {ty_env : TypeMapping} (env : environment ty_env) :=
     match env with
     | GEnv tm_env _ _ _ _=> tm_env
@@ -492,7 +496,7 @@ Definition term_mapping_update {ty_env : TypeMapping} (env : TermMapping ty_env)
 Definition term_mapping_update_env {ty_env : TypeMapping} (env : environment ty_env) (n ty : Z) (v : tylookup ty_env ty) :=
     match env with
     | GEnv tm_env str_env func_env pred_env prop_env =>
-        GEnv ty_env (term_mapping_update tm_env n ty v) str_env func_env pred_env prop_env
+        @GEnv ty_env (term_mapping_update tm_env n ty v) str_env func_env pred_env prop_env
     end.
 
 Definition string_mapping_update (env : StringMapping) (n : Z) (v : string) :=
@@ -742,8 +746,8 @@ Definition wexpr_ind
     (H_EConstZ : forall val, P 0%Z (EConstZ val))
     (H_EField : forall addr struct_id field_id, P 0%Z addr -> P 0%Z (EField addr struct_id field_id))
     (H_EFunc : forall f sig args, Q _ args -> P _ (EFunc f sig args))
-    (H_dnil : Q _ (Induct.dnil _ _))
-    (H_dcons : forall x xs Px Pxs, P x Px -> Q xs Pxs -> Q _ (Induct.dcons _ _ x Px xs Pxs)) :
+    (H_dnil : Q _ (Induct.dnil))
+    (H_dcons : forall x xs Px Pxs, P x Px -> Q xs Pxs -> Q _ (Induct.dcons x Px xs Pxs)) :
     forall ty e, P ty e :=
     fix wexpr_ind ty e : P ty e :=
     match e as e0 in Wexpr ty0 return P ty0 e0 with
@@ -1052,19 +1056,19 @@ Lemma wexpr_eqb_refl :
           end)) as dlist_eqb.
           assert (dlist_eqb = (fun l1 l2 dl1 dl2 => (Induct.dlist_eqb l1 l2 Z.eqb wexpr_eqb dl1 dl2))).
           { clear - Heqdlist_eqb.
-            assert (dlist_eqb _ _ (Induct.dnil _ _) (Induct.dnil _ _) = true). {
+            assert (dlist_eqb _ _ (Induct.dnil) (Induct.dnil) = true). {
                 rewrite Heqdlist_eqb.
                 reflexivity.
             }
-            assert (forall x Px xs Pxs, dlist_eqb _ _ (Induct.dnil _ _) (Induct.dcons _ _ x Px xs Pxs) = false). {
+            assert (forall x Px xs Pxs, dlist_eqb _ _ (Induct.dnil) (Induct.dcons x Px xs Pxs) = false). {
                 rewrite Heqdlist_eqb.
                 reflexivity.
             }
-            assert (forall x Px xs Pxs, dlist_eqb _ _ (Induct.dcons _ _ x Px xs Pxs) (Induct.dnil _ _) = false). {
+            assert (forall x Px xs Pxs, dlist_eqb _ _ (Induct.dcons x Px xs Pxs) (Induct.dnil) = false). {
                 rewrite Heqdlist_eqb.
                 reflexivity.
             }
-            assert (forall x Px xs Pxs y Py ys Pys, dlist_eqb _ _ (Induct.dcons _ _ x Px xs Pxs) (Induct.dcons _ _ y Py ys Pys) = ((x =? y)%Z && wexpr_eqb x y Px Py && dlist_eqb xs ys Pxs Pys)%bool). {
+            assert (forall x Px xs Pxs y Py ys Pys, dlist_eqb _ _ (Induct.dcons  x Px xs Pxs) (Induct.dcons  y Py ys Pys) = ((x =? y)%Z && wexpr_eqb x y Px Py && dlist_eqb xs ys Pxs Pys)%bool). {
                 rewrite Heqdlist_eqb.
                 reflexivity.
             }
@@ -1072,8 +1076,8 @@ Lemma wexpr_eqb_refl :
             apply functional_extensionality_dep; intros l2.
             apply functional_extensionality; intros dl1.
             apply functional_extensionality; intros dl2.
-            revert dependent dl2.
-            revert dependent l2.
+            generalize dependent dl2.
+            generalize dependent l2.
             induction dl1; destruct dl2; intros; [
               rewrite H |
               rewrite H0 |
@@ -1099,7 +1103,7 @@ Lemma wexpr_eqb_true :
     pose (Q := (fun l1 dl1 => forall l2 dl2, Induct.dlist_eqb l1 l2 Z.eqb wexpr_eqb dl1 dl2 = true ->
                               (forall (pf : l1 = l2), eq_rect _ _ dl1 _ pf = dl2))).
     intros ty1 ty2 e1.
-    revert dependent ty2.
+    generalize dependent ty2.
     induction e1 using wexpr_ind with (Q := Q).
     - intros.
       destruct e2; simpl in H; try discriminate.
@@ -1156,19 +1160,19 @@ Lemma wexpr_eqb_true :
         end)) as dlist_eqb.
         assert (dlist_eqb = (fun l1 l2 dl1 dl2 => (Induct.dlist_eqb l1 l2 Z.eqb wexpr_eqb dl1 dl2))).
         { clear - Heqdlist_eqb.
-          assert (dlist_eqb _ _ (Induct.dnil _ _) (Induct.dnil _ _) = true). {
+          assert (dlist_eqb _ _ (Induct.dnil) (Induct.dnil) = true). {
               rewrite Heqdlist_eqb.
               reflexivity.
           }
-          assert (forall x Px xs Pxs, dlist_eqb _ _ (Induct.dnil _ _) (Induct.dcons _ _ x Px xs Pxs) = false). {
+          assert (forall x Px xs Pxs, dlist_eqb _ _ (Induct.dnil) (Induct.dcons  x Px xs Pxs) = false). {
               rewrite Heqdlist_eqb.
               reflexivity.
           }
-          assert (forall x Px xs Pxs, dlist_eqb _ _ (Induct.dcons _ _ x Px xs Pxs) (Induct.dnil _ _) = false). {
+          assert (forall x Px xs Pxs, dlist_eqb _ _ (Induct.dcons  x Px xs Pxs) (Induct.dnil) = false). {
               rewrite Heqdlist_eqb.
               reflexivity.
           }
-          assert (forall x Px xs Pxs y Py ys Pys, dlist_eqb _ _ (Induct.dcons _ _ x Px xs Pxs) (Induct.dcons _ _ y Py ys Pys) = ((x =? y)%Z && wexpr_eqb x y Px Py && dlist_eqb xs ys Pxs Pys)%bool). {
+          assert (forall x Px xs Pxs y Py ys Pys, dlist_eqb _ _ (Induct.dcons  x Px xs Pxs) (Induct.dcons  y Py ys Pys) = ((x =? y)%Z && wexpr_eqb x y Px Py && dlist_eqb xs ys Pxs Pys)%bool). {
               rewrite Heqdlist_eqb.
               reflexivity.
           }
@@ -1176,8 +1180,8 @@ Lemma wexpr_eqb_true :
           apply functional_extensionality_dep; intros l2.
           apply functional_extensionality; intros dl1.
           apply functional_extensionality; intros dl2.
-          revert dependent dl2.
-          revert dependent l2.
+          generalize dependent dl2.
+          generalize dependent l2.
           induction dl1; destruct dl2; intros; [
             rewrite H |
             rewrite H0 |
@@ -1500,11 +1504,11 @@ Lemma not_appear_free_expr_equiv :
         end) as fix_not_appear_free_dlist.
         assert (fix_not_appear_free_dlist = (fun l dl => not_appear_free_dlist l dl x)). {
             clear - Heqfix_not_appear_free_dlist.
-            assert (fix_not_appear_free_dlist nil (Induct.dnil _ _) = true). {
+            assert (fix_not_appear_free_dlist nil (Induct.dnil) = true). {
                 rewrite Heqfix_not_appear_free_dlist.
                 reflexivity.
             }
-            assert (forall a Px xs Pxs, fix_not_appear_free_dlist (a :: xs) (Induct.dcons _ _ a Px xs Pxs) = (not_appear_free_expr a Px x && fix_not_appear_free_dlist xs Pxs)%bool). {
+            assert (forall a Px xs Pxs, fix_not_appear_free_dlist (a :: xs) (Induct.dcons  a Px xs Pxs) = (not_appear_free_expr a Px x && fix_not_appear_free_dlist xs Pxs)%bool). {
                 rewrite Heqfix_not_appear_free_dlist.
                 reflexivity.
             }
@@ -2208,7 +2212,7 @@ Definition var_list_merge (l1 : VarList) (l2 : VarList) : VarList :=
 Lemma var_list_merge_in :
     forall x l1 l2,
         In x (var_list_merge l1 l2) -> In x l1 \/ In x l2.
-    intros; revert dependent l1; induction l2; intros; simpl in *.
+    intros; generalize dependent l1; induction l2; intros; simpl in *.
     -   left; assumption.
     -   apply IHl2 in H.
         destruct H.
@@ -2220,7 +2224,7 @@ Qed.
 Lemma var_list_merge_not_in :
     forall x l1 l2,
         ~ In x (var_list_merge l1 l2) -> ~ In x l1 /\ ~ In x l2.
-    intros; revert dependent l1; induction l2; intros; simpl in *.
+    intros; generalize dependent l1; induction l2; intros; simpl in *.
     -   split; tauto.
     -   apply IHl2 in H.
         destruct H.
@@ -2230,7 +2234,7 @@ Qed.
 
 Lemma var_list_merge_in_left :
     forall x l1 l2, In x l1 -> In x (var_list_merge l1 l2).
-    intros; revert dependent l1; induction l2; intros; simpl in *.
+    intros; generalize dependent l1; induction l2; intros; simpl in *.
     -   assumption.
     -   apply IHl2.
         apply var_list_insert_in_equiv.
@@ -2239,7 +2243,7 @@ Qed.
 
 Lemma var_list_merge_in_right :
     forall x l1 l2, In x l2 -> In x (var_list_merge l1 l2).
-    intros; revert dependent l1; induction l2; intros; simpl in *.
+    intros; generalize dependent l1; induction l2; intros; simpl in *.
     -   contradiction.
     -   destruct H.
         + apply var_list_merge_in_left.
@@ -2296,11 +2300,11 @@ Lemma get_var_list_not_appear_free_true_expr :
         end) as fix_not_appear_free_dlist.
         assert (fix_not_appear_free_dlist = (fun l dl => not_appear_free_dlist l dl x)). {
             clear - Heqfix_not_appear_free_dlist.
-            assert (fix_not_appear_free_dlist nil (Induct.dnil _ _) = true). {
+            assert (fix_not_appear_free_dlist nil (Induct.dnil) = true). {
                 rewrite Heqfix_not_appear_free_dlist.
                 reflexivity.
             }
-            assert (forall a Px xs Pxs, fix_not_appear_free_dlist (a :: xs) (Induct.dcons _ _ a Px xs Pxs) = (not_appear_free_expr a Px x && fix_not_appear_free_dlist xs Pxs)%bool). {
+            assert (forall a Px xs Pxs, fix_not_appear_free_dlist (a :: xs) (Induct.dcons  a Px xs Pxs) = (not_appear_free_expr a Px x && fix_not_appear_free_dlist xs Pxs)%bool). {
                 rewrite Heqfix_not_appear_free_dlist.
                 reflexivity.
             }
@@ -2321,11 +2325,11 @@ Lemma get_var_list_not_appear_free_true_expr :
         end)) as fix_get_var_list_dlist.
         assert (fix_get_var_list_dlist = (fun l dl => get_var_list_dlist l dl)). {
             clear - Heqfix_get_var_list_dlist.
-            assert (fix_get_var_list_dlist nil (Induct.dnil _ _) = nil). {
+            assert (fix_get_var_list_dlist nil (Induct.dnil) = nil). {
                 rewrite Heqfix_get_var_list_dlist.
                 reflexivity.
             }
-            assert (forall a Px xs Pxs, fix_get_var_list_dlist (a :: xs) (Induct.dcons _ _ a Px xs Pxs) = var_list_merge (get_var_list_expr a Px) (fix_get_var_list_dlist xs Pxs)). {
+            assert (forall a Px xs Pxs, fix_get_var_list_dlist (a :: xs) (Induct.dcons  a Px xs Pxs) = var_list_merge (get_var_list_expr a Px) (fix_get_var_list_dlist xs Pxs)). {
                 rewrite Heqfix_get_var_list_dlist.
                 reflexivity.
             }
@@ -2377,11 +2381,11 @@ Lemma get_var_list_not_appear_free_false_expr:
         end) as fix_not_appear_free_dlist.
         assert (fix_not_appear_free_dlist = (fun l dl => not_appear_free_dlist l dl x)). {
             clear - Heqfix_not_appear_free_dlist.
-            assert (fix_not_appear_free_dlist nil (Induct.dnil _ _) = true). {
+            assert (fix_not_appear_free_dlist nil (Induct.dnil) = true). {
                 rewrite Heqfix_not_appear_free_dlist.
                 reflexivity.
             }
-            assert (forall a Px xs Pxs, fix_not_appear_free_dlist (a :: xs) (Induct.dcons _ _ a Px xs Pxs) = (not_appear_free_expr a Px x && fix_not_appear_free_dlist xs Pxs)%bool). {
+            assert (forall a Px xs Pxs, fix_not_appear_free_dlist (a :: xs) (Induct.dcons  a Px xs Pxs) = (not_appear_free_expr a Px x && fix_not_appear_free_dlist xs Pxs)%bool). {
                 rewrite Heqfix_not_appear_free_dlist.
                 reflexivity.
             }
@@ -2402,11 +2406,11 @@ Lemma get_var_list_not_appear_free_false_expr:
         end)) as fix_get_var_list_dlist.
         assert (fix_get_var_list_dlist = (fun l dl => get_var_list_dlist l dl)). {
             clear - Heqfix_get_var_list_dlist.
-            assert (fix_get_var_list_dlist nil (Induct.dnil _ _) = nil). {
+            assert (fix_get_var_list_dlist nil (Induct.dnil) = nil). {
                 rewrite Heqfix_get_var_list_dlist.
                 reflexivity.
             }
-            assert (forall a Px xs Pxs, fix_get_var_list_dlist (a :: xs) (Induct.dcons _ _ a Px xs Pxs) = var_list_merge (get_var_list_expr a Px) (fix_get_var_list_dlist xs Pxs)). {
+            assert (forall a Px xs Pxs, fix_get_var_list_dlist (a :: xs) (Induct.dcons  a Px xs Pxs) = var_list_merge (get_var_list_expr a Px) (fix_get_var_list_dlist xs Pxs)). {
                 rewrite Heqfix_get_var_list_dlist.
                 reflexivity.
             }
@@ -2725,7 +2729,7 @@ Definition var_list_minus (l1 l2 : VarList) : VarList :=
 Lemma var_list_minus_in :
     forall x l1 l2,
         In x (var_list_minus l1 l2) <-> In x l1 /\ ~ In x l2.
-    split; revert dependent l2; induction l1; intros.
+    split; generalize dependent l2; induction l1; intros.
     -   contradiction.
     -   simpl in H.
         destruct (not_appear_free_var_list l2 a) eqn : ?; [
@@ -2769,7 +2773,7 @@ Lemma var_list_merge_preserse_unqvl :
         unqvl l1 ->
         unqvl l2 ->
         unqvl (var_list_merge l1 l2).
-    intros; revert dependent l1; induction l2; intros.
+    intros; generalize dependent l1; induction l2; intros.
     - apply H.
     - simpl in *.
       inversion H0; subst.
@@ -2885,7 +2889,7 @@ Lemma var_list_merge_minus_permutation:
     forall l1 l2,
         unqvl l1 -> unqvl l2 ->
         Permutation (var_list_merge l1 l2) (l1 ++ (var_list_minus l2 l1)).
-    intros; revert dependent l1; induction l2; intros.
+    intros; generalize dependent l1; induction l2; intros.
     - simpl.
       rewrite app_nil_r.
       reflexivity.
@@ -2897,7 +2901,7 @@ Lemma var_list_merge_minus_permutation:
           rewrite IHl2.
           assert (forall a l1 l2, ~ In a l2 -> var_list_minus l2 (a :: l1) = var_list_minus l2 l1). {
             clear.
-            intros; revert dependent a; revert l1; induction l2; intros.
+            intros; generalize dependent a; revert l1; induction l2; intros.
             - reflexivity.
             - simpl.
               destruct (not_appear_free_var_list l1 a) eqn : ?;
@@ -3342,7 +3346,7 @@ Fixpoint prop_atom_term_inb (t : PropAtomTerm) (l : PropTerm) : bool :=
 Lemma sep_atom_term_inb_in :
     forall t l,
     sep_atom_term_inb t l = true <-> In t l.
-    intros; split; revert dependent t.
+    intros; split; generalize dependent t.
     - induction l; intros.
       + simpl in H; discriminate.
       + simpl in H.
@@ -3361,7 +3365,7 @@ Qed.
 Lemma prop_atom_term_inb_in :
     forall t l,
     prop_atom_term_inb t l = true <-> In t l.
-    intros; split; revert dependent t.
+    intros; split; generalize dependent t.
     - induction l; intros.
       + simpl in H; discriminate.
       + simpl in H.
@@ -3493,7 +3497,7 @@ Lemma permutation_equiv_sep :
     forall t1 t2 ty_env (env : environment ty_env),
         Permutation t1 t2 ->
         sep_term_denote t1 _ env --||-- sep_term_denote t2 _ env.
-    intros; revert dependent env.
+    intros; generalize dependent env.
     induction H; intros.
     - apply logic_equiv_refl.
     - simpl; split; destruct (IHPermutation env).
@@ -3507,7 +3511,7 @@ Lemma permutation_equiv_prop :
     forall t1 t2 ty_env (env : environment ty_env),
         Permutation t1 t2 ->
         prop_term_denote t1 _ env --||-- prop_term_denote t2 _ env.
-    intros; revert dependent env.
+    intros; generalize dependent env.
     induction H; intros.
     - apply logic_equiv_refl.
     - simpl; split; destruct (IHPermutation env).
@@ -4527,15 +4531,15 @@ Fixpoint instantiate_wexpr ty (e : Wexpr ty) (x ty' : Z) (v : Wexpr ty') : Wexpr
     | EFunc f sig args =>
         EFunc f sig ((fix instantiate_dlist l (dl : Induct.dlist Z Wexpr l) (x ty' : Z) (v : Wexpr ty') : Induct.dlist Z Wexpr l :=
             match dl as dl0 in Induct.dlist _ _ l0 return Induct.dlist Z Wexpr l0 with
-            | Induct.dnil => Induct.dnil _ _
-            | Induct.dcons a Pa b Pb  => Induct.dcons _ _ _ (instantiate_wexpr a Pa x ty' v) _ (instantiate_dlist b Pb x ty' v)
+            | Induct.dnil => Induct.dnil
+            | Induct.dcons a Pa b Pb  => Induct.dcons _ (instantiate_wexpr a Pa x ty' v) _ (instantiate_dlist b Pb x ty' v)
             end) _ args x ty' v)
     end.
 
 Fixpoint instantiate_dlist l (dl : Induct.dlist Z Wexpr l) (x ty : Z) (v : Wexpr ty) : Induct.dlist Z Wexpr l :=
     match dl as dl0 in Induct.dlist _ _ l0 return Induct.dlist Z Wexpr l0 with
-    | Induct.dnil => Induct.dnil _ _
-    | Induct.dcons a Pa b Pb => Induct.dcons _ _ _ (instantiate_wexpr a Pa x ty v) _ (instantiate_dlist b Pb x ty v)
+    | Induct.dnil => Induct.dnil
+    | Induct.dcons a Pa b Pb => Induct.dcons _ (instantiate_wexpr a Pa x ty v) _ (instantiate_dlist b Pb x ty v)
     end.
 
 Lemma wexpr_denote_instantiate_equiv :

@@ -47,7 +47,7 @@ Class lgstate := {
   local_env: Type;
   global_env : Type;
   memory: Type;
-  memm :> @JoinM memory 
+  memm :: @JoinM memory 
 }.
 
 Definition local_cstate `{st: lgstate} := @lstate local_env global_env memory.
@@ -140,7 +140,6 @@ Section contextual_hoaretriples.
 
 
   Definition funcspecs : Type := list (func * funcspec).
-
 
   
   Definition valid_triple_nrm  (χnrm : func -> global_cstate -> global_cstate -> Prop): @HT_validity local_cstate (Langstmts) :=

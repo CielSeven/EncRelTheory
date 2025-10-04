@@ -624,7 +624,7 @@ Proof.
     apply derivable_assum. apply Union_intror. apply In_singleton.
 Qed.
 
-Class deduction_derived_neg (L : Language) (GammaD : Derivable L) : Type := {
+Class deduction_derived_neg (L : Language) (GammaD : Derivable L) := {
   derivables_negp_andp_fold1 : forall Phi P Q, Phi |--- ~~ P -> Phi |--- ~~ (P && Q);
   derivables_negp_andp_fold2 : forall Phi P Q, Phi |--- ~~ Q -> Phi |--- ~~ (P && Q);
   derivables_negp_orp_intros : forall Phi P Q, Phi |--- ~~ P -> Phi |--- ~~ Q -> Phi |--- ~~ (P || Q);

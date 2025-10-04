@@ -26,7 +26,7 @@ Class SeparatingSemantics
       (M: Kmodel)
       {R: Relation (Kworlds M)}
       {J: Join (Kworlds M)}
-      (SM: Semantics L MD): Type :=
+      (SM: Semantics L MD):=
 {
   denote_sepcon: forall x y, Same_set _ (Kdenotation M (x * y)) (StrongSemantics.sepcon (Kdenotation M x) (Kdenotation M y));
   denote_wand: forall x y, Same_set _ (Kdenotation M (x -* y)) (StrongSemantics.wand (Kdenotation M x) (Kdenotation M y))

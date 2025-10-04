@@ -12,7 +12,7 @@ Require Import Logic.HoareLogic.Trace.
 Local Open Scope kripke_model.
 Import KripkeModelNotation_Intuitionistic.
 
-Class SmallStepSemantics (P: ProgrammingLanguage) (state: Type): Type := {
+Class SmallStepSemantics (P: ProgrammingLanguage) (state: Type):= {
   step: cmd * state -> MetaState (cmd * state) -> Prop
 }.
 
@@ -32,7 +32,7 @@ Definition step_term_norm
   Prop :=
   ~ step cs Error /\ ~ step cs NonTerminating.
 
-Class SASmallStepSemantics (P: ProgrammingLanguage) (state: Type) {J: Join state} {state_R: Relation state} (SSS: SmallStepSemantics P state): Type := {
+Class SASmallStepSemantics (P: ProgrammingLanguage) (state: Type) {J: Join state} {state_R: Relation state} (SSS: SmallStepSemantics P state):= {
   frame_property: forall (m mf m': cmd * state) n', join (snd m) (snd mf) (snd m') -> step_safe m -> step m' n' -> exists n nf, snd nf <= snd mf /\ @lift_join _ (@prod_Join cmd state (equiv_Join) J) n (Terminating nf) n' /\ step m n
 }.
 
@@ -67,7 +67,7 @@ Module ImpSmallStepSemantics (D: FORWARD).
 
 Export D.
 
-Class ImpSmallStepSemantics (P: ProgrammingLanguage) {iP: ImperativeProgrammingLanguage P} (state: Type) {state_R: Relation state} (SSS: SmallStepSemantics P state): Type := {
+Class ImpSmallStepSemantics (P: ProgrammingLanguage) {iP: ImperativeProgrammingLanguage P} (state: Type) {state_R: Relation state} (SSS: SmallStepSemantics P state):= {
   eval_bool: state -> bool_expr -> Prop;
   eval_bool_stable: forall b, Krelation_stable_Kdenote (fun s => eval_bool s b);
   step_defined: forall c s, c <> Sskip -> exists mcs, step (c, s) mcs;

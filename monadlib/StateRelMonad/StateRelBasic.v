@@ -3,7 +3,7 @@ Require Import Coq.Bool.Bool.
 Require Import Coq.Classes.Morphisms.
 Require Import Lia.
 Require Import SetsClass.SetsClass.
-From MonadLib.SetMonad Require Export Monad.
+From MonadLib Require Export Monad.
 Import SetsNotation.
 From FP Require Import SetsFixedpoints PartialOrder_Setoid.
 Export SetsFixedpoints.
@@ -86,6 +86,7 @@ Section state_rel.
 
 End  state_rel.
 
+Notation "'skip'" := (ret tt) (at level 50).
 Notation "'assume' P" := (test P) (at level 50).
 Notation "'assume!!' P " := (test' P) (at level 50).
 
@@ -158,7 +159,7 @@ Section  loop_monad.
 
 End  loop_monad.
 
-Arguments program Σ%type_scope A%type_scope: clear implicits.
+Arguments program Σ%_type_scope A%_type_scope: clear implicits.
 
 Section monad_equiv_lemmas.
   Context {Σ: Type}.

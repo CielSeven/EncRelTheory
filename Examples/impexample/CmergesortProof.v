@@ -10,10 +10,12 @@ Require Import Coq.Logic.Classical_Prop.
 From AUXLib Require Import Feq Idents  List_lemma VMap int_auto ListLib.
 From compcert.lib Require Import Integers.
 From LangLib.ImpP Require Import PermissionModel Mem mem_lib Imp Assertion ImpTactics ImpHoareTactics slllib. 
-From EncRelSeq Require Import callsem basicasrt contexthoare_imp. 
-From EncRelSeq.MonadsAsHigh.AbsMonad Require Import  encimpmonad.
-Require Import MonadLib.MonadLib.
-Import StateRelMonad.
+From EncRelSeq Require Import callsem basicasrt contexthoare_imp.
+
+Require Import MonadLib.StateRelMonad.StateRelMonad.
+(* From EncRelSeq Require Import encdefs.
+From EncRelSeq.MonadsAsHigh.AbsMonad Require Import encrel. *)
+From EncRelSeq.MonadsAsHigh.AbsMonad Require Import encimpmonad.
 From MonadLib.Examples Require Import mergesort.
 From Examples Require Import  Cmergesort.
 From SetsClass Require Import SetsClass.
@@ -40,12 +42,12 @@ Local Open Scope monad.
 Definition split_while_spec := {|
   FS_With := ((list Z * list Z) -> unit -> Prop) * addr * addr * addr ;
   FS_Pre := fun '(X, xv, pv, qv) =>
-            (EX lx pvv qvv, !! (Exec ATrue (split_rel lx) X) &&
+            (EX lx pvv qvv, !! (safeExec ATrue (split_rel lx) X) &&
             GV _arg1 @ vptr ↦ₗ xv && GV _arg2 @ vptr ↦ₗ pv && GV _arg3 @ vptr ↦ₗ qv && 
             vPV pv @ vptr ↦ₗ pvv $ ➀ ** vPV qv @ vptr ↦ₗ qvv $ ➀ **
             listrep ➀ xv lx ** listrep ➀ pvv nil ** listrep ➀ qvv nil );
   FS_Post := fun '(X, xv, pv, qv) =>
-            (EX lp lq pvv qvv, !! (Exec ATrue (return (lp, lq)) X) &&
+            (EX lp lq pvv qvv, !! (safeExec ATrue (return (lp, lq)) X) &&
             GV _arg1 @ vptr ↦ₗ 0 && GV _arg2 @ vptr ↦ₗ pv && GV _arg3 @ vptr ↦ₗ qv && 
             vPV pv @ vptr ↦ₗ pvv $ ➀ ** vPV qv @ vptr ↦ₗ qvv $ ➀ **
             listrep ➀ pvv lp ** listrep ➀ qvv lq );
@@ -55,11 +57,11 @@ Definition split_while_spec := {|
 Definition merge_spec := {|
   FS_With := ((list Z) -> unit -> Prop) ;
   FS_Pre := fun X =>
-            (EX lx ly xv yv, !! (Exec ATrue (merge_rel lx ly) X) &&
+            (EX lx ly xv yv, !! (safeExec ATrue (merge_rel lx ly) X) &&
             GV _arg1 @ vptr ↦ₗ xv && GV _arg2 @ vptr ↦ₗ yv && 
             listrep ➀ xv lx ** listrep ➀ yv ly);
   FS_Post := fun X =>
-            (EX lr rv, !! (Exec ATrue (return lr) X) &&
+            (EX lr rv, !! (safeExec ATrue (return lr) X) &&
             GV _ret1 @ vptr ↦ₗ rv &&
             listrep ➀ rv lr );
 |}. 
@@ -68,10 +70,10 @@ Definition merge_spec := {|
 Definition mergesort_spec := {|
   FS_With := ((list Z) -> unit -> Prop) ;
   FS_Pre := fun X =>
-            (EX lx xv, !! (Exec ATrue (mergesortrec lx) X) &&
+            (EX lx xv, !! (safeExec ATrue (mergesortrec lx) X) &&
             GV _arg1 @ vptr ↦ₗ xv && listrep ➀ xv lx);
   FS_Post := fun X =>
-            (EX lr rv, !! (Exec ATrue (return lr) X) &&
+            (EX lr rv, !! (safeExec ATrue (return lr) X) &&
             GV _ret1 @ vptr ↦ₗ rv &&
             listrep ➀ rv lr );
 |}.
@@ -98,10 +100,10 @@ Definition gmergesort_spec := {|
   FS_With := ((list Z) -> unit -> Prop) ;
   FS_Pre := fun X =>
             (EX lx xv,
-            !! (Exec ATrue (gmergesortrec lx) X) &&
+            !! (safeExec ATrue (gmergesortrec lx) X) &&
             GV _arg1 @ vptr ↦ₗ xv && listrep ➀ xv lx);
   FS_Post := fun X =>
-            (EX lr rv, !! (Exec ATrue (return lr) X) &&
+            (EX lr rv, !! (safeExec ATrue (return lr) X) &&
             GV _ret1 @ vptr ↦ₗ rv && listrep ➀ rv lr );
 |}.
 
@@ -169,12 +171,12 @@ Ltac allocisvalidptr_one v pv :=
 Definition split_while_spec_aux {B: Type} := {|
   FS_With := ((list Z * list Z) -> MONAD B) * (B -> unit -> Prop)  * addr * addr * addr ;
   FS_Pre := fun '(f, X, xv, pv, qv) =>
-            (EX lx, !! (Exec ATrue (bind (split_rel lx) f) X) &&
+            (EX lx, !! (safeExec ATrue (bind (split_rel lx) f) X) &&
             GV _arg1 @ vptr ↦ₗ xv && GV _arg2 @ vptr ↦ₗ pv && GV _arg3 @ vptr ↦ₗ qv && 
             vPV pv @ vptr ↦ₗ 0 $ ➀ ** vPV qv @ vptr ↦ₗ 0 $ ➀ **
             listrep ➀ xv lx);
   FS_Post := fun '(f, X, xv, pv, qv) =>
-            (EX lp lq pvv qvv, !! (Exec ATrue (f (lp, lq)) X) &&
+            (EX lp lq pvv qvv, !! (safeExec ATrue (f (lp, lq)) X) &&
             GV _arg1 @ vptr ↦ₗ 0 && GV _arg2 @ vptr ↦ₗ pv && GV _arg3 @ vptr ↦ₗ qv && 
             vPV pv @ vptr ↦ₗ pvv $ ➀ ** vPV qv @ vptr ↦ₗ qvv $ ➀ **
             listrep ➀ pvv lp ** listrep ➀ qvv lq );
@@ -183,10 +185,10 @@ Definition split_while_spec_aux {B: Type} := {|
 Definition mergesort_spec_aux {B: Type} := {|
   FS_With := ((list Z) -> MONAD B) * (B -> unit -> Prop) ;
   FS_Pre := fun '(f, X) =>
-            (EX lx xv, !! (Exec ATrue (bind (mergesortrec lx) f) X) &&
+            (EX lx xv, !! (safeExec ATrue (bind (mergesortrec lx) f) X) &&
             GV _arg1 @ vptr ↦ₗ xv && listrep ➀ xv lx);
   FS_Post := fun '(f, X) =>
-            (EX lr rv, !! (Exec ATrue (f lr) X) &&
+            (EX lr rv, !! (safeExec ATrue (f lr) X) &&
             GV _ret1 @ vptr ↦ₗ rv &&
             listrep ➀ rv lr );
 |}. 
@@ -195,10 +197,10 @@ Definition gmergesort_spec_aux {B: Type} := {|
   FS_With := ((list Z) -> MONAD B) * (B -> unit -> Prop) ;
   FS_Pre := fun '(f, X) =>
             (EX lx xv, 
-            !! (Exec ATrue (bind (gmergesortrec lx) f) X) &&
+            !! (safeExec ATrue (bind (gmergesortrec lx) f) X) &&
             GV _arg1 @ vptr ↦ₗ xv && listrep ➀ xv lx);
   FS_Post := fun '(f, X) =>
-            (EX lr rv, !! (Exec ATrue (f lr) X) &&
+            (EX lr rv, !! (safeExec ATrue (f lr) X) &&
             GV _ret1 @ vptr ↦ₗ rv && listrep ➀ rv lr );
 |}.
 
@@ -211,7 +213,7 @@ Proof.
   unfoldfspec.
   intros ((((f & X) & xv) & pv) & qv).
   Intros lx.
-  apply Exec_bind in H as [X' [Hpre Hpost]].
+  apply safeExec_bind in H as [X' [Hpre Hpost]].
   Exists (X', xv, pv, qv).
   Exists lx 0 0.
   simpl (listrep _ _ nil).
@@ -235,7 +237,7 @@ Proof.
   unfoldfspec.
   intros (f & X) .
   Intros lx xv.
-  apply Exec_bind in H as [X' [Hpre Hpost]].
+  apply safeExec_bind in H as [X' [Hpre Hpost]].
   Exists (X').
   Exists lx xv.
   entailer!.
@@ -257,7 +259,7 @@ Proof.
   unfoldfspec.
   intros (f & X) .
   Intros lx xv.
-  apply Exec_bind in H as [X' [Hpre Hpost]].
+  apply safeExec_bind in H as [X' [Hpre Hpost]].
   Exists (X').
   Exists lx xv.
   entailer!.
@@ -285,7 +287,7 @@ Proof.
   (* While _x != 0 *)
   eapply hoare_conseq_pre.
   { instantiate (1:= EX l l0 l1 xv  pvv qvv, 
-                  !! (Exec ATrue (split_rec_rel l l0 l1) X) &&
+                  !! (safeExec ATrue (split_rec_rel l l0 l1) X) &&
                   LV _x @ vptr ↦ₗ xv && LV _p @ vptr ↦ₗ pv && LV _q @ vptr ↦ₗ qv && 
                   vPV pv @ vptr ↦ₗ pvv $ ➀ ** vPV qv @ vptr ↦ₗ qvv $ ➀ **
                   listrep ➀ xv l ** listrep ➀ pvv l0 ** listrep ➀ qvv l1 ).
@@ -427,7 +429,7 @@ Proof.
   (* While _break == 0 *)
   eapply hoare_conseq_pre.
   { instantiate (1:= EX (bf:Z) (l1 l2 l3: list Z) (xv yv tv ttv: addr), 
-                  !! Exec ATrue (merge_from_mid_rel l1 l2 l3) X && 
+                  !! safeExec ATrue (merge_from_mid_rel l1 l2 l3) X && 
                   !! isvalidptr tv && 
                   LV _break @ vint ↦ₗ bf && !! (bf <> 0 -> l1 = nil /\ ttv = yv \/ l2 = nil /\ ttv = xv) &&
                   LV _x @ vptr ↦ₗ xv && LV _y @ vptr ↦ₗ yv && 
@@ -790,7 +792,7 @@ Proof.
       (* abs step *)
       rewrite (gmergesortrec_unfold lx) in H.
       unfold gmergesortrec_f in H. 
-      apply Exec_choice_left in H.
+      apply safeExec_choice_l in H.
       revert H; apply (highstependret_derive _ _ _ (fun _ => ATrue)).
       hnf.
       intros ? _; exists tt.
@@ -836,7 +838,7 @@ Proof.
     rewrite (gmergesortrec_unfold lx) in H.
     unfold gmergesortrec_f in H.
     unfold gmergesortrec_loc0.
-    apply Exec_choice_right in H.
+    apply safeExec_choice_r in H.
     unfold seq in H.
     rewrite (split_rel_refine_ext_split lx).
     prove_by_one_abs_step tt.

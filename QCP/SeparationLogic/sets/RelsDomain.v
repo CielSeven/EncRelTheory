@@ -195,7 +195,7 @@ Class PRE_RELS_Properties
       Sets.equiv
         (Rels.concat_aux (Sets.intersect (Sets.prop_inj P) x) y a)
         (Sets.intersect (Sets.prop_inj P) (Rels.concat_aux x y a));
-  Rels_concat_mono_aux:>
+  Rels_concat_mono_aux::
     Proper
       (Sets.included ==> Sets.included ==> eq ==> Sets.included)
       (@Rels.concat_aux _ _ _ _ _REL);
@@ -238,7 +238,7 @@ Class RELS_Properties
       Sets.equiv
         (Rels.concat x (Sets.indexed_union ys))
         (Sets.indexed_union (fun i => Rels.concat x (ys i)));
-  Rels_concat_mono:>
+  Rels_concat_mono::
     Proper
       (Sets.included ==> Sets.included ==> Sets.included)
       (@Rels.concat _ _ _ _REL);
@@ -1611,6 +1611,28 @@ Proof.
     reflexivity.
 Qed.
 
+Lemma nsteps_nsteps'_indexed_union:
+  forall
+    {X: Type}
+    {_RELS: Rels.RELS X X X}
+    {_RELS_Id: Rels.RELS_ID X}
+    {_SETS: Sets.SETS X}
+    {_RELS_Properties: RELS_Properties X X X}
+    {_RELS_Assoc: RELS_Assoc X X X X X X}
+    {_RELS_LeftId: RELS_LeftId X X}
+    {_RELS_RightId: RELS_RightId X X}
+    {_SETS_Properties: SETS_Properties X}
+    (x: X),
+      Sets.equiv
+      (Sets.indexed_union (nsteps x))
+      (Sets.indexed_union (nsteps' x)).
+Proof.
+  intros.
+  apply Sets_indexed_union_congr.
+  sets_unfold.
+  apply nsteps_nsteps'.
+Qed.
+
 Lemma nsteps_rt:
   forall
     {X: Type}
@@ -1962,10 +1984,22 @@ Ltac count_args X :=
   | _ => constr:(O)
   end.
 
+Ltac revert_standard_prop H :=
+  let H0 := type of H in
+  let T := type of H0 in
+  match T with 
+  | Prop => idtac
+  | _ => fail
+  end.
+
 Ltac revert_dependent_except x H :=
   repeat
     match goal with
-    | H0: context [x] |- _ => revert H0; assert_succeeds (revert H)
+    | H0: context [x] |- _ => 
+      tryif (revert_standard_prop H0) then 
+        revert H0; assert_succeeds (revert H)
+      else 
+        fail
     end.
 
 Ltac revert_dependent_component x H :=
@@ -2258,6 +2292,80 @@ Ltac induction_1n H :=
             ]
           end.
 
+Ltac destruct_n1_based_SETS_rec H _SETS :=
+  match _SETS with
+  | @lift_SETS _ _ ?_SETS0 =>
+      match _SETS0 with
+      | @lift_SETS _ _ _ =>
+          destruct H as [[H ?] ?];
+          let HH := fresh "H" in
+          destruct H as [H HH];
+          destruct_n1_based_SETS_rec H _SETS0
+      | _ =>
+          let HH := fresh "H" in
+          destruct H as [H HH]
+      end
+  end.
+
+Ltac destruct_n1_based_SETS H _SETS :=
+  match _SETS with
+  | @lift_SETS _ _ ?_SETS0 => destruct_n1_based_SETS_rec H _SETS0
+  end.
+  
+Ltac induction_n1 H :=
+  let P := type of H in
+  revert_dependent_component P H;
+  let R := get_head_explicit_rt P in
+  let R' := get_head_implicit_rt P in
+  match R with
+  | @clos_refl_trans ?X ?_RELS ?_RELS_ID ?_SETS ?R0 => 
+            change R' with (@Sets.indexed_union _ _SETS nat (@nsteps X _RELS _RELS_ID R0)) in H at 1;
+            let HH := fresh "HH" in
+            pose proof (@nsteps_nsteps'_indexed_union X _RELS _ _ _ _ _ _ _) as HH; 
+            apply HH in H; clear HH;
+            revert_args_until_head P R' H ;
+            revert_EQ_until_head P R' H ;
+            revert H;
+            match goal with 
+            | |- ?Pre -> ?Post => reduce_to_included (@Sets.indexed_union _ _SETS nat (@nsteps' X _RELS _RELS_ID R0)) Pre Post
+            end;
+            apply Sets_indexed_union_included;
+            let n := fresh "n" in
+            let IH := fresh "IH" in
+            let IHrt := fresh "IHrt" in
+            intros n; induction n as [| n IH];
+            [ unfold_included_and_intros_in_goal;
+              intro H;
+              change (@nsteps' X _RELS _RELS_ID R0 0) with (@Rels.id X _RELS_ID) in H;
+              intros_EQ_based_SETS _SETS;
+              revert H; sets_unfold;
+              intro H; destruct_Rels_id H; intros
+            | 
+              unfold_included_and_intros_in_goal;
+              intro H;
+              change (@nsteps' X _RELS _RELS_ID R0 (S n)) with
+                      (@Rels.concat X X X _RELS (@nsteps' X _RELS _RELS_ID R0 n) R0) in H;
+              intros_EQ_based_SETS _SETS;
+              match type of H with
+              | context [(@Rels.concat X X X _RELS (@nsteps' X _RELS _RELS_ID R0 n)) R0 ?s1] =>
+                  revert H; sets_unfold;
+                  let s1' := fresh "___unnamed" in
+                  intros H;
+                  destruct H as [s1' H];
+                  destruct_using_pat_names s1' s1
+              end;
+              intros;
+              destruct_n1_based_SETS H _SETS;
+              pose proof H as IHrt;
+              apply IH in IHrt;
+              clear IH;
+              let NSTEPS'_RT := constr:(nsteps'_rt R0 n) in
+              apply NSTEPS'_RT in H;
+              change R with R' in H;
+              specialize_until_EQ_based_SETS IHrt _SETS 
+            ]
+          end.
+
 Ltac proof_induction H :=
   let P := type of H in
   revert_dependent_component P H;
@@ -2360,8 +2468,6 @@ Goal forall s1 t1 l s2 t2,
 Proof.
   intros.
   induction_1n H3.
-  + admit.
-  + admit.
 Abort.
 
 End ListConn.

@@ -25,8 +25,6 @@ Require Export List.
 Require Export Bool.
 Require Export Lia.
 
-Global Set Asymmetric Patterns.
-
 (** * Useful tactics *)
 
 Ltac inv H := inversion H; clear H; subst.
@@ -437,18 +435,9 @@ Lemma Zdiv_interval_1:
   lo * b <= a < hi * b ->
   lo <= a/b < hi.
 Proof.
-  intros.
-  generalize (Z_div_mod_eq a b H1). generalize (Z_mod_lt a b H1). intros.
-  set (q := a/b) in *. set (r := a mod b) in *.
-  split.
-  assert (lo < (q + 1)).
-  apply Zmult_lt_reg_r with b. lia.
-  apply Z.le_lt_trans with a. lia.
-  replace ((q + 1) * b) with (b * q + b) by ring.
-  lia.
-  lia.
-  apply Zmult_lt_reg_r with b. lia.
-  replace (q * b) with (b * q) by ring.
+  intros. 
+  pose proof Zdiv_lt_upper_bound a b hi (ltac:(lia)).
+  pose proof Zdiv_le_lower_bound a b lo (ltac:(lia)).
   lia.
 Qed.
 
@@ -513,7 +502,7 @@ Definition align (n: Z) (amount: Z) :=
 Lemma align_le: forall x y, y > 0 -> x <= align x y.
 Proof.
   intros. unfold align.
-  generalize (Z_div_mod_eq (x + y - 1) y H). intro.
+  generalize (Z_div_mod_eq_full (x + y - 1) y). intro.
   replace ((x + y - 1) / y * y)
      with ((x + y - 1) - (x + y - 1) mod y).
   generalize (Z_mod_lt (x + y - 1) y H). lia.
@@ -968,7 +957,7 @@ Proof.
     elim H4. apply in_or_app. tauto.
     auto.
   induction a; simpl; intros.
-  rewrite <- app_nil_end. auto.
+  rewrite app_nil_r. auto.
   inversion H0. apply H. auto.
   red; intro; elim H3. apply in_or_app. tauto.
   red; intro; elim H3. apply in_or_app. tauto.

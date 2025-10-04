@@ -4,8 +4,7 @@ From SetsClass Require Import SetsClass.
 From EncRelSeq.Basics Require Import basictacs basicasrt relasrt encdefs.
 From EncRelSeq.Functioncall Require Import callsem contexthoare contexthoare_imp.
 From EncRelSeq.MonadsAsHigh.AbsMonad Require Import relhoarelogic encrel.
-Require Import MonadLib.MonadLib.
-Import StateRelMonad.
+Require Import MonadLib.StateRelMonad.StateRelMonad.
 Require Import Coq.Lists.List.
 Require Import Coq.ZArith.ZArith.
 From AUXLib Require Import Idents .
@@ -374,7 +373,7 @@ Section  encrules.
 (**********************************************************************************)
 
   Lemma  reltriple_triple_equiv1 {A: Type}: forall P Ps (s: program Σₕ A) c Q,
-    Δ ⩅ Γ ⊢ ⟨ ⌊ P ⌋ && ⌈ Ps ⌉ && [ s ]ₕ ⟩ c ⟨ Q ⟩ <->
+    Δ ⩅ Γ ⊢ ⟨ ⌊ P ⌋ && ⌈ Ps ⌉ && [ₕ s ]ₕ ⟩ c ⟨ Q ⟩ <->
     (forall X, (Δ ++ (| Γ |)) ⊢ {{!! Exec Ps s X && P}} c {{[| Q |](X)}}).
   Proof.
     intros;split.
@@ -392,7 +391,7 @@ Section  encrules.
   Qed.
 
   Lemma  reltriple_triple_equiv {A R: Type}: forall P Ps (s: program Σₕ R) c B Q Ps',
-    Δ ⩅ Γ ⊢ ⟨ ⌊ P ⌋ && ⌈ Ps ⌉ && [ s ]ₕ ⟩ c ⟨EX (r: R) (a:A), !! (B a r) && ⌊ Q a r ⌋ && ⌈ Ps' a r⌉ && [ ret r ]ₕ ⟩ <->
+    Δ ⩅ Γ ⊢ ⟨ ⌊ P ⌋ && ⌈ Ps ⌉ && [ₕ s ]ₕ ⟩ c ⟨EX (r: R) (a:A), !! (B a r) && ⌊ Q a r ⌋ && ⌈ Ps' a r⌉ && [ₕ ret r ]ₕ ⟩ <->
     (forall X : R -> Σₕ -> Prop,
     (Δ ++ (| Γ |)) ⊢ {{!! Exec Ps s X && P}} c {{EX r a, !! Exec (Ps' a r) (ret r) X && !! (B a r) && (Q a r)}}).
   Proof.
@@ -435,7 +434,7 @@ Section  encrules.
 
   Lemma comp_fc_as_conseq {A:Type}: forall 
   P (cₗ: Langstmts) (cₕ: program Σₕ A) Q (Pₕ: @asrt Σₕ) Qₕ,
-  ((forall X,  (Δ ++ (| Γ |)) ⊢ {{ [|↑ P && [cₕ ]ₕ|](X) }} cₗ {{ [|EX a, ↑ Q a && [ret a ]ₕ|](X) }})) -> 
+  ((forall X,  (Δ ++ (| Γ |)) ⊢ {{ [|↑ P && [ₕ cₕ ]ₕ|](X) }} cₗ {{ [|EX a, ↑ Q a && [ₕ ret a ]ₕ|](X) }})) -> 
   StateRelHoare.Hoare Pₕ cₕ Qₕ ->
    (Δ ++ (| Γ |)) ⊢ {{ P ⋈_π Pₕ }} cₗ {{ EX a, (Q a) ⋈_π (Qₕ a) }}.
 Proof.

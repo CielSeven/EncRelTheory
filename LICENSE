@@ -11,7 +11,7 @@ Any form of redistribution, modification, or commercial use is prohibited
 without explicit written permission from the authors.
 
 Future Plans:
-- We are considering releasing the Relational Hoare Logic library
+- We are considering releasing the EncRelSeq library
   under an open-source license in the near future.
 - If and when that happens, this LICENSE file will be updated.
 - The QCP tool is unlikely to be released as open source.

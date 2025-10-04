@@ -1,4 +1,4 @@
-Class RegisterClass (Kind: Type) {A: Type} (a: A) (n: nat): Type := {}.
+Class RegisterClass (Kind: Type) {A: Type} (a: A) (n: nat):= {}.
 
 Ltac rec_from_n n tac :=
   try (tac n; rec_from_n (S n) tac).

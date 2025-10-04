@@ -30,7 +30,7 @@ Import RelHoarePracticalDenoRules.
 (**********************************************************************************)
 
     Lemma  reltriple_triple_equiv1 : forall (P: @asrt Σₗ) Ps (s: @denosem Σₕ) c Q,
-    ⊢ ⟨ ⌊ P ⌋ && ⌈ Ps ⌉ && [ s ]ₕ ⟩ c ⟨ Q ⟩ <->
+    ⊢ ⟨ ⌊ P ⌋ && ⌈ Ps ⌉ && [ₕ s ]ₕ ⟩ c ⟨ Q ⟩ <->
     (forall X, ⊢∀ {{!! Exec Ps s X && P}} c {{[|Q|](X)}}).
   Proof.
     intros;split.
@@ -48,7 +48,7 @@ Import RelHoarePracticalDenoRules.
   Qed.
 
   Lemma  reltriple_triple_equiv {A: Type}: forall (P: @asrt Σₗ) Ps (s: @denosem Σₕ) c B Q Ps',
-    ⊢ ⟨ ⌊ P ⌋ && ⌈ Ps ⌉ && [ s ]ₕ ⟩ c ⟨EX (a:A), !! (B a) && ⌊ Q a ⌋ && ⌈ Ps' a⌉ && [ skip ]ₕ ⟩ <->
+    ⊢ ⟨ ⌊ P ⌋ && ⌈ Ps ⌉ && [ₕ s ]ₕ ⟩ c ⟨EX (a:A), !! (B a) && ⌊ Q a ⌋ && ⌈ Ps' a⌉ && [ₕ skip ]ₕ ⟩ <->
     (forall X : Σₕ -> Prop,
     ⊢∀ {{!! Exec Ps s X && P}} c {{EX a, !! Exec (Ps' a) skip X && !! (B a) && (Q a)}}).
   Proof.
@@ -102,7 +102,7 @@ Section composition_rules.
 
 Lemma comp_fc_as_conseq {Σₗ Σₕ: Type}:forall 
   (P: @binasrt Σₗ Σₕ) (cₗ: denosem) (cₕ: denosem) (Q:  @binasrt Σₗ Σₕ) (Pₕ Qₕ: @asrt Σₕ),
-  ((forall X, ⊢∀ {{ [|↑ P && [cₕ ]ₕ|](X) }} cₗ {{ [|↑ Q && [skip ]ₕ|](X) }})) -> 
+  ((forall X, ⊢∀ {{ [|↑ P && [ₕ cₕ ]ₕ|](X) }} cₗ {{ [|↑ Q && [ₕ skip ]ₕ|](X) }})) -> 
   ⊢∀ {{ Pₕ }} cₕ {{ Qₕ }} ->
   ⊢∀ {{ P ⋈_π Pₕ }} cₗ {{ Q ⋈_π Qₕ }}.
 Proof.
@@ -130,9 +130,9 @@ Qed.
 
 Lemma comp_refine_as_conseq  {Σ₁ Σ₂ Σ₃: Type}: forall
     (c₁: denosem) (c₂: denosem) (c₃:denosem) (P1 Q1: @binasrt Σ₁ Σ₂) (P2 Q2: @binasrt Σ₂ Σ₃) ,
-    (forall X, ⊢∀ {{[|↑ P1 && [c₂ ]ₕ|](X)}} c₁ {{[|↑ Q1 && [skip ]ₕ|](X)}}) ->
-    (forall X, ⊢∀ {{[|↑ P2 && [c₃ ]ₕ|](X)}} c₂ {{[|↑ Q2 && [skip ]ₕ|](X)}}) ->
-    forall X, ⊢∀ {{[|↑ (P1 ⋈ P2) && [c₃ ]ₕ|](X)}} c₁ {{[|↑ (Q1 ⋈ Q2) && [skip ]ₕ|](X)}}.
+    (forall X, ⊢∀ {{[|↑ P1 && [ₕ c₂ ]ₕ|](X)}} c₁ {{[|↑ Q1 && [ₕ skip ]ₕ|](X)}}) ->
+    (forall X, ⊢∀ {{[|↑ P2 && [ₕ c₃ ]ₕ|](X)}} c₂ {{[|↑ Q2 && [ₕ skip ]ₕ|](X)}}) ->
+    forall X, ⊢∀ {{[|↑ (P1 ⋈ P2) && [ₕ c₃ ]ₕ|](X)}} c₁ {{[|↑ (Q1 ⋈ Q2) && [ₕ skip ]ₕ|](X)}}.
 Proof.
   intros * Hr Hr0 X.
   eapply hoare_conseq_pre with (P':= (EX σ₂, (fun σₗ : Σ₁ =>

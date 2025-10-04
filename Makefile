@@ -60,7 +60,7 @@ Unify_FILES = \
    Interface2.v 
 
 SetMonad_Files = \
-	Monad.v SetBasic.v SetHoare.v FixpointLib.v SetMonad.v
+	SetBasic.v SetHoare.v FixpointLib.v SetMonad.v
 
 StateRelMonad_Files = \
 	StateRelBasic.v StateRelHoare.v FixpointLib.v safeexec_lib.v StateRelMonad.v
@@ -68,14 +68,23 @@ StateRelMonad_Files = \
 MonadErr_Files = \
 	MonadErrBasic.v MonadErrLoop.v MonadErrHoare.v monadesafe_lib.v StateRelMonadErr.v
 
+OptionMonad_Files = \
+	OptionBasic.v OptionMonad.v
+
+ListMonad_Files = \
+	ListBasic.v ListMonad.v
+
 MonadExample_FILES = \
 	kmp.v mergesort.v 
   
 MONAD_FILES = \
+	monadlib/Monad.v \
 	monadlib/MonadLib.v \
 	$(SetMonad_Files:%.v=monadlib/SetMonad/%.v) \
 	$(StateRelMonad_Files:%.v=monadlib/StateRelMonad/%.v) \
 	$(MonadErr_Files:%.v=monadlib/MonadErr/%.v) \
+	$(OptionMonad_Files:%.v=monadlib/OptionMonad/%.v) \
+	$(ListMonad_Files:%.v=monadlib/ListMonad/%.v) \
 	$(MonadExample_FILES:%.v=monadlib/Examples/%.v) \
 
 

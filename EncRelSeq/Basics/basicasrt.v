@@ -91,19 +91,19 @@ Notation " !! P " := (coq_prop P) (at level 29, no associativity): asrt_scope.
 Notation " 'TT' " := (truep) (at level 29, no associativity): asrt_scope.
 Notation "'EX' x , p " :=
   (exp (fun x => p))
-    (at level 45, x name, right associativity): asrt_scope.
+    (at level 45, x binder, right associativity): asrt_scope.
 Notation "'EX' x : t , p " :=
   (exp (fun x : t => p))
-    (at level 45, x name, right associativity): asrt_scope.
+    (at level 45, x binder, right associativity): asrt_scope.
 Notation "'EX' x .. y , p" :=
   (exp (fun x => .. (exp (fun y => p)) ..))
     (at level 45, x binder, right associativity): asrt_scope.
 Notation "'ALL' x , p " :=
   (allp (fun x => p))
-    (at level 45, x name, right associativity): asrt_scope.
+    (at level 45, x binder, right associativity): asrt_scope.
 Notation "'ALL' x : t , p " :=
   (allp (fun x : t => p))
-    (at level 45, x name, right associativity): asrt_scope.
+    (at level 45, x binder, right associativity): asrt_scope.
 Notation "'ALL' x .. y , p" :=
   (allp (fun x => .. (allp (fun y => p)) ..))
     (at level 45, x binder, right associativity): asrt_scope.

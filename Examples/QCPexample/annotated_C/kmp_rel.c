@@ -35,11 +35,11 @@ int strlen(char * s)
 int inner(char *str, int *vnext, char ch, int j)
 /*@ bind_spec <= low_level_spec
     With {B} str0 vnext0 n m X (f: Z -> program unit B)
-    Require Exec(ATrue, bind(inner_loop(0, str0, vnext0, ch, j), f), X) &&
+    Require safeExec(ATrue, bind(inner_loop(0, str0, vnext0, ch, j), f), X) &&
             m <= n && n < INT_MAX &&
             store_char_array(str, n + 1, app(str0, cons(0, nil))) *
             store_int_array(vnext, m, vnext0)
-    Ensure Exec(ATrue, applyf(f, __return), X) && 0 <= __return && __return < m + 1 &&
+    Ensure safeExec(ATrue, applyf(f, __return), X) && 0 <= __return && __return < m + 1 &&
            store_char_array(str, n + 1, app(str0, cons(0, nil))) *
            store_int_array(vnext, m, vnext0)
 */;
@@ -47,17 +47,17 @@ int inner(char *str, int *vnext, char ch, int j)
 int inner(char *str, int *vnext, char ch, int j) 
 /*@ low_level_spec
     With str0 vnext0 n m X
-    Require Exec(ATrue, inner_loop(0, str0, vnext0, ch, j), X) &&
+    Require safeExec(ATrue, inner_loop(0, str0, vnext0, ch, j), X) &&
             m <= n && n < INT_MAX &&
             store_char_array(str, n + 1, app(str0, cons(0, nil))) *
             store_int_array(vnext, m, vnext0)
-    Ensure Exec(ATrue, return(__return), X) && 0 <= __return && __return < m + 1 &&
+    Ensure safeExec(ATrue, return(__return), X) && 0 <= __return && __return < m + 1 &&
            store_char_array(str, n + 1, app(str0, cons(0, nil))) *
            store_int_array(vnext, m, vnext0) 
 */
 {
     /*@ Inv
-        Exec(ATrue, inner_loop(0, str0, vnext0, ch, j), X) && 
+        safeExec(ATrue, inner_loop(0, str0, vnext0, ch, j), X) && 
         str == str@pre && vnext == vnext@pre &&
         store_char_array(str, n + 1, app(str0, cons(0, nil))) *
         store_int_array(vnext, m, vnext0)
@@ -86,10 +86,10 @@ int * constr(char *patn)
 int * constr(char *patn) 
   /*@ low_level_spec
       With str n X
-      Require Exec(ATrue, constr_loop(0, str), X) && n > 0 && n < INT_MAX &&
+      Require safeExec(ATrue, constr_loop(0, str), X) && n > 0 && n < INT_MAX &&
               store_char_array(patn, n + 1, app(str, cons(0, nil)))
       Ensure exists (vnext: list Z),
-               Exec(ATrue, return(vnext), X) &&
+               safeExec(ATrue, return(vnext), X) &&
                store_int_array(__return, n, vnext) *
                store_char_array(patn, n + 1, app(str, cons(0, nil)))
   */
@@ -101,7 +101,7 @@ int * constr(char *patn)
     int i = 1;
     /*@ Inv Assert
         exists vnext0 l0,
-          Exec(ATrue, constr_loop_from(0, str, i, vnext0, j), X) &&
+          safeExec(ATrue, constr_loop_from(0, str, i, vnext0, j), X) &&
           patn == patn@pre && 
           len == n && n < INT_MAX && 1 <= i &&
           store_char_array(patn, n + 1, app(str, cons(0, nil))) *
@@ -144,13 +144,13 @@ int match(char *patn, char *text, int *vnext)
 int match(char *patn, char *text, int *vnext)
 /*@ low_level_spec
     With patn0 text0 vnext0 n m X
-    Require Exec(ATrue, match_loop(0, patn0, text0, vnext0), X) && 
+    Require safeExec(ATrue, match_loop(0, patn0, text0, vnext0), X) && 
             n > 0 && n < INT_MAX && m < INT_MAX &&
             store_char_array(patn, n + 1, app(patn0, cons(0, nil))) *
             store_char_array(text, m + 1, app(text0, cons(0, nil))) *
             store_int_array(vnext, n, vnext0)
     Ensure exists ret,
-             Exec(ATrue, return(ret), X) && __return == option_int_repr(ret) &&
+             safeExec(ATrue, return(ret), X) && __return == option_int_repr(ret) &&
              store_char_array(patn, n + 1, app(patn0, cons(0, nil))) *
              store_char_array(text, m + 1, app(text0, cons(0, nil))) *
              store_int_array(vnext, n, vnext0)
@@ -161,7 +161,7 @@ int match(char *patn, char *text, int *vnext)
     int patn_len = strlen(patn) /*@ where l = patn0, n = n*/;
     int i = 0;
     /*@ Inv
-        Exec(ATrue, match_loop_from(0, patn0, text0, vnext0, i, j), X) &&
+        safeExec(ATrue, match_loop_from(0, patn0, text0, vnext0, i, j), X) &&
         vnext == vnext@pre && text == text@pre && patn == patn@pre &&
         text_len == m && patn_len == n &&
         n < INT_MAX && m < INT_MAX && i >= 0 &&

@@ -31,7 +31,7 @@ Class AndSemantics
       (L: Language)
       {andpL: AndLanguage L}
       (MD: Model)
-      (SM: Semantics L MD): Type := {
+      (SM: Semantics L MD):= {
   denote_andp: forall x y, Same_set _ (denotation (x && y)) (Semantics.andp (denotation x) (denotation y));
 }.
 
@@ -39,7 +39,7 @@ Class OrSemantics
       (L: Language)
       {orpL: OrLanguage L}
       (MD: Model)
-      (SM: Semantics L MD): Type := {
+      (SM: Semantics L MD):= {
   denote_orp: forall x y, Same_set _ (denotation (x || y)) (Semantics.orp (denotation x) (denotation y));
 }.
 
@@ -47,7 +47,7 @@ Class FalseSemantics
       (L: Language)
       {falsepL: FalseLanguage L}
       (MD: Model)
-      (SM: Semantics L MD): Type := {
+      (SM: Semantics L MD):= {
   denote_falsep: Same_set _ (denotation FF) Semantics.falsep
 }.
 
@@ -55,7 +55,7 @@ Class TrueSemantics
       (L: Language)
       {truepL: TrueLanguage L}
       (MD: Model)
-      (SM: Semantics L MD): Type := {
+      (SM: Semantics L MD):= {
   denote_truep: Same_set _ (denotation TT) Semantics.truep
 }.
 
@@ -63,7 +63,7 @@ Class IffSemantics
       (L: Language)
       {iffpL: IffLanguage L}
       (MD: Model)
-      (SM: Semantics L MD): Type := {
+      (SM: Semantics L MD):= {
   denote_iffp: forall x y, Same_set _ (denotation (x <--> y)) (Semantics.iffp (denotation x) (denotation y));
 }.
 
@@ -71,7 +71,7 @@ Class NegSemantics
       (L: Language)
       {negpL: NegLanguage L}
       (MD: Model)
-      (SM: Semantics L MD): Type := {
+      (SM: Semantics L MD):= {
   denote_negp: forall x, Same_set _ (denotation (~~ x)) (Semantics.negp (denotation x));
 }.
 

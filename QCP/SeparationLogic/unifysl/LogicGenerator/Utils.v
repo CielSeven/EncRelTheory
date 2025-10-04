@@ -1,3 +1,4 @@
+Require Import Coq.Lists.List.
 Open Scope list_scope.
 
 Tactic Notation "when" constr(b) ":" tactic3(t) :=
@@ -102,7 +103,7 @@ Notation "'map_with_hint' '(' l1 ',' l2 ')' l" :=
         exact res)
   (only parsing, at level 99).
 
-Inductive ___Flag : Type :=.
+Inductive ___Flag :=.
 
 Ltac if_instance x tac1 tac2 :=
   let z :=

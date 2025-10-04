@@ -85,11 +85,11 @@ Section nat_algs.
      constructor; intros.
      - inversion H; subst; constructor; auto.
      - inversion H; inversion H0; subst.
-       exists (Min.min my mz); split; constructor.
-       + apply Min.le_min_l.
-       + apply Min.le_min_r.
+       exists (Nat.min my mz); split; constructor.
+       + apply Nat.le_min_l.
+       + apply Nat.le_min_r.
        + transitivity mxy; auto.
-       + apply Min.min_glb.
+       + apply Nat.min_glb.
          * transitivity mxy; auto.
          * auto.
   Qed.

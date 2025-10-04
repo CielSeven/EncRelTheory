@@ -1078,7 +1078,7 @@ Fixpoint sep_atom_term_inb (t : SepAtomTerm) (l : SepTerm) : bool :=
 Lemma sep_atom_term_inb_in :
     forall t l,
     sep_atom_term_inb t l = true <-> In t l.
-    intros; split; revert dependent t.
+    intros; split; generalize dependent t.
     - induction l; intros.
       + simpl in H; discriminate.
       + simpl in H.
@@ -1202,7 +1202,7 @@ Qed. *)
         Shuffle t1 t2 ->
         sep_term_denote t1 env --||-- sep_term_denote t2 env.
     intros.
-    revert dependent env.
+    generalize dependent env.
     induction H.
     - subst; intros; apply logic_equiv_refl.
     - intros; specialize (IHShuffle env).
@@ -1226,7 +1226,7 @@ Lemma permutation_equiv :
     forall t1 t2 env,
         Permutation t1 t2 ->
         sep_term_denote t1 env --||-- sep_term_denote t2 env.
-    intros; revert dependent env.
+    intros; generalize dependent env.
     induction H; intros.
     - apply logic_equiv_refl.
     - simpl; split; destruct (IHPermutation env).
@@ -1297,8 +1297,8 @@ Qed.
     t = TForall x pre post ->
     forall_term_denote t env -> (exists_term_denote pre env |-- exists_term_denote post env).
     intros.
-    revert dependent t.
-    revert dependent env.
+    generalize dependent t.
+    generalize dependent env.
     induction x.
     - unfold forall_term_denote; intros.
       rewrite H in H0; simpl in H0; assumption.

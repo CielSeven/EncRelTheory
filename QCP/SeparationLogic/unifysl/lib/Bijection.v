@@ -3,7 +3,7 @@ Require Export Coq.Relations.Relation_Operators.
 Require Export Coq.Relations.Relation_Definitions.
 Require Export Coq.Classes.RelationClasses.
 Require Import Coq.Arith.Arith.
-Require Import Coq.Numbers.Natural.Peano.NPeano.
+Require Import Coq.Arith.PeanoNat.
 Require Import Coq.micromega.Psatz.
 
 Definition image_defined {A B} (R: A -> B -> Prop): Prop :=
@@ -191,14 +191,12 @@ Definition nat2_nat_bijection: bijection (sum nat nat) nat.
     destruct a; inversion H; inversion H0; auto.
   + hnf; intros.
     destruct a1, a2; inversion H; inversion H0; destruct (lt_eq_lt_dec n n0) as [[? | ?] | ?]; try lia; subst; auto.
-  + hnf; intros.
-    destruct (Even.even_odd_dec b) as [H | H].
-    - rewrite (proj1 (Div2.even_odd_double _)), NPeano.double_twice in H.
-      exists (inl (Div2.div2 b)).
-      rewrite H at 1. lia.
-    - rewrite (proj2 (Div2.even_odd_double _)), NPeano.double_twice in H.
-      exists (inr (Div2.div2 b)).
-      rewrite H at 1. lia.
+  + hnf; intros. 
+    destruct (ArithProp.even_odd_cor b) as [m [|]].
+    - exists (inl (Nat.div2 b)). 
+      rewrite H; rewrite Nat.div2_even. lia. 
+    - exists (inr (Nat.div2 b)). 
+      rewrite H; rewrite Nat.div2_succ_double. lia.
 Defined.
 
 Definition natnat_nat_bijection: bijection (prod nat nat) nat.

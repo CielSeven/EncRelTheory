@@ -101,7 +101,7 @@ Lemma length_sublist:
 Proof.
   intros.
   unfold sublist.
-  rewrite skipn_length.
+  rewrite length_skipn.
   rewrite firstn_length_le by lia.
   lia.
 Qed.
@@ -113,8 +113,8 @@ Lemma length_sublist' {A: Type}:
 Proof.
   intros.
   unfold sublist.
-  rewrite skipn_length.
-  rewrite firstn_length.
+  rewrite length_skipn.
+  rewrite length_firstn.
   reflexivity.
 Qed.
 
@@ -160,7 +160,7 @@ Proof.
   rewrite (list_split_nth _ n l a) at 1; try lia.
   unfold sublist.
   rewrite firstn_app.
-  assert (length (firstn n l) = n) by (rewrite firstn_length; lia).
+  assert (length (firstn n l) = n) by (rewrite length_firstn; lia).
   rewrite firstn_all2; try lia. 
   replace ((n + 1) - length (firstn (n) l))%nat with 1%nat by lia.
   rewrite skipn_app.
@@ -178,13 +178,13 @@ Proof.
   intros.
   eapply (list_eq_ext default _ _).
   split.
-  + rewrite app_length.
+  + rewrite length_app.
     rewrite ! length_sublist by lia.
     simpl; lia.
   + intros.
     destruct (le_gt_dec i i0).
     - rewrite app_nth2 by (rewrite length_sublist by lia; lia).
-      rewrite app_length, length_sublist in H1 by lia.
+      rewrite length_app, length_sublist in H1 by lia.
       simpl in H1.
       rewrite !nth_sublist by lia.
       rewrite length_sublist by lia.
@@ -250,7 +250,7 @@ Proof.
   unfold sublist.
   repeat rewrite skipn_firstn.
   rewrite skipn_app.
-  pose proof (skipn_length lo l1).
+  pose proof (length_skipn lo l1).
   replace (length l1 - lo) with O in H1 by lia.
   rewrite length_zero_iff_nil in H1; rewrite H1.
   simpl.
@@ -270,13 +270,13 @@ Proof.
   assert (length l1 = hi).
   {
     rewrite Heql1.
-    rewrite firstn_length.
+    rewrite length_firstn.
     lia.
   }
   assert (length l = length l1 + length l2)%nat.
   {
     rewrite Heql1, Heql2.
-    rewrite firstn_length, skipn_length.
+    rewrite length_firstn, length_skipn.
     lia.
   }
   rewrite H2 in H0.
@@ -294,7 +294,7 @@ Proof.
   assert (length l1 = lo).
   {
     rewrite Heql1.
-    rewrite firstn_length.
+    rewrite length_firstn.
     lia.
   }
   rewrite firstn_app.
@@ -314,7 +314,7 @@ Lemma sublist_nil {A: Type}:
 Proof.
   intros. unfold sublist.
   apply skipn_all2.
-  rewrite firstn_length; lia.
+  rewrite length_firstn; lia.
 Qed.
 
 End List_lemma.
@@ -378,7 +378,7 @@ Proof.
   intros.
   destruct H as [? ?].
   subst.
-  rewrite app_length.
+  rewrite length_app.
   lia.
 Qed.
 
@@ -389,7 +389,7 @@ Proof.
   intros.
   destruct H as [? ?].
   subst.
-  rewrite app_length.
+  rewrite length_app.
   lia.
 Qed.
 
@@ -420,7 +420,7 @@ Proof.
     
     rewrite (list_eq_ext default).
     split.
-    - rewrite app_length.
+    - rewrite length_app.
       rewrite length_sublist by lia.
       lia.
     - intros.
@@ -469,14 +469,14 @@ Proof.
     split; [tauto |].
     intros.
     subst.
-    rewrite app_length.
+    rewrite length_app.
     rewrite app_nth2 by lia.
     f_equal. lia.
   + destruct H.
     exists (sublist 0 (length l2 - length l1) l2).
     rewrite (list_eq_ext default).
     split.
-    - rewrite app_length.
+    - rewrite length_app.
       rewrite length_sublist by lia.
       lia.
     - intros.
@@ -524,7 +524,7 @@ Lemma is_prefix_snoc_iff: forall {A: Type} default (l1 l2: list A) a,
 Proof.
   intros.
   rewrite !(prefix_iff default).
-  rewrite app_length; simpl.
+  rewrite length_app; simpl.
   split; intros.
   + destruct H.
     split; [| split; [split |]].
@@ -679,7 +679,7 @@ Proof.
       split; [auto | ].
       split; [| split].
       * apply prefix_length in H0.
-        rewrite app_length in H0; simpl in H0.
+        rewrite length_app in H0; simpl in H0.
         lia.
       * destruct H0.
         subst patn.
@@ -717,7 +717,7 @@ Proof.
   - unfold is_prefix in H.
     destruct H as [l3 H].
     exists (length l1).
-    pose proof app_length l1 l3.
+    pose proof length_app l1 l3.
     subst; split; try lia.
     rewrite sublist_split_app_l; try lia.
     rewrite sublist_self; easy.
@@ -740,7 +740,7 @@ Proof.
   - unfold is_suffix in H.
     destruct H as [l3 H].
     exists (length l3).
-    pose proof app_length l3 l1.
+    pose proof length_app l3 l1.
     subst; split; try lia.
     rewrite sublist_split_app_r with (len:= length l3); try lia.
     rewrite H0.
@@ -840,7 +840,7 @@ Proof.
     rewrite suffix_iff' in *.
     destruct H1 as [_ H1]; split; try easy.
     intros. specialize (H1 default i H).
-    rewrite app_length in H1.
+    rewrite length_app in H1.
     rewrite app_nth2 in H1 by lia.
     replace (length l3 + length l2 - 1 - i - length l3) 
       with (length l2 - 1 - i) in H1 by lia; auto.

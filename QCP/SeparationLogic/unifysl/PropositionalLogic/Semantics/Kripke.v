@@ -113,7 +113,7 @@ Class KripkeAndSemantics
       (MD: Model)
       {kMD: KripkeModel MD}
       (M: Kmodel)
-      (SM: Semantics L MD): Type := {
+      (SM: Semantics L MD):= {
   denote_andp: forall x y, Same_set _ (Kdenotation M (x && y)) (Semantics.andp (Kdenotation M x) (Kdenotation M y));
 }.
 
@@ -123,7 +123,7 @@ Class KripkeOrSemantics
       (MD: Model)
       {kMD: KripkeModel MD}
       (M: Kmodel)
-      (SM: Semantics L MD): Type := {
+      (SM: Semantics L MD):= {
   denote_orp: forall x y, Same_set _ (Kdenotation M (x || y)) (Semantics.orp (Kdenotation M x) (Kdenotation M y));
 }.
 
@@ -133,7 +133,7 @@ Class KripkeFalseSemantics
       (MD: Model)
       {kMD: KripkeModel MD}
       (M: Kmodel)
-      (SM: Semantics L MD): Type := {
+      (SM: Semantics L MD):= {
   denote_falsep: Same_set _ (Kdenotation M FF) Semantics.falsep
 }.
 
@@ -143,7 +143,7 @@ Class KripkeTrueSemantics
       (MD: Model)
       {kMD: KripkeModel MD}
       (M: Kmodel)
-      (SM: Semantics L MD): Type := {
+      (SM: Semantics L MD):= {
   denote_truep: Same_set _ (Kdenotation M TT) Semantics.truep
 }.
 
@@ -154,7 +154,7 @@ Class KripkeIffSemantics
       {kMD: KripkeModel MD}
       (M: Kmodel)
       {R: Relation (Kworlds M)}
-      (SM: Semantics L MD): Type := {
+      (SM: Semantics L MD):= {
   denote_iffp: forall x y, Same_set _ (Kdenotation M (x <--> y)) (Semantics.iffp (Kdenotation M x) (Kdenotation M y));
 }.
 
@@ -165,7 +165,7 @@ Class KripkeNegSemantics
       {kMD: KripkeModel MD}
       (M: Kmodel)
       {R: Relation (Kworlds M)}
-      (SM: Semantics L MD): Type := {
+      (SM: Semantics L MD):= {
   denote_negp: forall x, Same_set _ (Kdenotation M (~~ x)) (Semantics.negp (Kdenotation M x));
 }.
 

@@ -10,7 +10,7 @@
   *   - Exec: Encodes the execution of a high-level program.
   *   - Lemma encode_exp_equiv: EX v, [|P v|](X) --||-- [|EX v, (P v)|](X) 
   *   - Lemma encode_prop_andp:  !! B && P --||-- !! B && [| P |](X)
-  *   - Lemma encode_decomposed: [| ⌊ P ⌋ && ⌈ P' ⌉ && [cₕ ]ₕ |](X) --||-- !! Exec P' cₕ X && P
+  *   - Lemma encode_decomposed: [| ⌊ P ⌋ && ⌈ P' ⌉ && [ₕ cₕ ]ₕ |](X) --||-- !! Exec P' cₕ X && P
   *)
   
 From SetsClass Require Import SetsClass. 
@@ -58,9 +58,9 @@ End  encoding.
 
 
 
-Arguments safe {Σₕ Progₕ Postasrt}%type_scope {HDefs}.
-Arguments Exec {Σₕ Progₕ Postasrt}%type_scope {HDefs}. 
-Arguments encode_asrt {Σₗ Σₕ Progₕ Postasrt}%type_scope {HDefs}.
+Arguments safe {Σₕ Progₕ Postasrt}%_type_scope {HDefs}.
+Arguments Exec {Σₕ Progₕ Postasrt}%_type_scope {HDefs}. 
+Arguments encode_asrt {Σₗ Σₕ Progₕ Postasrt}%_type_scope {HDefs}.
 
 Notation " '[|' P '|]' '(' x ')' " := (encode_asrt P x)  (at level 20, no associativity) : asrt_scope. 
 
@@ -157,7 +157,7 @@ Qed.
 
 
 Lemma encode_decomposed: forall X (P: @asrt Σₗ) (P' : @asrt Σₕ) cₕ,
-  [|⌊ P ⌋ && ⌈ P' ⌉ && [cₕ ]ₕ|](X) --||-- !! Exec P' cₕ X && P.
+  [|⌊ P ⌋ && ⌈ P' ⌉ && [ₕ cₕ ]ₕ|](X) --||-- !! Exec P' cₕ X && P.
 Proof.
   intros;split.
   { unfold derivable1, andp, coq_prop, encode_asrt, andp, Alst, Ahst, Aspec, Exec.
@@ -209,7 +209,7 @@ Qed.
 
 
 Lemma encode_normal_form {A:Type}: forall B (P: A -> @asrt Σₗ) (P': A ->  @asrt Σₕ) cₕ X,
-  [|EX a : A, !! B a && ⌊ P a ⌋ && ⌈ P' a ⌉ && [cₕ ]ₕ|](X) --||-- 
+  [|EX a : A, !! B a && ⌊ P a ⌋ && ⌈ P' a ⌉ && [ₕ cₕ ]ₕ|](X) --||-- 
   EX a : A, !! Exec (P' a) cₕ X && !! B a && P a.
 Proof.
   intros.

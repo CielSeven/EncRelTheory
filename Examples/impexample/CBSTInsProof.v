@@ -5,15 +5,13 @@ Require Import Coq.Classes.RelationClasses.
 Require Import Coq.Classes.Morphisms.
 Require Import Coq.micromega.Psatz.
 Require Import Permutation.
-Require Import Coq.Logic.Classical_Prop.
 
 From AUXLib Require Import Feq Idents  List_lemma VMap int_auto ListLib.
 From compcert.lib Require Import Integers.
 From LangLib.ImpP Require Import PermissionModel Mem mem_lib Imp Assertion ImpTactics ImpHoareTactics slllib bst_lib. 
 From EncRelSeq Require Import callsem basicasrt contexthoare_imp. 
 From EncRelSeq.MonadsAsHigh.AbsMonad Require Import  encimpmonad.
-Require Import MonadLib.MonadLib.
-Import StateRelMonad.
+Require Import MonadLib.StateRelMonad.StateRelMonad.
 From Examples Require Import  CBSTInsert bst.
 From SetsClass Require Import SetsClass.
 Local Open Scope sets.
@@ -37,13 +35,13 @@ Local Open Scope monad.
 Definition tree_ins_spec := {|
   FS_With := ((tree) -> unit -> Prop) * Z * Z * addr ;
   FS_Pre := fun '(X, kv, vv, pv) =>
-            (EX t pvv, !! (Exec ATrue (insert kv vv t) X) &&
+            (EX t pvv, !! (safeExec ATrue (insert kv vv t) X) &&
             !! ( Int64.min_signed <= kv <= Int64.max_signed ) &&
             GV _arg1 @ vint ↦ₗ kv && GV _arg2 @ vint ↦ₗ vv && 
             GV _arg3 @ vptr ↦ₗ pv && 
             vPV pv @ vptr ↦ₗ pvv $ ➀ ** store_tree ➀ pvv t);
   FS_Post := fun '(X, kv, vv, pv) =>
-            (EX t pvv, !! (Exec ATrue (return t) X) &&
+            (EX t pvv, !! (safeExec ATrue (return t) X) &&
             vPV pv @ vptr ↦ₗ pvv $ ➀ ** store_tree ➀ pvv t);
 |}.
 
@@ -93,7 +91,7 @@ Proof.
   (* While _break != 0 *)
   eapply hoare_conseq_pre with (P':= 
   EX bv p p_ptr t Pt,
-  !! (Exec ATrue (x <- (insert k v t) ;; return (combine_tree Pt x)) X) &&
+  !! (safeExec ATrue (x <- (insert k v t) ;; return (combine_tree Pt x)) X) &&
   !! (bv = 1 ->  tree_rooteq t k v) && 
   !! (isvalidptr p) &&
   LV _break @ vint ↦ₗ bv && 

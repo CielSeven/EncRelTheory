@@ -12,7 +12,7 @@ Class BasicLogicEquiv (L:Language) (Gamma:LogicEquiv L) := {
   logic_equiv_symm:forall x y,x --||-- y -> y --||-- x;
   logic_equiv_trans: forall x y z, x --||-- y -> y --||-- z -> x --||-- z}.
 
-Class EquivDerivable1 (L:Language) (GammaD:Derivable1 L) (GammaL:LogicEquiv L): Type :={
+Class EquivDerivable1 (L:Language) (GammaD:Derivable1 L) (GammaL:LogicEquiv L) :={
   __logic_equiv_derivable1:forall x y,x --||-- y <->
                         derivable1 x y /\ derivable1 y x
 }.

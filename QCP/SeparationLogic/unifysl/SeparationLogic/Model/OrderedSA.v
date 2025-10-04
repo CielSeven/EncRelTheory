@@ -55,7 +55,7 @@ Qed.
 Class IncreasingSeparationAlgebra
       (worlds: Type)
       {R: Relation worlds}
-      {J: Join worlds }: Type :=
+      {J: Join worlds }:=
 {
   all_increasing: forall x: worlds, increasing x
 }.
@@ -64,7 +64,7 @@ Class IncreasingSeparationAlgebra
   (* -Legacy definition-            *
    * Garbage Collected algebra      *
    * Is equivalent to increasing *)  
-Class GarbageCollectSeparationAlgebra(worlds: Type) {kiM: KripkeIntuitionisticModel worlds} {J: Join worlds }: Type :=
+Class GarbageCollectSeparationAlgebra(worlds: Type) {kiM: KripkeIntuitionisticModel worlds} {J: Join worlds }:=
   {
     join_has_order1: forall (m1 m2 m: worlds), join m1 m2 m -> m1 <= m
   }.
@@ -103,7 +103,7 @@ Definition residue
 Class ResidualSeparationAlgebra
       (worlds: Type)
       {R: Relation worlds}
-      {J: Join worlds}: Type :=
+      {J: Join worlds}:=
 {
   residue_exists: forall n: worlds, exists m, residue n m;
 }.
@@ -111,7 +111,7 @@ Class ResidualSeparationAlgebra
 Class UnitalSeparationAlgebra
       (worlds: Type)
       {R: Relation worlds}
-      {J: Join worlds}: Type :=
+      {J: Join worlds}:=
 {
   incr_exists: forall n: worlds, exists m, residue n m /\ increasing m
 }.
@@ -119,7 +119,7 @@ Class UnitalSeparationAlgebra
 Class UnitalSeparationAlgebra'
       (worlds: Type)
       {R: Relation worlds}
-      {J: Join worlds}: Type :=
+      {J: Join worlds}:=
 {
   incr'_exists: forall n: worlds, exists m, residue n m /\ increasing' m
 }.
@@ -161,7 +161,7 @@ Class IncreasingJoinSelfSeparationAlgebra
       (worlds: Type)
       {R: Relation worlds}
       {U: Unit worlds}
-      {J: Join worlds}: Type :=
+      {J: Join worlds}:=
   incr_join_self:
     forall m, is_unit m -> join m m m.
 
@@ -169,14 +169,14 @@ Class IncreasingSplitSmallerSeparationAlgebra
       (worlds: Type)
       {R: Relation worlds}
       {J: Join worlds}
-      {U: Unit worlds}: Type :=
+      {U: Unit worlds}:=
   incr_split_smaller:
     forall m1 m2 m, is_unit m -> join m1 m2 m -> m1 <= m.
 
 Class UpwardsClosedSeparationAlgebra
       (worlds: Type)
       {R: Relation worlds}
-      {J: Join worlds}: Type :=
+      {J: Join worlds}:=
   join_Korder_up: forall m n m1 m2: worlds,
     join m1 m2 m -> m <= n ->
     exists n1 n2, join n1 n2 n /\ m1 <= n1 /\ m2 <= n2.
@@ -184,7 +184,7 @@ Class UpwardsClosedSeparationAlgebra
 Class DownwardsClosedSeparationAlgebra
       (worlds: Type)
       {R: Relation worlds}
-      {J: Join worlds}: Type :=
+      {J: Join worlds}:=
   join_Korder_down: forall m1 m2 m n1 n2: worlds,
     join m1 m2 m -> n1 <= m1 -> n2 <= m2 ->
     exists n, join n1 n2 n /\ n <= m.

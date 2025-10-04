@@ -430,7 +430,7 @@ Section  encrules.
 (**********************************************************************************)
 
   Lemma  reltriple_triple_equiv1 : forall P Ps (s: @denosem Σₕ) c Q,
-    Δ ⩅ Γ ⊢ ⟨ ⌊ P ⌋ && ⌈ Ps ⌉ && [ s ]ₕ ⟩ c ⟨ Q ⟩ <->
+    Δ ⩅ Γ ⊢ ⟨ ⌊ P ⌋ && ⌈ Ps ⌉ && [ₕ s ]ₕ ⟩ c ⟨ Q ⟩ <->
     (forall X, (Δ ++ (| Γ |)) ⊢ {{!! Exec Ps s X && P}} c {{[| Q |](X)}}).
   Proof.
     intros;split.
@@ -448,7 +448,7 @@ Section  encrules.
   Qed.
 
   Lemma  reltriple_triple_equiv {A: Type}: forall P Ps (s: @denosem Σₕ) c B Q Ps',
-    Δ ⩅ Γ ⊢ ⟨ ⌊ P ⌋ && ⌈ Ps ⌉ && [ s ]ₕ ⟩ c ⟨EX (a:A), !! (B a) && ⌊ Q a ⌋ && ⌈ Ps' a⌉ && [ skip ]ₕ ⟩ <->
+    Δ ⩅ Γ ⊢ ⟨ ⌊ P ⌋ && ⌈ Ps ⌉ && [ₕ s ]ₕ ⟩ c ⟨EX (a:A), !! (B a) && ⌊ Q a ⌋ && ⌈ Ps' a⌉ && [ₕ skip ]ₕ ⟩ <->
     (forall X : Σₕ -> Prop,
     (Δ ++ (| Γ |)) ⊢ {{!! Exec Ps s X && P}} c {{EX a, !! Exec (Ps' a) skip X && !! (B a) && (Q a)}}).
   Proof.
@@ -484,7 +484,7 @@ Section  encrules.
 
   Lemma comp_fc_as_conseq :forall 
   P (cₗ: Langstmts) (cₕ: denosem) Q (Pₕ Qₕ: @asrt Σₕ),
-  ((forall X,  (Δ ++ (| Γ |)) ⊢ {{ [|↑ P && [cₕ ]ₕ|](X) }} cₗ {{ [|↑ Q && [skip ]ₕ|](X) }})) -> 
+  ((forall X,  (Δ ++ (| Γ |)) ⊢ {{ [|↑ P && [ₕ cₕ ]ₕ|](X) }} cₗ {{ [|↑ Q && [ₕ skip ]ₕ|](X) }})) -> 
   ⊢∀ {{ Pₕ }} cₕ {{ Qₕ }} ->
    (Δ ++ (| Γ |)) ⊢ {{ P ⋈_π Pₕ }} cₗ {{ Q ⋈_π Qₕ }}.
 Proof.

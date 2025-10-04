@@ -214,7 +214,7 @@ Proof.
   unfold gmergesortrec_loc0.
   rewrite (gmergesortrec_unfold l) in H2.
   unfold gmergesortrec_f in H2.
-  apply Exec_choice_right in H2.
+  apply safeExec_choice_r in H2.
   unfold seq in H2.
   rewrite (split_rel_refine_ext_split l).
   prove_by_one_abs_step tt.
@@ -248,7 +248,7 @@ Proof.
   pre_process.
   rewrite (gmergesortrec_unfold l) in H4.
   unfold gmergesortrec_f in H4.
-  apply Exec_choice_left in H4.
+  apply safeExec_choice_l in H4.
   Exists l0_2.
   entailer!.
   revert H4; apply (highstependret_derive _ _ _ (fun _ => ATrue)).
@@ -273,7 +273,7 @@ Lemma proof_of_merge_sort3_derive_low_level_spec_aux_by_low_level_spec : merge_s
 Proof.
   pre_process.
   Exists l.
-  eapply Exec_bind in H0 as (X' & ? & ?).
+  eapply safeExec_bind in H0 as (X' & ? & ?).
   Exists X'.
   entailer!.
   apply derivable1_wand_sepcon_adjoint.
@@ -289,13 +289,13 @@ Proof.
   Exists l.
   eExists.
   entailer!.
-  2: apply Exec_monad_Atrue_finnal.
+  2: apply safeExec_monad_Atrue_finnal.
   apply derivable1_wand_sepcon_adjoint.
   entailer!.
   Intros retl retaddr.
   Exists retl retaddr.
   pose proof functional_correctness_gmergesort.
-  unfold Exec, safe in H0.
+  unfold safeExec, safe in H0.
   unfold Hoare in H1.
   my_destruct H0.
   assert (ATrue tt).
@@ -314,7 +314,7 @@ Lemma proof_of_merge_sort2_derive_low_level_spec_aux_by_low_level_spec : merge_s
 Proof.
   pre_process.
   Exists l.
-  eapply Exec_bind in H as (X' & ? & ?).
+  eapply safeExec_bind in H as (X' & ? & ?).
   Exists X'.
   entailer!.
   apply derivable1_wand_sepcon_adjoint.
@@ -331,12 +331,12 @@ Proof.
   Exists (gmergesortrec l tt).
   rewrite logic_equiv_coq_prop_andp_sepcon.
   entailer!.
-  2: apply Exec_monad_Atrue_finnal.
+  2: apply safeExec_monad_Atrue_finnal.
   apply derivable1_wand_sepcon_adjoint.
   entailer!.
   Intros retl retaddr.
   Exists retl retaddr.
-  eapply Exec_ret_Atrue_finnal in H as [? ? ].
+  eapply safeExec_ret_Atrue_finnal in H as [? ? ].
   pose proof functional_correctness_gmergesort.
   unfold Hoare in H0.
   assert (ATrue tt).
@@ -349,7 +349,7 @@ Lemma proof_of_merge_sort_derive_low_level_spec_aux_by_low_level_spec : merge_so
 Proof.
   pre_process.
   Exists l.
-  eapply Exec_bind in H as (X' & ? & ?).
+  eapply safeExec_bind in H as (X' & ? & ?).
   Exists X'.
   entailer!.
   apply derivable1_wand_sepcon_adjoint.
@@ -366,12 +366,12 @@ Proof.
   Exists (mergesortrec l tt).
   rewrite logic_equiv_coq_prop_andp_sepcon.
   entailer!.
-  2: apply Exec_monad_Atrue_finnal.
+  2: apply safeExec_monad_Atrue_finnal.
   apply derivable1_wand_sepcon_adjoint.
   entailer!.
   Intros retl retaddr.
   Exists retl retaddr.
-  eapply Exec_ret_Atrue_finnal in H as [? ? ].
+  eapply safeExec_ret_Atrue_finnal in H as [? ? ].
   pose proof functional_correctness_mergesort.
   unfold Hoare in H0.
   assert (ATrue tt).
@@ -385,7 +385,7 @@ Proof.
   pre_process.
   Intros qptr pptr.
   Exists l l1 l2.
-  eapply Exec_bind in H as (X' & ? & ?).
+  eapply safeExec_bind in H as (X' & ? & ?).
   Exists X'.
   entailer!.
   Exists qptr.

@@ -1,7 +1,6 @@
 Require Import Coq.Classes.RelationClasses.
 From SetsClass Require Import SetsClass.
-Require Import MonadLib.MonadLib.
-Import StateRelMonadErr.
+Require Import MonadLib.MonadErr.StateRelMonadErr.
 From EncRelSeq.Basics Require Import basicasrt relasrt.
 From EncRelSeq Require Export semantics errsem.
 
@@ -98,7 +97,7 @@ Section reltriple_correct.
   Local Open Scope asrt_scope.
 
   Lemma quadruple2reltriple {A: Type}: forall (P: @binasrt Σₗ Σₕ ) (cₗ: (@denosem Σₗ))  (cₕ: program Σₕ A)  (Q : A -> @binasrt Σₗ Σₕ),
-    ⊢ {{P}} cₗ ≾ cₕ {{Q}} <-> ⊢ ⟨ ↑ P && [cₕ ]ₕ ⟩ cₗ ⟨ EX r : A, ↑ (Q r) && [ret r]ₕ  ⟩.
+    ⊢ {{P}} cₗ ≾ cₕ {{Q}} <-> ⊢ ⟨ ↑ P && [ₕ cₕ ]ₕ ⟩ cₗ ⟨ EX r : A, ↑ (Q r) && [ₕ ret r ]ₕ  ⟩.
   Proof.
     intros;split.
     - unfold valid_RelTriples, valid_quadruples.

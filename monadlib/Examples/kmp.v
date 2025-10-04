@@ -7,10 +7,7 @@ Require Import Coq.micromega.Psatz.
 Require Import Coq.Sorting.Permutation.
 From SetsClass Require Import SetsClass.
 From AUXLib Require Import List_lemma VMap ListLib.
-
-Require Import MonadLib.MonadLib.
-
-Import StateRelMonadErr.
+Require Import MonadLib.MonadErr.StateRelMonadErr.
 
 
 
@@ -200,7 +197,7 @@ Proof.
   split; intros.
   + pose proof prefix_Zlength _ _ H.
     destruct H as [? ?].
-    split; [tauto | ].
+    split; [tauto |].
     intros.
     subst.
     rewrite app_Znth1 by lia.
@@ -231,7 +228,7 @@ Proof.
   intros.
   split; intros.
   + pose proof prefix_Zlength _ _ H.
-    split; [tauto | ].
+    split; [tauto |].
     intros d.
     rewrite (prefix_iff d) in H.
     tauto.
@@ -255,7 +252,7 @@ intros.
 split; intros.
 + pose proof suffix_Zlength _ _ H.
   destruct H as [? ?].
-  split; [tauto | ].
+  split; [tauto |].
   intros.
   subst.
   rewrite Zlength_app.
@@ -292,7 +289,7 @@ Proof.
   intros.
   split; intros.
   + pose proof suffix_Zlength _ _ H.
-    split; [tauto | ].
+    split; [tauto |].
     intros d.
     rewrite (suffix_iff d) in H.
     tauto.
@@ -317,7 +314,7 @@ Proof.
   rewrite Zlength_app, Zlength_cons, Zlength_nil.
   split; intros.
   + destruct H.
-    split; [ | split; [split | ]].
+    split; [| split; [split |]].
     - lia.
     - lia.
     - intros.
@@ -333,7 +330,7 @@ Proof.
       rewrite Znth0_cons.
       reflexivity.
   + destruct H as [? [[_ ?] ?]].
-    split; [lia | ].
+    split; [lia |].
     intros.
     destruct (Z_lt_ge_dec i (Zlength l1)).
     - rewrite app_Znth1 by lia.
@@ -390,7 +387,7 @@ Proof.
   intros ? ? ? ?.
   rewrite !prefix_iff'.
   intros [? ?] [? ?] ?.
-  split; [lia | ].
+  split; [lia |].
   intros.
   rewrite H0, H2 by lia.
   reflexivity.
@@ -406,7 +403,7 @@ Proof.
   intros ? ? ? ?.
   rewrite !suffix_iff'.
   intros [? ?] [? ?] ?.
-  split; [lia | ].
+  split; [lia |].
   intros.
   rewrite H0, H2 by lia.
   reflexivity.
@@ -467,7 +464,7 @@ Proof.
       apply is_suffix_snoc_snoc_iff in H.
       destruct H; subst ch0.
       split; [auto | ].
-      split; [ | split].
+      split; [| split].
       * apply prefix_Zlength in H0.
         rewrite Zlength_app, Zlength_cons, Zlength_nil in H0.
         lia.
@@ -825,7 +822,7 @@ Proof.
     rewrite H; auto.
   - right; exists (sublist 0 (j0 - 1) patn).
     destruct H. 
-    split; [ | split; [ | split]].
+    split; [| split; [ | split]].
     + rewrite (sublist_split 0 j0 (j0-1)); try lia.
       rewrite sublist_single' with (a:=default) by lia.
       rewrite H; auto.
@@ -1126,7 +1123,7 @@ Proof.
      pose proof suffix_Zlength _ _ H0.
      remember (sublist 0 j l) as lj.
      rewrite Zlength_sublist in H3 by lia.
-     split; [split; [split | ] | ].
+     split; [split; [split |] |].
      + apply prefix_sublist_iff; try lia.
        split; [lia | auto].
      + apply suffix_sublist_cons_iff in H0; [tauto | lia].

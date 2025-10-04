@@ -1,9 +1,15 @@
 From SetsClass Require Import SetsClass.
-Require Import MonadLib.MonadLib.
-Import StateRelMonad.
+Require Import MonadLib.StateRelMonad.StateRelMonad.
 From EncRelSeq.Basics Require Import semantics basicasrt relasrt hoarelogic encdefs encrel.
-From EncRelSeq.UBError Require Import errsem hoarelogic encrel.
 From EncRelSeq.MonadsAsHigh.AbsMonad Require Import relhoarelogic.
+
+Import SetsNotation.
+Local Open Scope sets_scope.
+Local Open Scope asrt_scope.
+
+#[export] Instance staterelmonad_highlevel_defs {Σ A: Type} : highlevel_defs Σ (program Σ A) (A -> Σ -> Prop) := {|
+  highlevel_wlp := @weakestpre Σ A
+|}.
 
 
 Module EncNormalDenoAbsMonad.
@@ -60,7 +66,7 @@ Section normal_validity_soundness.
   Qed. 
 
   Theorem quadruple_conrrectness : forall {A: Type} (P: @binasrt Σₗ Σₕ ) (cₗ: denosem)  (cₕ: program Σₕ A)  (Q : A -> @binasrt Σₗ Σₕ),
-    ⊢ {{P}} cₗ ≾ cₕ {{Q}} <-> ⊢ₑ ⟨ ↑ P && [cₕ ]ₕ ⟩ cₗ ⟨ EX r : A, ↑ (Q r) && [ret r]ₕ ⟩.
+    ⊢ {{P}} cₗ ≾ cₕ {{Q}} <-> ⊢ₑ ⟨ ↑ P && [ₕ cₕ ]ₕ ⟩ cₗ ⟨ EX r : A, ↑ (Q r) && [ₕ ret r ]ₕ ⟩.
   Proof.
     intros.
     split;intros.
@@ -73,7 +79,7 @@ Section normal_validity_soundness.
 
   Section absnoret.
      Lemma quadruple2reltriple_noret : forall  (P: @binasrt Σₗ Σₕ ) (cₗ: denosem)  (cₕ: program Σₕ unit)  (Q :  @binasrt Σₗ Σₕ),
-    ⊢ {{P}} cₗ ≾ cₕ {{fun _ => Q}} <-> ⊢ₑ ⟨ ↑ P && [cₕ ]ₕ ⟩ cₗ ⟨ ↑ (Q) && [ret tt]ₕ ⟩.
+    ⊢ {{P}} cₗ ≾ cₕ {{fun _ => Q}} <-> ⊢ₑ ⟨ ↑ P && [ₕ cₕ ]ₕ ⟩ cₗ ⟨ ↑ (Q) && [ₕ ret tt ]ₕ ⟩.
   Proof.
     intros.
     etransitivity.
@@ -125,7 +131,7 @@ Import RelHoareNormalDenoAsbMonad.
 (**********************************************************************************)
 
   Lemma  reltriple_triple_equiv1 {A:Type}: forall (P: @asrt Σₗ) Ps (s: program Σₕ A) c Q,
-    ⊢ ⟨ ⌊ P ⌋ && ⌈ Ps ⌉ && [ s ]ₕ ⟩ c ⟨ Q ⟩ <->
+    ⊢ ⟨ ⌊ P ⌋ && ⌈ Ps ⌉ && [ₕ s ]ₕ ⟩ c ⟨ Q ⟩ <->
     (forall X, ⊢∀ {{!! Exec Ps s X && P}} c {{[|Q|](X)}}).
   Proof.
     intros;split.
@@ -143,7 +149,7 @@ Import RelHoareNormalDenoAsbMonad.
   Qed.
 
   Lemma  reltriple_triple_equiv {A R: Type}: forall (P: @asrt Σₗ) Ps (s: program Σₕ R) c B Q Ps',
-    ⊢ ⟨ ⌊ P ⌋ && ⌈ Ps ⌉ && [ s ]ₕ ⟩ c ⟨EX (r: R) (a:A), !! (B a r) && ⌊ Q a r ⌋ && ⌈ Ps' a r⌉ && [ ret r ]ₕ ⟩ <->
+    ⊢ ⟨ ⌊ P ⌋ && ⌈ Ps ⌉ && [ₕ s ]ₕ ⟩ c ⟨EX (r: R) (a:A), !! (B a r) && ⌊ Q a r ⌋ && ⌈ Ps' a r⌉ && [ₕ ret r ]ₕ ⟩ <->
     (forall X : R -> Σₕ -> Prop,
     ⊢∀ {{!! Exec Ps s X && P}} c {{EX r a, !! Exec (Ps' a r) (ret r) X && !! (B a r) && (Q a r)}}).
   Proof.
@@ -205,7 +211,7 @@ Section composition_rules.
 
 Lemma comp_fc_as_conseq {Σₗ Σₕ A: Type}:forall 
   (P: @binasrt Σₗ Σₕ) (cₗ: denosem) (cₕ: program Σₕ A) (Q: A -> @binasrt Σₗ Σₕ) (Pₕ: @asrt Σₕ) Qₕ,
-  ((forall X, ⊢∀ {{ [|↑ P && [cₕ ]ₕ|](X) }} cₗ {{ [|EX a, ↑ Q a && [ret a ]ₕ|](X) }})) -> 
+  ((forall X, ⊢∀ {{ [|↑ P && [ₕ cₕ ]ₕ|](X) }} cₗ {{ [|EX a, ↑ Q a && [ₕ ret a ]ₕ|](X) }})) -> 
   StateRelHoare.Hoare Pₕ cₕ Qₕ ->
   ⊢∀ {{ P ⋈_π Pₕ }} cₗ {{ EX a, (Q a) ⋈_π (Qₕ a) }}.
 Proof.

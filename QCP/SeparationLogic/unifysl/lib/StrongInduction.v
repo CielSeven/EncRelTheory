@@ -20,7 +20,7 @@ Proof.
 Qed.
 
 Ltac strong_induction n :=
-  revert dependent n;
+  generalize dependent n;
   intro n;
   pattern n;
   revert n;

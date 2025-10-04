@@ -82,19 +82,19 @@ Definition _constr := 2%positive.
 *)
 
 Definition f_inner : com := <{
-  _str := %_arg1;
-  _vnext := %_arg2;
-  _ch := %_arg3;
-  _j := %_arg4;
+  _str := % _arg1;
+  _vnext := % _arg2;
+  _ch := % _arg3;
+  _j := % _arg4;
   _str_j := [_str + _j ];
   While (  0 < _j  && _str_j != _ch )  Do
     _j := [_vnext + ( _j - 1)];
     _str_j := [_str + _j ]
   End;
   If _str_j == _ch Then
-    %_ret1 := _j + 1
+    % _ret1 := _j + 1
   Else
-  %_ret1 := 0
+  % _ret1 := 0
   End
 }>.
 
@@ -106,20 +106,20 @@ Definition f_inner : com := <{
 
 
 Definition f_constr : com := <{
-  _str := %_arg1;
-  _vnext := %_arg2;
-  _n := %_arg5;
+  _str := % _arg1;
+  _vnext := % _arg2;
+  _n := % _arg5;
   [_vnext + 0] := 0;
   _j := 0;
   _i := 1;
   While ( _i < _n )  Do
     _ch := [_str + _i];
-    %_arg1 := _str;
-    %_arg2 := _vnext;
-    %_arg3 := _ch;
-    %_arg4 := _j;
+    % _arg1 := _str;
+    % _arg2 := _vnext;
+    % _arg3 := _ch;
+    % _arg4 := _j;
     Call ( _inner );
-    _j := %_ret1;
+    _j := % _ret1;
     [_vnext + _i] := _j;
     _i := _i + 1
   End

@@ -10,12 +10,12 @@ Require Import Logic.MinimumLogic.ProofTheory.TheoryOfSequentCalculus.
 Require Import Logic.MinimumLogic.ProofTheory.Minimum.
 Require Import Logic.MinimumLogic.ProofTheory.TheoryOfJudgement.
 
-Inductive P2D_reg: Type :=.
-Inductive D2P_reg: Type :=.
-Inductive P2D1_reg: Type :=.
-Inductive P2E_reg: Type :=.
-Inductive D12P_reg: Type :=.
-Inductive D12E_reg: Type :=.
+Inductive P2D_reg:=.
+Inductive D2P_reg:=.
+Inductive P2D1_reg:=.
+Inductive P2E_reg:=.
+Inductive D12P_reg:=.
+Inductive D12E_reg:=.
 
 Ltac pose_proof_P2D_instance n :=
   let a := get_nth P2D_reg n in

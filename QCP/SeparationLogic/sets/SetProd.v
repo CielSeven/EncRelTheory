@@ -44,9 +44,9 @@ Class SETS_PROD_Distr
     liftL (Sets.prop_inj P) == Sets.prop_inj P;
   Sets_liftR_prop_inj: forall P: Prop,
     liftR (Sets.prop_inj P) == Sets.prop_inj P;
-  Sets_liftL_mono:>
+  Sets_liftL_mono::
     Proper (@Sets.included T1 _ ==> @Sets.included T _) liftL;
-  Sets_liftR_mono:>
+  Sets_liftR_mono::
     Proper (@Sets.included T2 _ ==> @Sets.included T _) liftR;
 }.
 

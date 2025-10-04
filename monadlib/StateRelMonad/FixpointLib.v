@@ -60,9 +60,9 @@ Proof.
       erewrite Hfa_sseq.
       apply Sets_indexed_union_included. intros k.
       set(mk:= max m k). assert (Hk: T k ⊆ T mk).
-      { apply sseq_mono_nat_le;auto. apply Max.le_max_r. }
+      { apply sseq_mono_nat_le;auto. apply Nat.le_max_r. }
       assert (Hm: T m ⊆ T mk).
-      { apply sseq_mono_nat_le;auto. apply Max.le_max_l. }
+      { apply sseq_mono_nat_le;auto. apply Nat.le_max_l. }
       rewrite <- (Sets_included_indexed_union mk).
       rewrite (Lfix_fixpoint (f (T mk))).
       apply Hf_mono;auto. 

@@ -6,7 +6,7 @@ Require Import Coq.Lists.List.
 Require Import Lia.
 From SetsClass Require Import SetsClass.
 From FP Require Import PartialOrder_Setoid BourbakiWitt. 
-From MonadLib.SetMonad Require Export Monad.
+From MonadLib Require Export Monad.
 Export PO_lift.
 Import Monad MonadNotation SetsNotation.
 Local Open Scope sets.
@@ -32,8 +32,8 @@ Section monaderr.
     err: Σ -> Prop
   }.
 
-  Arguments nrm {A}%type_scope m.
-  Arguments err {A}%type_scope m.
+  Arguments nrm {A}%_type_scope m.
+  Arguments err {A}%_type_scope m.
 
 
   Definition ret {A: Type}(a: A): M A := {|
@@ -56,9 +56,9 @@ Section monaderr.
 End monaderr.
 End MonadErr.
 
-Arguments MonadErr.M Σ%type_scope A%type_scope: clear implicits.
-Arguments MonadErr.nrm {Σ}%type_scope [A]%type_scope m.
-Arguments MonadErr.err {Σ}%type_scope [A]%type_scope m.
+Arguments MonadErr.M Σ%_type_scope A%_type_scope: clear implicits.
+Arguments MonadErr.nrm {Σ}%_type_scope [A]%_type_scope m.
+Arguments MonadErr.err {Σ}%_type_scope [A]%_type_scope m.
 
 #[export] Instance state_rel_monad (Σ: Type): Monad (MonadErr.M Σ) :=
 {|

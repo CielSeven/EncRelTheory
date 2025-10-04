@@ -1,8 +1,8 @@
-Class ProgrammingLanguage: Type := {
+Class ProgrammingLanguage:= {
   cmd: Type
 }.
 
-Class ImperativeProgrammingLanguage (P: ProgrammingLanguage): Type := {
+Class ImperativeProgrammingLanguage (P: ProgrammingLanguage):= {
   bool_expr: Type;
   Ssequence: cmd -> cmd -> cmd;
   Sifthenelse: bool_expr -> cmd -> cmd -> cmd;
@@ -10,7 +10,7 @@ Class ImperativeProgrammingLanguage (P: ProgrammingLanguage): Type := {
   Sskip: cmd
 }.
 
-Class ConcurrentProgrammingLanguage_Sparallel (P: ProgrammingLanguage): Type := {
+Class ConcurrentProgrammingLanguage_Sparallel (P: ProgrammingLanguage):= {
   Sparallel: cmd -> cmd -> cmd
 }.
 
@@ -19,25 +19,25 @@ Class Resource: Type := {
   resources := resource -> Prop
 }.
 
-Class ConcurrentProgrammingLanguage_Sresource (P: ProgrammingLanguage) (Res: Resource): Type := {
+Class ConcurrentProgrammingLanguage_Sresource (P: ProgrammingLanguage) (Res: Resource):= {
   Sresource: resource -> cmd -> cmd
 }.
 
-Class ConcurrentProgrammingLanguage_AcqRel_resource (P: ProgrammingLanguage) (Res: Resource): Type := {
+Class ConcurrentProgrammingLanguage_AcqRel_resource (P: ProgrammingLanguage) (Res: Resource):= {
   Sacquire_res: resource -> cmd;
   Srelease_res: resource -> cmd
 }.
 
-Class ConcurrentProgrammingLanguage_lock (P: ProgrammingLanguage): Type := {
+Class ConcurrentProgrammingLanguage_lock (P: ProgrammingLanguage):= {
   lock_expr: Type
 }.
 
-Class ConcurrentProgrammingLanguage_AcqRel_lock (P: ProgrammingLanguage) {CPl: ConcurrentProgrammingLanguage_lock P}: Type := {
+Class ConcurrentProgrammingLanguage_AcqRel_lock (P: ProgrammingLanguage) {CPl: ConcurrentProgrammingLanguage_lock P}:= {
   Sacquire_lock: lock_expr -> cmd;
   Srelease_lock: lock_expr -> cmd
 }.
 
-Class NormalImperativeProgrammingLanguage (P: ProgrammingLanguage) {iP: ImperativeProgrammingLanguage P}: Type := {
+Class NormalImperativeProgrammingLanguage (P: ProgrammingLanguage) {iP: ImperativeProgrammingLanguage P}:= {
   Ssequence_inv: forall c1 c2 c1' c2', Ssequence c1 c2 = Ssequence c1' c2' -> c1 = c1' /\ c2 = c2';
   Ssequence_Sskip: forall c1 c2, Ssequence c1 c2 <> Sskip;
   Sifthenelse_inv: forall b c1 c2 b' c1' c2', Sifthenelse b c1 c2 = Sifthenelse b' c1' c2' -> b = b' /\ c1 = c1' /\ c2 = c2';

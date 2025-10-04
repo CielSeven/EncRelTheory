@@ -42,7 +42,7 @@ Defined.
 
 End SemanticsMono.
 
-Class KripkeMinimumSemantics (L: Language) {minL: MinimumLanguage L} (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {R: Relation (Kworlds M)} (SM: Semantics L MD) : Type := {
+Class KripkeMinimumSemantics (L: Language) {minL: MinimumLanguage L} (MD: Model) {kMD: KripkeModel MD} (M: Kmodel) {R: Relation (Kworlds M)} (SM: Semantics L MD) := {
   denote_impp: forall x y, Same_set _ (Kdenotation M (x --> y)) (Semantics.impp (Kdenotation M x) (Kdenotation M y))
 }.
 

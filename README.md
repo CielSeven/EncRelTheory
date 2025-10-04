@@ -18,11 +18,10 @@ This repository provides a machine-checked Rocq formalization of our encoding th
 - `fixpoints/`: Fixpoint combinator library used for loops and recursion.
 
 - `QCP/`: A standard Hoare logic tool
-  - `linux-binary/`, `win-binary/`, `mac-arm64-binary/`: Precompiled QCP binaries
+  - `linux-binary/`: Precompiled QCP binaries
   - `QCP_examples/`: Annotated C programs
   - `SeparationLogic/`: Rocq backend to check QCP-generated VCs
   - `tutorial/`: Step-by-step QCP usage guide
-  - `RunningExample-linux.sh`, `RunningExample-windows.sh`: Scripts to run QCP examples
 
 ## ✅ Main Theorems
 
@@ -89,4 +88,11 @@ This repository provides a machine-checked Rocq formalization of our encoding th
   ```bash
   make qcpfullexample -j5
   ```
+
+- Test with QCP:
+  we provide an example file `test.c` that can be used to experiment with QCP. Run 
+  ```bash
+  make testgen
+  ```
+  to generate VCs, then prove the unsolved goals in test_proof_manual.v using Rocq manually.
 

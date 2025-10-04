@@ -2,6 +2,7 @@ Require Import SetsClass.SetsClass.
 Require Import Coq.ZArith.ZArith.
 Require Import Coq.micromega.Psatz.
 Require Import Coq.Classes.Morphisms.
+From MonadLib.StateRelMonad Require Import StateRelBasic FixpointLib.
 Require Import MonadLib.StateRelMonad.StateRelBasic.
 Require Import Coq.Lists.List.
 Import SetsNotation.
@@ -16,17 +17,6 @@ Definition Hoare {Σ A: Type}
   (Q: A -> Σ -> Prop): Prop := 
     forall s1 a s2, P s1 -> (s1, a, s2) ∈ c -> Q a s2.
 
-Definition valid_angelic_triple {Σ A: Type}
-  (P: Σ -> Prop)
-  (c: program Σ A)
-  (Q: A -> Σ -> Prop): Prop := 
-    forall s1, P s1 -> exists a s2, (s1, a, s2) ∈ c /\ Q a s2.
-
-Definition weakestpre {Σ A: Type}
-  (c: program Σ A)
-  (Q: A -> Σ -> Prop): Σ -> Prop := 
-    fun σ =>  forall r σ', c σ r σ' -> Q r σ'.
-
 Section  HoareRules.
 Theorem Hoare_bind {Σ A B: Type}:
   forall (P: Σ -> Prop)
@@ -37,19 +27,12 @@ Theorem Hoare_bind {Σ A B: Type}:
   Hoare P f Q ->
   (forall a, Hoare (Q a) (g a) R) ->
   Hoare P (bind f g) R.
-Proof.
-  intros.
-  unfold Hoare, bind; simpl; sets_unfold; unfold StateRelMonad.bind.
-  intros s1 b s3 ? [a [s2 [? ?]]].
-  pose proof H _ _ _ H1 H2.
-  pose proof H0 a _ _ _ H4 H3.
-  tauto.
-Qed.
+Proof. firstorder. Qed.
 
 Theorem Hoare_ret {Σ A: Type}:
   forall (P: A -> Σ -> Prop) (a0: A),
     Hoare (P a0) (ret a0) P.
-Proof.
+Proof. 
   intros.
   unfold Hoare, ret; simpl; sets_unfold; unfold StateRelMonad.ret.
   intros.
@@ -70,21 +53,22 @@ Theorem Hoare_choice {Σ A: Type}:
     Hoare P f Q -> 
     Hoare P g Q ->
     Hoare P (choice f g) Q.
-Proof.
-  intros.
-  unfold Hoare, choice; sets_unfold.
-  intros ? ? ? ? [? | ?].
-  + pose proof H _ _ _ H1 H2.
-    tauto.
-  + pose proof H0 _ _ _ H1 H2.
-    tauto.
-Qed.
+Proof. firstorder. Qed.
+
+
+Theorem Hoare_choice_disj {Σ A: Type}:
+  forall P (f g: program Σ A) Q1 Q2, 
+    Hoare P f Q1 -> 
+    Hoare P g Q2 ->
+    Hoare P (choice f g) (fun a s => Q1 a s \/ Q2 a s).
+Proof. firstorder. Qed.
+  
 
 Theorem Hoare_assume_bind {Σ A: Type}:
   forall P (Q: Σ -> Prop) (f: program Σ A) R,
     Hoare (fun s => Q s /\ P s) f R -> 
     Hoare P (assume Q;; f) R.
-Proof.
+Proof. 
   intros.
   eapply Hoare_bind; [| intros; apply H].
   unfold Hoare, test; sets_unfold.
@@ -157,11 +141,7 @@ Qed.
 Theorem Hoare_update {Σ: Type}:
   forall (P: Σ -> Prop) (Q: Σ -> Σ -> Prop),
     Hoare P (update Q) (fun a s2 => exists s1, Q s1 s2 /\ P s1).
-Proof.
-  intros.
-  unfold update.
-  apply Hoare_step.
-Qed.
+Proof. firstorder. Qed.
 
 Theorem Hoare_conseq {Σ A: Type}:
   forall (P1 P2: Σ -> Prop) f (Q1 Q2: A -> Σ -> Prop),
@@ -169,100 +149,53 @@ Theorem Hoare_conseq {Σ A: Type}:
     (forall b s, Q2 b s -> Q1 b s) ->
     Hoare P2 f Q2 ->
     Hoare P1 f Q1.
-Proof.
-  intros.
-  unfold Hoare.
-  intros.
-  apply H0.
-  apply (H1 s1 a s2).
-  + apply H; tauto.
-  + tauto.
-Qed.
+Proof. firstorder. Qed.
 
 Theorem Hoare_conseq_pre {Σ A: Type}:
   forall (P1 P2: Σ -> Prop) f (Q: A -> Σ -> Prop),
     (forall s, P1 s -> P2 s) ->
     Hoare P2 f Q ->
     Hoare P1 f Q.
-Proof.
-  intros.
-  unfold Hoare.
-  intros.
-  apply (H0 s1 a s2).
-  + apply H; tauto.
-  + tauto.
-Qed.
+Proof. firstorder. Qed.
 
 Theorem Hoare_conseq_post {Σ A: Type}:
   forall (P: Σ -> Prop) f (Q1 Q2: A -> Σ -> Prop),
     (forall b s, Q2 b s -> Q1 b s) ->
     Hoare P f Q2 ->
     Hoare P f Q1.
-Proof.
-  intros.
-  unfold Hoare.
-  intros.
-  apply H.
-  apply (H0 s1 a s2); tauto.
-Qed.
+Proof. firstorder. Qed.
 
 Theorem Hoare_conj {Σ A: Type}:
   forall (P: Σ -> Prop) f (Q1 Q2: A -> Σ -> Prop),
     Hoare P f Q1 ->
     Hoare P f Q2 ->
     Hoare P f (fun a s => Q1 a s /\ Q2 a s).
-Proof.
-  intros.
-  unfold Hoare; intros.
-  split.
-  + apply (H _ _ _ H1 H2).
-  + apply (H0 _ _ _ H1 H2).
-Qed.
+Proof. firstorder. Qed.
 
 Theorem Hoare_disj {Σ A: Type}:
   forall (P1 P2: Σ -> Prop) f (Q: A -> Σ -> Prop),
     Hoare P1 f Q ->
     Hoare P2 f Q ->
     Hoare (fun s => P1 s \/ P2 s) f Q.
-Proof.
-  intros; unfold Hoare; intros.
-  destruct H1.
-  - eapply H; eauto.
-  - eapply H0; eauto.
-Qed. 
+Proof. firstorder. Qed.
 
 Theorem Hoare_forall {Σ A: Type}:
   forall (X: Type) (P: Σ -> Prop) f (Q: X -> A -> Σ -> Prop),
     (forall x, Hoare P f (Q x)) ->
     Hoare P f (fun a s => forall x, Q x a s).
-Proof.
-  intros.
-  unfold Hoare.
-  intros.
-  apply (H x _ _ _ H0 H1).
-Qed.
+Proof. firstorder. Qed.
 
 Theorem Hoare_pre_ex {Σ A: Type}:
   forall (X: Type) (P: X -> Σ -> Prop) f (Q: A -> Σ -> Prop),
     (forall x, Hoare (P x) f Q) ->
     Hoare (fun s => exists x, P x s) f Q.
-Proof.
-  intros.
-  unfold Hoare.
-  intros s1 a s2 [x ?] ?.
-  apply (H x _ _ _ H0 H1).
-Qed.
+Proof. firstorder. Qed.
 
 Theorem hoare_bind_forall {Σ A: Type}:
   forall (X: Type) (P: Σ -> Prop) f (Q: X -> A -> Σ -> Prop),
     (forall x, Hoare P f (Q x)) <->
     Hoare P f (fun r s => forall x, Q x r s).
-Proof.
-  intros.
-  unfold Hoare; sets_unfold; split; intros.
-  - apply (H _ s1); auto.
-  - apply (H s1); auto.
-Qed.
+Proof. firstorder. Qed.
 
 Theorem Hoare_ret' {Σ A: Type}:
   forall (P: Σ -> Prop) (Q: A -> Σ -> Prop) (a0: A),
@@ -320,9 +253,7 @@ Qed.
 Lemma Hoare_empty {Σ A: Type}:
   forall (P: Σ -> Prop) (Q: A -> Σ -> Prop),
     Hoare P ∅ Q.
-Proof.
-  unfold Hoare; sets_unfold; tauto.
-Qed.
+Proof. firstorder. Qed.
 
 Lemma Hoare_cnt_cnt {A B Σ: Type}:
   forall (P: Σ -> Prop) (Q: A -> Σ -> Prop) (a: A),
@@ -349,20 +280,12 @@ Qed.
 Lemma Hoare_brk_cnt {A B Σ: Type}:
   forall (P: Σ -> Prop) (Q: B -> Σ -> Prop) (a: A),
     Hoare P (@break_case Σ A B  (by_continue a)) Q.
-Proof.
-  intros.
-  unfold Hoare, break_case; simpl.
-  intros; tauto.
-Qed.
+Proof. firstorder. Qed.
 
 Lemma Hoare_cnt_brk {A B Σ: Type}:
   forall (P: Σ -> Prop) (Q: A -> Σ -> Prop) (b: B),
     Hoare P (@continue_case Σ A B (by_break b)) Q.
-Proof.
-  intros.
-  unfold Hoare, continue_case; simpl.
-  intros; tauto.
-Qed.
+Proof. firstorder. Qed.
 
 Lemma Hoare_proequiv:
   forall {A Σ: Type} (c1 c2: program Σ A) (P: Σ -> Prop) (Q: A -> Σ -> Prop),
@@ -375,62 +298,49 @@ Proof.
   auto.
 Qed.
 
+Lemma Hoare_post_true:
+  forall {A Σ} P (c: program Σ A),
+    Hoare P c (fun _ _ => True).
+Proof. firstorder. Qed.
+
+Lemma Hoare_progrefine:
+  forall {A Σ: Type} (c1 c2: program Σ A) (P: Σ -> Prop) (Q: A -> Σ -> Prop),
+    c2 ⊆ c1 ->
+    Hoare P c1 Q -> Hoare P c2 Q.
+Proof.
+  unfold Hoare; intros.  
+  rewrite H in H2.
+  eapply H0;eauto.
+Qed.
+
 Lemma Hoare_skip:
   forall {A Σ B} P (c: program Σ A) (f: A -> program Σ B) Q,
     (forall a, Hoare (fun _ => True) (f a) Q) ->
     Hoare P (bind c f) Q.
-Proof.
-  unfold Hoare; intros.
-  sets_unfold in H1.
-  unfold bind in H1; simpl in H1.
-  unfold StateRelMonad.bind in H1.
-  destruct H1 as (? & ? & ? & ?).
-  specialize (H x x0 a s2 I).
-  tauto.
-Qed.
+Proof. firstorder. Qed.
 
 Lemma Hoare_stateless:
   forall {A Σ} (P: Prop) (c: program Σ A) Q,
     (P -> Hoare (fun _ => True) c Q) ->
     Hoare (fun _ => P) c Q.
-Proof.
-  unfold Hoare; intros.
-  sets_unfold; intros.
-  eapply H; eauto.
-Qed.
+Proof. firstorder. Qed.
 
 Lemma Hoare_stateless':
   forall {A Σ} (P: Prop) (P': Σ -> Prop) (c: program Σ A) Q,
     (P -> Hoare P' c Q) <->
     Hoare (fun s => P' s /\ P) c Q.
-Proof.
-  unfold Hoare; intros.
-  sets_unfold; intros.
-  split; intros.
-  - eapply H; eauto; tauto.
-  - eapply H; eauto.
-Qed.
+Proof. firstorder. Qed.
 
 Theorem Hoare_update_bind {Σ A: Type}:
   forall (P: Σ -> Prop) (f: Σ -> Σ -> Prop) (c: program Σ A) (Q: A -> Σ -> Prop),
     (forall s1,  P s1 -> Hoare (fun s2 => f s1 s2) c Q) ->
     Hoare P (update f;; c) Q.
-Proof.
-  intros.
-  eapply Hoare_bind.
-  apply Hoare_update.
-  simpl.
-  intros _.
-  apply Hoare_pre_ex.
-  intros.
-  apply Hoare_stateless'.
-  apply H.
-Qed.
+Proof. firstorder. Qed.
 
 #[export] Instance Hoare_programequiv_iff_Proper
   {Σ: Type} {A: Type} (P: Σ -> Prop):
   Proper (Sets.equiv ==> eq ==> iff) (@Hoare Σ A P).
-Proof.
+Proof. 
   unfold Proper, respectful; intros.
   subst x0; split; intros.
   - apply Hoare_proequiv with x; easy.
@@ -441,7 +351,7 @@ Lemma Hoare_equiv_iff {Σ A: Type}:
   forall (P: Σ -> Prop) (c1 c2: program Σ A) (Q: A -> Σ -> Prop),
     c1 == c2 ->
     Hoare P c1 Q <-> Hoare P c2 Q.
-Proof.
+Proof. 
   intros; rewrite H; easy.
 Qed.
 
@@ -451,10 +361,7 @@ Lemma Hoare_state_intro {A Σ}:
   forall (P: Σ -> Prop) (c: program Σ A) (Q: A -> Σ -> Prop),
     (forall s0, P s0 -> Hoare (fun s => s = s0) c Q)->
     Hoare P c Q.
-Proof.
-  unfold Hoare; intros.
-  eapply H; eauto.
-Qed.
+Proof. firstorder. Qed.
 
 Lemma Hoare_step_s {A Σ}:
   forall (s0: Σ) (c: program Σ A),
@@ -483,7 +390,7 @@ Qed.
 Lemma Hoare_assume_s {Σ}:
   forall (s0: Σ) (Q: Σ -> Prop),
     Hoare (fun s => s = s0) (assume Q) (fun _ s1 => s1 = s0 /\ Q s0).
-Proof.
+Proof. 
   intros.
   eapply Hoare_conseq_post.
   2:apply Hoare_assume.
@@ -573,40 +480,6 @@ Ltac hoare_auto :=
     | |- Hoare _ (continue_case (by_break _)) _ => apply Hoare_cnt_brk
   end; auto.
 
-Ltac hoare_single_s :=
-  match goal with
-  | |- Hoare _ (ret _) _ => apply Hoare_ret'
-  | |- Hoare _ (any _) _ => apply Hoare_any
-  | |- Hoare _ (get _) _ => apply Hoare_get_s
-  | |- Hoare _ (get' _) _ => apply Hoare_get'
-  | |- Hoare _ (update _) _ => apply Hoare_update_s
-  | |- Hoare _ (update' _) _ => apply Hoare_update'
-  | |- Hoare _ (assume!! _) _ => apply Hoare_assume'
-  | |- Hoare _ (assume _) _ => apply Hoare_assume_s
-  | |- Hoare _ (continue_case (by_continue _)) _ => apply Hoare_cnt_cnt
-  | |- Hoare _ (break_case (by_break _)) _ => apply Hoare_brk_brk
-  | |- Hoare _ (break_case (by_continue _)) _ => apply Hoare_brk_cnt
-  | |- Hoare _ (continue_case (by_break _)) _ => apply Hoare_cnt_brk
-  end; intros.
-
-
-Ltac hoare_auto_s :=
-  unfold continue, break, If, if_else;
-  match goal with
-    | |- Hoare _ (bind (bind _ _) _) _ => rewrite bind_assoc; try hoare_auto_s
-    | |- Hoare _ (bind (choice _ _) _) _ => rewrite bind_choice_equiv; try hoare_auto_s
-    | |- Hoare _ (bind (ret _) _) _ => rewrite bind_ret_left; try hoare_auto_s
-    | |- Hoare _ (bind (any _) _) _ => apply Hoare_any_bind; intros; try hoare_auto_s
-    | |- Hoare _ (bind (get _) _) _ => hoare_bind Hoare_get_s; intros; apply Hoare_stateless'; intros; subst; try hoare_auto_s
-    | |- Hoare _ (bind (get' _) _) _ => hoare_bind Hoare_get'; intros; apply Hoare_stateless'; intros; subst; try hoare_auto_s
-    | |- Hoare _ (bind (update _) _) _ => hoare_bind' Hoare_update_s; apply Hoare_state_intro; intros; try hoare_auto_s
-    | |- Hoare _ (bind (update' _) _) _ => hoare_bind' Hoare_update'; try hoare_auto_s
-    | |- Hoare _ (assume!! _;; _) _ => apply Hoare_assume_bind'; intros; try hoare_auto_s
-    | |- Hoare _ (assume _ ;; _) _ => hoare_bind' Hoare_assume_s; intros; apply Hoare_stateless'; intros; try hoare_auto_s
-    | |- Hoare _ (choice _ _) _ => apply Hoare_choice; try hoare_auto_s
-    | |- Hoare _ _ _ => hoare_single_s
-  end; auto.
-
 Ltac hoare_skip := repeat (apply Hoare_skip; intros; hoare_auto).
 
 Ltac monad_law :=
@@ -648,6 +521,40 @@ Tactic Notation "hoare_apply" uconstr(H) :=
 
 Tactic Notation "hoare_bind_cons" uconstr(H) :=
   eapply Hoare_bind; [hoare_cons_pre H|]; intros.
+
+Ltac hoare_single_s :=
+  match goal with
+  | |- Hoare _ (ret _) _ => (apply Hoare_ret' || hoare_cons_post Hoare_ret')
+  | |- Hoare _ (any _) _ => (apply Hoare_any || hoare_cons_post Hoare_any)
+  | |- Hoare _ (get _) _ => (apply Hoare_get_s || hoare_cons_post Hoare_get_s)
+  | |- Hoare _ (get' _) _ => (apply Hoare_get' || hoare_cons_post Hoare_get')
+  | |- Hoare _ (update _) _ => (apply Hoare_update_s || hoare_cons_post Hoare_update_s)
+  | |- Hoare _ (update' _) _ => (apply Hoare_update' || hoare_cons_post Hoare_update')
+  | |- Hoare _ (assume!! _) _ => (apply Hoare_assume' || hoare_cons_post Hoare_assume')
+  | |- Hoare _ (assume _) _ => (apply Hoare_assume_s || hoare_cons_post Hoare_assume_s)
+  | |- Hoare _ (continue_case (by_continue _)) _ => (apply Hoare_cnt_cnt || hoare_cons_post Hoare_cnt_cnt)
+  | |- Hoare _ (break_case (by_break _)) _ => (apply Hoare_brk_brk || hoare_cons_post Hoare_brk_brk)
+  | |- Hoare _ (break_case (by_continue _)) _ => (apply Hoare_brk_cnt || hoare_cons_post Hoare_brk_cnt)
+  | |- Hoare _ (continue_case (by_break _)) _ => (apply Hoare_cnt_brk || hoare_cons_post Hoare_cnt_brk)
+end; intros.
+  
+  
+Ltac hoare_auto_s :=
+  unfold continue, break, If, if_else;
+  match goal with
+    | |- Hoare _ (bind (bind _ _) _) _ => rewrite bind_assoc; try hoare_auto_s
+    | |- Hoare _ (bind (choice _ _) _) _ => rewrite bind_choice_equiv; try hoare_auto_s
+    | |- Hoare _ (bind (ret _) _) _ => rewrite bind_ret_left; try hoare_auto_s
+    | |- Hoare _ (bind (any _) _) _ => apply Hoare_any_bind; intros; try hoare_auto_s
+    | |- Hoare _ (bind (get _) _) _ => hoare_bind Hoare_get_s; intros; apply Hoare_stateless'; intros; subst; try hoare_auto_s
+    | |- Hoare _ (bind (get' _) _) _ => hoare_bind Hoare_get'; intros; apply Hoare_stateless'; intros; subst; try hoare_auto_s
+    | |- Hoare _ (bind (update _) _) _ => hoare_bind' Hoare_update_s; apply Hoare_state_intro; intros; try hoare_auto_s
+    | |- Hoare _ (bind (update' _) _) _ => hoare_bind' Hoare_update'; try hoare_auto_s
+    | |- Hoare _ (assume!! _;; _) _ => apply Hoare_assume_bind'; intros; try hoare_auto_s
+    | |- Hoare _ (assume _ ;; _) _ => hoare_bind' Hoare_assume_s; intros; apply Hoare_stateless'; intros; try hoare_auto_s
+    | |- Hoare _ (choice _ _) _ => apply Hoare_choice; try hoare_auto_s
+    | |- Hoare _ _ _ => hoare_single_s
+end; auto.
 
 (** Hoare rules for fixed points *) 
 
@@ -841,7 +748,65 @@ Proof.
       unfold Hoare; sets_unfold; intros;
       specialize (IHn a0 s0 a1 s3); tauto.
 Qed.
-    
+
+Theorem Hoare_fix_fun {Σ A B: Type}:
+forall (P1 P2: A -> Σ -> Prop)
+       (Q1 Q2: A -> B -> Σ -> Prop)
+       (f F: (A -> program Σ B)-> (A -> program Σ B))
+       (a: A),
+  mono f -> 
+  (forall a, Hoare (P1 a) (f (Lfix F) a) (Q1 a)) ->
+  (forall W: A -> program Σ B, 
+    (forall a, Hoare (P1 a) (f W a) (Q1 a)) ->
+    (forall a, Hoare (P2 a)  (W a) (Q2 a)) ->
+    (forall a, Hoare (P2 a) (F W a) (Q2 a)))->  
+  Hoare (P2 a) (Lfix F a) (Q2 a).
+Proof.
+  intros *  Hf HT1; intros.
+  unfold Hoare; sets_unfold.
+  intros s1 b s2 ?.
+  unfold repeat_break, Lfix.
+  intros [n ?].
+  revert a s1 b s2 H0 H1.
+  change (forall a, Hoare (P2 a) (Nat.iter n F ∅ a) (Q2 a)).
+  induction n ; simpl in * ; auto.
+  + unfold Hoare. sets_unfold. intros. lia.
+  + apply H; auto.
+    intros a.
+    unfold Lfix in HT1.
+    eapply Hoare_progrefine in HT1;[exact HT1  | ].
+    apply Hf.
+    exists n; auto.
+Qed.
+
+Theorem Hoare_fix_fun' {Σ B: Type}:
+forall (P1 P2: Σ -> Prop)
+       (Q1 Q2: B -> Σ -> Prop)
+       (f F: (program Σ B)-> program Σ B),
+  mono f -> 
+  Hoare P1 (f (Lfix F)) Q1 ->
+  (forall W: program Σ B, 
+    Hoare P1 (f W) Q1 ->
+    Hoare P2 W Q2 ->
+    Hoare P2 (F W) Q2)->  
+  Hoare P2 (Lfix F) Q2.
+Proof.
+  intros *  Hf HT1; intros.
+  unfold Hoare; sets_unfold.
+  intros s1 b s2 ?.
+  unfold repeat_break, Lfix.
+  intros [n ?].
+  revert s1 b s2 H0 H1.
+  change (Hoare (P2) (Nat.iter n F ∅) (Q2)).
+  induction n ; simpl in * ; auto.
+  + unfold Hoare. sets_unfold. intros. lia.
+  + apply H; auto.
+    unfold Lfix in HT1.
+    eapply Hoare_progrefine in HT1;[exact HT1  | ].
+    apply Hf.
+    exists n; auto.
+Qed.
+
 (* we consider a recursive monadic program (A -> program Σ R) may have multiple specifications *)
 
 Record monad_funcspec {Σ A R: Type}: Type := mk_mfs { 
@@ -1070,8 +1035,8 @@ Theorem Hoare_forset {Σ A}
     done ⊆ universe ->
     a ∈ universe ->
     ~a ∈ done ->
-    Hoare (P done) (body a) (fun _ s => P (done ∪ [a]) s)) ->
-  Hoare (P ∅) (forset universe body) (fun _ s => P universe s).
+    Hoare (fun s => P done s) (body a) (fun _ s => P (done ∪ [a]) s)) ->
+  Hoare (fun s => P ∅ s) (forset universe body) (fun _ s => P universe s).
 Proof.
   intros.
   unfold forset.
@@ -1172,3 +1137,245 @@ Proof.
 Qed. 
 
 End StateRelMonadExample.
+
+
+(********************************************************************************)
+(************************     Other Hoare premitives     ************************)
+(************************       1. weakest precondition  ************************)
+(************************       1. angelic Hoare         ************************)
+(********************************************************************************)
+
+(* Weakest liberal precondition  *)
+Definition weakestpre {Σ A: Type}
+  (c: program Σ A)
+  (Q: A -> Σ -> Prop): Σ -> Prop := 
+    fun σ =>  forall r σ', c σ r σ' -> Q r σ'.
+
+Definition valid_angelic_triple {Σ A: Type}
+  (P: Σ -> Prop)
+  (c: program Σ A)
+  (Q: A -> Σ -> Prop): Prop := 
+    forall s1, P s1 -> exists a s2, (s1, a, s2) ∈ c /\ Q a s2.
+
+Section WLPrules.
+
+  Context {Σ A B: Type}.
+
+  Theorem wp_spec (c: program Σ A) (s1 s2:Σ) a:
+    c s1 a s2 -> 
+    forall Q,
+    s1 ∈ (weakestpre c Q) ->
+    s2 ∈ (Q a).
+  Proof.
+    unfold weakestpre; intros H0 Q H1.
+    sets_unfold in H1.
+    apply H1;auto.
+  Qed.
+
+  Theorem wp_self (c: program Σ A) (s: Σ):
+    s ∈ (weakestpre c (fun a s' => c s a s')).
+  Proof.
+    unfold weakestpre. intros a s2 H0.
+    auto.
+  Qed.
+ 
+  Theorem wp_Hoare (c: program Σ A) (Q: A -> Σ -> Prop):
+    Hoare (weakestpre c Q) c Q.
+  Proof.
+    unfold weakestpre, Hoare; intros s1 a s2 H0.
+    sets_unfold.
+    auto.
+  Qed.
+
+  Theorem wp_Hoare_iff (P: Σ -> Prop) (Q: A -> Σ -> Prop) (c: program Σ A):
+    P ⊆ (weakestpre c Q) <->
+    Hoare P c Q.
+  Proof.
+    split;intros.
+    - 
+    eapply Hoare_conseq_pre;[ | apply wp_Hoare].
+    sets_unfold in H.
+    auto.
+    - unfold weakestpre, Hoare in *. 
+      intros s1 a s2 H0 H1.
+      eapply H;eauto.
+  Qed.
+
+  Lemma wp_progrefine (c1 c2: program Σ A) (Q: A -> Σ -> Prop):
+    c2 ⊆ c1 ->
+    (weakestpre c1 Q) ⊆ (weakestpre c2 Q).
+  Proof.
+    unfold weakestpre; intros H s1 H0 a s2 H1.
+    apply H0.
+    apply H.
+    auto.
+  Qed.
+
+  Lemma wp_progequiv (c1 c2: program Σ A) (Q: A -> Σ -> Prop):
+    c2 == c1 ->
+    (weakestpre c1 Q) == (weakestpre c2 Q).
+  Proof.
+    intros.
+    apply Sets_equiv_Sets_included.
+    split.
+    - apply wp_progrefine; auto. rewrite H. reflexivity.
+    - apply wp_progrefine; auto. rewrite H. reflexivity. 
+  Qed.
+
+  Lemma wp_conseq (c: program Σ A) (Q1 Q2: A -> Σ -> Prop):
+    Q1 ⊆ Q2 ->
+    weakestpre c Q1 ⊆ weakestpre c Q2.
+  Proof.
+    unfold weakestpre; intros H s1 H0 a s2 H1.
+    apply H.
+    apply H0.
+    auto.
+  Qed.
+
+  Lemma wp_bind (f: program Σ A) (g: A -> program Σ B) (Q: B -> Σ -> Prop):
+  weakestpre (bind f g) Q ==  weakestpre f (fun a => weakestpre (g a) Q).
+  Proof.
+    intros s1. 
+    unfold weakestpre. unfold_monad.
+    split. 
+    - intros. 
+      apply H.
+      exists r , σ'.
+      split;auto.
+    - intros.
+      destruct H0 as [a [s2' [? ?]]].
+      eapply H;[ apply H0 | apply H1].
+  Qed.
+
+  Lemma wp_ret (a: A) (Q: A -> Σ -> Prop):
+    weakestpre (ret a) Q == (Q a).
+  Proof.
+    intros s1.
+    split;intros.
+    - unfold weakestpre in H.
+      apply H.
+      unfold_monad.
+      auto.
+    - unfold weakestpre.
+      unfold_monad.
+      intros ? ? [? ?].
+      subst.
+      auto.
+  Qed.
+
+  Lemma wp_choice (c1 c2: program Σ A) (Q: A -> Σ -> Prop):
+    weakestpre (choice c1 c2) Q == 
+    (weakestpre c1 Q) ∩ (weakestpre c2 Q).
+  Proof.
+    intros s1.
+    unfold weakestpre, choice.
+    sets_unfold. 
+    split;intros.
+    - split;
+      intros;apply H; tauto.
+    - destruct H.
+      destruct H0 as [H0 | H0].
+      apply H;auto.
+      apply H1;auto.
+  Qed.
+
+  Lemma wp_assume_coqprop (P: Prop) (Q: unit -> Σ -> Prop):
+    P ->
+    weakestpre (assume!! P) Q == (Q tt).
+  Proof.
+    intros H s1.
+    split;intros.
+    - unfold weakestpre in H0.
+      apply H0.
+      unfold test'.
+      auto.
+    - unfold weakestpre, test'.
+      intros ? ? [? ?].
+      subst. destruct r.
+      auto.
+  Qed.
+
+  Lemma wp_assume (P: Σ -> Prop) (Q: unit -> Σ -> Prop):
+    weakestpre (assume P) Q == (fun s => P s -> Q tt s).
+  Proof.
+    intros s1.
+    split;intros.
+    - unfold weakestpre in H.
+      apply H.
+      unfold test.
+      split;auto.
+    - unfold weakestpre, test'.
+      intros ? ? [? ?].
+      subst. destruct r.
+      auto.
+  Qed.
+
+  Lemma wp_any (P: Type) (Q: P -> Σ -> Prop):
+    weakestpre (any P) Q == (fun s => forall a, Q a s).
+  Proof.
+    intros s1.
+    split;intros.
+    - unfold weakestpre in H.
+      apply H.
+      unfold any.
+      auto.
+    - unfold weakestpre.
+      unfold any.
+      intros.
+      subst.
+      apply H.
+  Qed.
+
+  Lemma wp_get (Pa: Σ -> A -> Prop)  (Q: A -> Σ -> Prop):
+    weakestpre (get Pa) Q == (fun s => forall a, Pa s a -> Q a s).
+  Proof.
+    intros s1.
+    split;intros.
+    - unfold weakestpre in H.
+      apply H.
+      unfold get.
+      auto.
+    - unfold weakestpre.
+      unfold get.
+      intros ? ? [? ?].
+      subst.
+      apply H;auto.
+  Qed.
+
+  Lemma wp_get' (f: Σ -> A)  (Q: A -> Σ -> Prop):
+    weakestpre (get' f) Q == (fun s => forall a,  a = f s -> Q a s).
+  Proof.
+    intros.
+    unfold get'.
+    rewrite wp_get.
+    reflexivity.
+  Qed.
+
+  Lemma wp_update (P: Σ -> Σ -> Prop)  (Q: unit -> Σ -> Prop):
+    weakestpre (update P) Q == (fun s =>  forall s', P s s' -> Q tt s').
+  Proof.
+    intros s1.
+    split;intros.
+    - unfold weakestpre in H.
+      unfold update in H.
+      apply H.
+      auto.
+    - unfold weakestpre.
+      unfold update.
+      intros.
+      destruct r.
+      apply H;auto.
+  Qed.
+
+  Lemma wp_update' (f: Σ -> Σ)  (Q: unit -> Σ -> Prop):
+    weakestpre (update' f) Q == (fun s => forall s',  s' = f s -> Q tt s').
+  Proof.
+    intros.
+    unfold update'.
+    rewrite wp_update.
+    reflexivity.
+  Qed.
+
+
+End WLPrules.
+

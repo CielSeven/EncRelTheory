@@ -242,7 +242,7 @@ Proof.
   assert (O <= m0 <= n0)%nat by lia.
   clear Heqn0 Heqm0 H m n.
   rename m0 into m; rename n0 into n.
-  revert dependent n. 
+  generalize dependent n. 
   induction m.
   + simpl in * ; intros. replace (x + 0) with x by lia.
     replace (n - 0)%nat with n by lia.

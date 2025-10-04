@@ -99,7 +99,7 @@ Section reltriple_correct.
   Import NormalDenoConstructs.
   Local Open Scope asrt_scope.
   Lemma quadruple2reltriple : forall (P: @binasrt Σₗ Σₕ ) (cₗ: (@denosem Σₗ))  (cₕ: @denosem Σₕ )  (Q :  @binasrt Σₗ Σₕ),
-    ⊢ {{P}} cₗ ≾ cₕ {{Q}} <-> ⊢ ⟨ ↑ P && [cₕ ]ₕ ⟩ cₗ ⟨ ↑ Q && [skip ]ₕ ⟩.
+    ⊢ {{P}} cₗ ≾ cₕ {{Q}} <-> ⊢ ⟨ ↑ P && [ₕ cₕ ]ₕ ⟩ cₗ ⟨ ↑ Q && [ₕ skip ]ₕ ⟩.
   Proof.
     intros;split.
     - unfold valid_RelTriples, valid_quadruples.
@@ -218,8 +218,8 @@ Section relhoarerules.
   (* rule High-Focus *)
   Lemma relhoare_high_focus : forall (cₗ: @denosem Σₗ) (cₕ1 cₕ2: @denosem Σₕ) F P R Q,
     ⊢∃ {{P}} cₕ1 {{R}}  ->
-    ⊢ ⟨ ⌊ F ⌋ && ⌈ R ⌉ && [cₕ2]ₕ ⟩ cₗ ⟨ Q ⟩ ->
-    ⊢ ⟨ ⌊ F ⌋ && ⌈ P ⌉ && [seq cₕ1 cₕ2]ₕ ⟩ cₗ ⟨ Q ⟩.
+    ⊢ ⟨ ⌊ F ⌋ && ⌈ R ⌉ && [ₕ cₕ2 ]ₕ ⟩ cₗ ⟨ Q ⟩ ->
+    ⊢ ⟨ ⌊ F ⌋ && ⌈ P ⌉ && [ₕ seq cₕ1 cₕ2 ]ₕ ⟩ cₗ ⟨ Q ⟩.
   Proof.
     intros.
     unfold valid_RelTriples in *.
@@ -236,8 +236,8 @@ Section relhoarerules.
    (* rule Low-Focus *)
   Lemma relhoare_low_focus : forall (cₗ1 cₗ2: @denosem Σₗ) (cₕ: @denosem Σₕ) F P R Q,
     ⊢∀ {{P}} cₗ1 {{R}} ->
-    ⊢ ⟨ ⌊ R ⌋ && ⌈ F ⌉ && [cₕ ]ₕ ⟩ cₗ2 ⟨ Q ⟩ ->
-    ⊢ ⟨ ⌊ P ⌋ && ⌈ F ⌉ && [cₕ ]ₕ ⟩ (seq cₗ1 cₗ2) ⟨ Q ⟩.
+    ⊢ ⟨ ⌊ R ⌋ && ⌈ F ⌉ && [ₕ cₕ ]ₕ ⟩ cₗ2 ⟨ Q ⟩ ->
+    ⊢ ⟨ ⌊ P ⌋ && ⌈ F ⌉ && [ₕ cₕ ]ₕ ⟩ (seq cₗ1 cₗ2) ⟨ Q ⟩.
   Proof.
     intros.
     unfold valid_RelTriples in *.
@@ -283,7 +283,7 @@ Section relhoarerules.
 
   Lemma vertical_composition_functional_correctness: forall
     (P: @binasrt Σₗ Σₕ) (cₗ: denosem) (cₕ: denosem) (Q:  @binasrt Σₗ Σₕ) (Pₕ Qₕ: @asrt Σₕ),
-    ⊢ ⟨ ↑ P && [cₕ ]ₕ ⟩ cₗ ⟨ ↑ Q && [skip ]ₕ ⟩ ->
+    ⊢ ⟨ ↑ P && [ₕ cₕ ]ₕ ⟩ cₗ ⟨ ↑ Q && [ₕ skip ]ₕ ⟩ ->
     ⊢∀ {{ Pₕ }} cₕ {{ Qₕ }} ->
     ⊢∀ {{ P ⋈_π Pₕ }} cₗ {{ Q ⋈_π Qₕ }}.
   Proof.
@@ -303,9 +303,9 @@ Section relhoarerules.
 
   Lemma vertical_composition_refinement {Σ₁ Σ₂ Σ₃: Type}: forall
     (c₁: denosem) (c₂: denosem) (c₃:denosem) (P1 Q1: @binasrt Σ₁ Σ₂) (P2 Q2: @binasrt Σ₂ Σ₃) ,
-    ⊢ ⟨ ↑ P1 && [c₂ ]ₕ ⟩ c₁ ⟨ ↑ Q1 && [skip ]ₕ ⟩ ->
-    ⊢ ⟨ ↑ P2 && [c₃ ]ₕ ⟩ c₂ ⟨ ↑ Q2 && [skip ]ₕ ⟩ ->
-    ⊢ ⟨ ↑ (P1 ⋈ P2) && [c₃ ]ₕ ⟩ c₁ ⟨ ↑ (Q1 ⋈ Q2) && [skip ]ₕ ⟩.
+    ⊢ ⟨ ↑ P1 && [ₕ c₂ ]ₕ ⟩ c₁ ⟨ ↑ Q1 && [ₕ skip ]ₕ ⟩ ->
+    ⊢ ⟨ ↑ P2 && [ₕ c₃ ]ₕ ⟩ c₂ ⟨ ↑ Q2 && [ₕ skip ]ₕ ⟩ ->
+    ⊢ ⟨ ↑ (P1 ⋈ P2) && [ₕ c₃ ]ₕ ⟩ c₁ ⟨ ↑ (Q1 ⋈ Q2) && [ₕ skip ]ₕ ⟩.
   Proof.
     intros.
     unfold valid_RelTriples in *.

@@ -135,7 +135,7 @@ Proof.
   eapply derivable1_trans; [apply derivable1_andp_elim1 | apply derivable1_refl]. 
 Qed.
 
-Class deduction_exp_and : Type := {
+Class deduction_exp_and := {
   derivable1_exp_andp_l : forall (A : Type) (P : A -> expr) (Q : expr), 
   ((exp P) && Q) |-- exp (fun x => (P x && Q));
   derivable1_andp_exp_l : forall (A : Type) (P : expr) (Q : A -> expr),
@@ -199,7 +199,7 @@ Proof.
   apply derivable1_sepcon_mono; apply derivable1_refl.
 Qed.
 
-Class deduction_exp_sepcon : Type := {
+Class deduction_exp_sepcon := {
   derivable1_exp_sepcon_l : forall (A : Type) (P : A -> expr) (Q : expr),
   ((exp P) * Q) |-- exp (fun x => (P x * Q));
   derivable1_sepcon_exp_l : forall (A : Type) (P : expr) (Q : A -> expr),
@@ -360,7 +360,7 @@ Proof.
     apply IHxs1'.
 Qed.
 
-Class IterSepconFlatten : Type := {
+Class IterSepconFlatten := {
   derivable1_iter_sepcon_flatten : forall xs1 xs2 xs3,
     iter_sepcon (xs1 ++ (iter_sepcon xs2 :: xs3)) |--
     iter_sepcon (xs1 ++ xs2 ++ xs3);
@@ -434,7 +434,7 @@ Proof.
   apply derivable1s_coq_prop_r. apply H.
 Qed.
 
-Class sepcon_andp_prop : Type := {
+Class sepcon_andp_prop := {
   derivable1_sepcon_coq_prop_andp_l : forall P Q R,
     P * (coq_prop Q && R) |-- (coq_prop Q) && (P * R);
   derivable1_sepcon_coq_prop_andp_r : forall P Q R,
@@ -506,7 +506,7 @@ Proof.
   apply derivable1_refl.
 Qed.
 
-Class sepcon_andp_prop_ext : Type := {
+Class sepcon_andp_prop_ext := {
   derivable1_sepcon_andp_coq_prop_l : forall P Q R,
     P * (Q && coq_prop R) |-- (coq_prop R) && (P * Q);
   derivable1_sepcon_andp_coq_prop_r : forall P Q R,
@@ -599,7 +599,7 @@ Proof.
   apply derivable1_refl.
 Qed.
 
-Class Iter_sepcon_andp_prop : Type := {
+Class Iter_sepcon_andp_prop := {
   derivable1_iter_sepcon_coq_prop_andp_l : forall xs1 P x2 xs3,
   iter_sepcon (xs1 ++ ((coq_prop P && x2) :: xs3)) |--
   (coq_prop P) && iter_sepcon (xs1 ++ (x2 ::xs3))

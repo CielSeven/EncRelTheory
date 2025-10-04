@@ -39,10 +39,10 @@ Proof.
   split; intros.
   - apply Byte.eqm_mod_eq. exact H.
   - unfold Byte.eqm. apply Zbits.eqmod_trans with (x mod 256).
-    + apply Zbits.eqmod_mod. lia.
+    + apply Zbits.eqmod_mod.
     + apply Zbits.eqmod_trans with (y mod 256).
       * apply Zbits.eqmod_refl2. auto.
-      * apply Zbits.eqmod_sym. apply Zbits.eqmod_mod. lia.
+      * apply Zbits.eqmod_sym. apply Zbits.eqmod_mod.
 Qed.
 
 Section generic_n_bytes.
@@ -65,8 +65,8 @@ Fixpoint bytes_eqm (n : nat) : forall (v1 v2 : Vector.t byte n), Prop :=
 
 Fixpoint n_bytes_to_Z n (v : Vector.t byte n) : Z :=
   match v with 
-  | Vector.nil => 0
-  | Vector.cons b n v' =>
+  | Vector.nil _ => 0
+  | Vector.cons _ b n v' =>
       (b mod 2^8) * 2 ^ (8 * Z.of_nat n) + n_bytes_to_Z n v'
   end.
 
@@ -175,8 +175,8 @@ Definition store_n_bytes_Z (x : addr) n (v : Z) : CRules.expr :=
 
 Fixpoint store_n_bytes_noninit (x : addr) n (v : Vector.t byte n) : CRules.expr :=
   match v with 
-    | Vector.nil => CRules.emp
-    | Vector.cons b n v' =>
+    | Vector.nil _ => CRules.emp
+    | Vector.cons _ b n v' =>
         CRules.sepcon (CRules.mstore_noninit x) (store_n_bytes_noninit (x + 1) n v')
   end.
 
@@ -1289,7 +1289,7 @@ Proof.
   intros.
   unfold store_align4_n. Intros l1 l2. 
   Exists (l1 ++ l2). destruct H , H0. 
-  revert dependent l2. revert dependent n. revert m.
+  generalize dependent l2. generalize dependent n. revert m.
   induction H1 ; simpl in * ; intros ; auto.
   - entailer!. cbv in H. lia.  
   - rewrite Zlength_cons in *.

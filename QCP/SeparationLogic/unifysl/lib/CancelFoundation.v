@@ -20,7 +20,7 @@ Inductive expr_deep : Type :=
 Fixpoint beq e1 e2 :=
   match e1, e2 with
   | emp_deep, emp_deep => true
-  | varp_deep x, varp_deep y => EqNat.beq_nat x y
+  | varp_deep x, varp_deep y => Nat.eqb x y
   | sepcon_deep p11 p12, sepcon_deep p21 p22 => andb (beq p11 p21) (beq p12 p22)
   | impp_deep p11 p12, impp_deep p21 p22 => andb (beq p11 p21) (beq p12 p22)
   | _, _ => false

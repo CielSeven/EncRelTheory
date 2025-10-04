@@ -25,16 +25,6 @@ Definition Hoare {Σ A: Type}
     P σ1 -> c.(nrm) σ1 a σ2 -> Q a σ2)
   /\ (forall (σ1: Σ), P σ1 -> c.(err) σ1 -> False)).
 
-Definition valid_angelic_triple {Σ A: Type}
-  (P: Σ -> Prop)
-  (c: program Σ A)
-  (Q: A -> Σ -> Prop): Prop := 
-    forall s1, P s1 -> exists a s2, (s1, a, s2) ∈ c.(nrm) /\ Q a s2.
-
-Definition weakestpre {Σ A: Type}
-  (c: program Σ A)
-  (Q: A -> Σ -> Prop): Σ -> Prop := 
-    fun σ =>  ~ c.(err) σ /\ forall r σ', (σ, r, σ') ∈ c.(nrm) -> Q r σ'.
 
 Lemma Hoare_proequiv:
   forall {A Σ: Type} (c1 c2: program Σ A) (P: Σ -> Prop) (Q: A -> Σ -> Prop),
@@ -674,3 +664,251 @@ Proof.
   hoare_auto.
   lia.
 Qed.
+
+
+
+
+(********************************************************************************)
+(************************     Other Hoare premitives     ************************)
+(************************       1. weakest precondition  ************************)
+(************************       1. angelic Hoare         ************************)
+(********************************************************************************)
+Section Hoare_defs.
+Import MonadErr.
+(* Weakest liberal precondition  *)
+Definition weakestpre {Σ A: Type}
+  (c: program Σ A)
+  (Q: A -> Σ -> Prop): Σ -> Prop := 
+    fun σ =>  ~ c.(err) σ /\ forall r σ', (σ, r, σ') ∈ c.(nrm) -> Q r σ'.
+
+Definition valid_angelic_triple {Σ A: Type}
+  (P: Σ -> Prop)
+  (c: program Σ A)
+  (Q: A -> Σ -> Prop): Prop := 
+    forall s1, P s1 -> exists a s2, (s1, a, s2) ∈ c.(nrm) /\ Q a s2.
+
+End Hoare_defs.
+Section WLPrules.
+Import MonadErr.
+  Context {Σ A B: Type}.
+
+  Theorem wp_spec (c: program Σ A) (s1 s2:Σ) a:
+    c.(nrm) s1 a s2 -> 
+    forall Q,
+    s1 ∈ (weakestpre c Q) ->
+    s2 ∈ (Q a).
+  Proof.
+    unfold weakestpre; intros H0 Q H1.
+    sets_unfold in H1. destruct H1.
+    apply H1;auto.
+  Qed.
+
+  Theorem wp_spec_err (c: program Σ A) (s1:Σ) Q:
+    s1 ∈ (weakestpre c Q) ->
+    ~ err c s1.
+  Proof.
+    unfold weakestpre; intros. 
+    sets_unfold in H. tauto.
+  Qed.
+
+  Theorem wp_self (c: program Σ A) (s: Σ):
+    ~ err c s ->
+    s ∈ (weakestpre c (fun a s' => c.(nrm) s a s')).
+  Proof.
+    intros. unfold weakestpre. sets_unfold. split;auto. 
+  Qed.
+ 
+  Theorem wp_Hoare (c: program Σ A) (Q: A -> Σ -> Prop):
+    Hoare (weakestpre c Q) c Q.
+  Proof.
+    unfold weakestpre, Hoare.
+    split. 
+    intros s1 a s2 [? H0]. auto.
+    intros ? [? ?]. auto.
+  Qed.
+
+  Theorem wp_Hoare_iff (P: Σ -> Prop) (Q: A -> Σ -> Prop) (c: program Σ A):
+    P ⊆ (weakestpre c Q) <->
+    Hoare P c Q.
+  Proof.
+    split;intros.
+    - 
+    eapply Hoare_cons_pre;[ | apply wp_Hoare].
+    sets_unfold in H.
+    auto.
+    - unfold weakestpre, Hoare in *.
+      destruct H.
+      sets_unfold. 
+      intros.
+      split. unfold not. apply H0;auto.
+      intros. 
+      eapply H;eauto.
+  Qed.
+
+  Lemma wp_progequiv (c1 c2: program Σ A) (Q: A -> Σ -> Prop):
+    c2 == c1 ->
+    (weakestpre c1 Q == weakestpre c2 Q)%sets.
+  Proof.
+    intros.
+    destruct H. 
+    unfold weakestpre. intros s1. 
+    split;intros [? ?].
+    - split. unfold not in *. intros. apply H. apply errequiv;auto. 
+      intros. apply H0. apply nrmequiv. auto.
+    - split. unfold not in *. intros. apply H. apply errequiv;auto. 
+      intros. apply H0. apply nrmequiv. auto.
+  Qed.
+
+  Lemma wp_conseq (c: program Σ A) (Q1 Q2: A -> Σ -> Prop):
+    Q1 ⊆ Q2 ->
+    weakestpre c Q1 ⊆ weakestpre c Q2.
+  Proof.
+    unfold weakestpre; intros H s1 [? ?].
+    split;auto.
+    intros.
+    apply H. 
+    auto.
+  Qed.
+
+  Lemma wp_bind (f: program Σ A) (g: A -> program Σ B) (Q: B -> Σ -> Prop):
+  (weakestpre (x <- f;; g x) Q ==  weakestpre f (fun a => weakestpre (g a) Q))%sets.
+  Proof.
+    intros s1. 
+    unfold weakestpre. unfold_monad.
+    split. 
+    - intros [? ?].
+      split.
+      + sets_unfold in H.
+        tauto.
+      + split.
+        { sets_unfold in H. unfold not in *. intros. apply H.
+          right. do 2 eexists. split;eauto. apply H1. }  
+        intros.
+        apply H0.
+        exists r , σ'.
+        split;auto.
+    - intros [? ?].
+      split.
+      + sets_unfold. unfold not. intros [ | ];[tauto | ].
+        destruct H1 as [a [s2' [? ?]]].
+        apply H0 in H1 as [? _].
+        tauto.
+      + intros.
+        destruct H1 as [a [s2' [? ?]]].
+        apply H0 in H1 as [_ ?].
+        apply H1;auto.
+  Qed.
+
+  Lemma wp_ret (a: A) (Q: A -> Σ -> Prop):
+    (weakestpre (ret a) Q == (Q a))%sets.
+  Proof.
+    intros s1.
+    split;intros.
+    - unfold weakestpre in H.
+      destruct H as [_ ?].
+      apply H.
+      unfold_monad. sets_unfold.
+      auto.
+    - unfold weakestpre.
+      unfold_monad.
+      split;[auto | ].
+      intros ? ? [? ?].
+      subst.
+      auto.
+  Qed.
+
+  Lemma wp_choice (c1 c2: program Σ A) (Q: A -> Σ -> Prop):
+    (weakestpre (choice c1 c2) Q == (weakestpre c1 Q) ∩ (weakestpre c2 Q))%sets.
+  Proof.
+    intros s1.
+    unfold weakestpre, choice. 
+    cbn [err nrm].
+    sets_unfold. 
+    split;intros [? ?].
+    - split.
+      + split;auto.
+      + split;auto. 
+    - destruct H. destruct H0.
+      split;[tauto | ].
+      intros.
+      destruct H3 as [H3 | H3].
+      apply H1;auto.
+      apply H2;auto.
+  Qed.
+
+  Lemma wp_assume_coqprop (P: Prop) (Q: unit -> Σ -> Prop):
+    P ->
+    (weakestpre (assume!! P) Q == (Q tt))%sets.
+  Proof.
+    intros H s1.
+    split;intros.
+    - unfold weakestpre in H0.
+      destruct H0 as [_ ?].
+      apply H0.
+      unfold testPure in *. cbn [nrm] in *.
+      sets_unfold.
+      auto.
+    - unfold weakestpre, testPure.
+      simpl. split;[auto | ].
+      intros ? ? [? ?].
+      subst. destruct r.
+      auto.
+  Qed.
+
+  Lemma wp_assume (P: Σ -> Prop) (Q: unit -> Σ -> Prop):
+    (weakestpre (assume P) Q == (fun s => P s -> Q tt s))%sets.
+  Proof.
+    intros s1.
+    split;intros.
+    - unfold weakestpre in H.
+      apply H.
+      unfold test.
+      split;auto.
+    - unfold weakestpre, test.
+      simpl. split;[auto | ].
+      intros ? ? [? ?].
+      subst. destruct r.
+      auto.
+  Qed.
+
+  Lemma wp_any (P: Type) (Q: P -> Σ -> Prop):
+    (weakestpre (any P) Q == (fun s => forall a, Q a s))%sets.
+  Proof.
+    intros s1.
+    split;intros.
+    - unfold weakestpre in H.
+      destruct H as [_ H].
+      apply H.
+      unfold any. sets_unfold. simpl.
+      auto.
+    - unfold weakestpre.
+      unfold any. simpl.
+      split;[auto | ].
+      intros. sets_unfold in H0.  
+      subst.
+      apply H.
+  Qed.
+
+  Lemma wp_assert (P: Prop) (Q: unit -> Σ -> Prop):
+    (weakestpre (assert P) Q == (fun s => P /\ Q tt s))%sets.
+  Proof.
+    intros s1.
+    split;intros.
+    - unfold weakestpre in H.
+      destruct H.
+      unfold assert in *. 
+      cbn in *.
+      split;[tauto | ].
+      apply H0.
+      sets_unfold.
+      tauto.
+    - unfold weakestpre, assert.
+      simpl. split;[tauto | ].
+      intros ? ? [? ?].
+      subst. destruct r.
+      tauto.
+  Qed.
+
+
+End WLPrules.
+

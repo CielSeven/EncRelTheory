@@ -11,7 +11,7 @@ Class BigStepSemantics (P: ProgrammingLanguage) (state: Type): Type := {
   access: state -> cmd -> MetaState state -> Prop
 }.
 
-Class NormalBigStepSemantics (P: ProgrammingLanguage) (state: Type) (BBS: BigStepSemantics P state): Type := {
+Class NormalBigStepSemantics (P: ProgrammingLanguage) (state: Type) (BBS: BigStepSemantics P state):= {
   access_defined: forall s c, exists ms, access s c ms
 }.
 
@@ -42,7 +42,7 @@ Definition term_norm
   Prop :=
   ~ access s c Error /\ ~ access s c NonTerminating.
 
-Class SABigStepSemantics (P: ProgrammingLanguage) (state: Type) {J: Join state} {state_R: Relation state} (BSS: BigStepSemantics P state): Type := {
+Class SABigStepSemantics (P: ProgrammingLanguage) (state: Type) {J: Join state} {state_R: Relation state} (BSS: BigStepSemantics P state) := {
   frame_property: forall m mf m' c n', join m mf m' -> access m' c n' -> exists n nf, mf <= nf /\ lift_join n (Terminating nf) n' /\ access m c n
 }.
 

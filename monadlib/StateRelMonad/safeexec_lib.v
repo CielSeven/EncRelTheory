@@ -5,24 +5,21 @@ Require Import Coq.Classes.Morphisms.
 Require Import Coq.Lists.List.
 From SetsClass Require Import SetsClass.
 From MonadLib.StateRelMonad Require Import StateRelBasic StateRelHoare.
-From EncRelSeq.Basics Require Import basictacs basicasrt.
-From EncRelSeq.Basics Require Export encdefs.
-
-Import SetsNotation.
-Local Open Scope sets_scope.
-Local Open Scope asrt_scope.
-
-#[export] Instance staterelmonad_highlevel_defs {Σ A: Type} : highlevel_defs Σ (program Σ A) (A -> Σ -> Prop) := {|
-  highlevel_wlp := @weakestpre Σ A
-|}.
 
 Import Monad SetsNotation MonadNotation.
 Local Open Scope sets.
 Local Open Scope monad.
 
+Definition safe  {Σ A: Type} (σ : Σ) (c:  program Σ A) (X: A -> Σ -> Prop) :=
+  σ ∈ (weakestpre c X).
+
+Definition safeExec {Σ: Type} {A: Type} (P: Σ -> Prop) (c: program Σ A) (X: A -> Σ -> Prop) :=
+  exists σₕ, P σₕ /\ safe σₕ c X.
+
 Definition result_state {Σ A: Type} (P: Σ -> Prop) (c: program Σ A): A -> Σ -> Prop :=
   fun a s1 => exists s0, P s0 /\ c s0 a s1. 
 
+(* angelic reduction with return value a *)
 Definition hs_eval {Σ: Type}  {A: Type} (c : program Σ A) (P : Σ -> Prop) (P' : (Σ -> Prop)) (a : A) := 
   forall (σₕ : Σ), P σₕ -> exists (σₕ' : Σ), c σₕ a σₕ' /\ P' σₕ'.
 
@@ -31,17 +28,38 @@ Notation " P '-@' s '-⥅' P' '♯' a " := (hs_eval s P P' a) (at level 70, no a
 
 Notation " P '-@' s '-→' P' " := (exists a,  hs_eval s P P' a) (at level 70, no associativity).
 
-Section  safeexec_rules.
+
+(**********************************************************************************)
+(*    safe exec  rules                                                            *)
+(**********************************************************************************)
+Ltac splits :=
+  match goal with 
+  | |- _ /\ _ => split;splits
+  | |- _ => idtac end.
+
+Local Ltac my_destruct Σ H :=
+  match type of H with
+  | exists (_ : ?A), _ =>  
+              match A with 
+              | Σ => let σ := fresh "σₕ" in destruct H as [σ H];my_destruct Σ H
+              | program Σ ?A => let c := fresh "c" in destruct H as [c H];my_destruct Σ H
+              | _ => destruct H as [? H];my_destruct Σ H
+              end
+  | _ /\ _ => let H0 := fresh "H" in 
+              destruct H as [H H0];
+              my_destruct Σ H;
+              my_destruct Σ H0
+  | _ \/ _ => destruct H as [H | H];
+              my_destruct Σ H
+  | _ => (discriminate || contradiction  || idtac)
+  end.
+
+Section  hs_eval_rules.
   Context {Σ: Type}.
 
   Definition asrt : Type :=  Σ -> Prop.
 
-  Ltac destructs H := st_destruct Σ H.
-  Lemma ret_eq : forall {A : Type} (s: Σ) s0 (a a0: A),
-    (ret a) s a0 s0 <-> s = s0 /\ a0 = a.
-  Proof.
-    unfold_monad; tauto.
-  Qed.
+  Ltac destructs H := my_destruct Σ H.
 
   Lemma hs_eval_equiv_angelic_triple: forall {A : Type} (c1: program Σ A)  (P  : Σ -> Prop) a Q, 
     P -@ c1 -⥅ Q ♯ a <->
@@ -55,29 +73,68 @@ Section  safeexec_rules.
     - specialize (H _ H0) as (? & ? & ? & ? & ?). subst.
       sets_unfold in H. eexists. splits;eauto.
   Qed. 
+  
+  Lemma highstepbind_derive : forall {A B: Type} (c1: program Σ A) (c2: A -> program Σ B) (P  : Σ -> Prop) a P',
+    P -@ c1 -⥅ (P') ♯ a ->
+    (forall X, safeExec P (x <- c1 ;; c2 x) X -> safeExec P' (c2 a) X).
+  Proof.
+    intros.
+    unfold hs_eval, safeExec, safe in *. 
+    destructs H0.
+    rewrite wp_bind in H1.
+    specialize (H _ H0) as [σₕ' [? ?]].
+    eexists.
+    split;eauto.
+    eapply wp_spec with (Q:= (fun a : A => weakestpre (c2 a) X)); [ apply H | ].
+    auto.
+  Qed.
+
+  Lemma highstepseq_derive : forall  {A B: Type} (c1: program Σ A) (c2:  program Σ B) (P P': Σ -> Prop),
+    P -@ c1 -→ P'  ->
+    (forall X, safeExec P (c1 ;; c2) X -> safeExec P' c2 X).
+  Proof.
+    intros.
+    destruct H.
+    unfold_monad in H0.
+    pose proof (highstepbind_derive c1 (fun _ => c2) P x ((P')) H).
+    eapply H1;eauto.
+  Qed.
+  
+  Lemma hseval_stateless_ret: forall  {A: Type}  (m: program unit A) (a : A),
+    m tt a tt ->
+    ATrue -@ m -⥅ ATrue ♯ a.
+  Proof.
+    intros. hnf. 
+    exists tt.
+    destruct σₕ.
+    easy.
+  Qed.
+
+
+  Lemma ret_eq : forall {A : Type} (s: Σ) s0 (a a0: A),
+    (ret a) s a0 s0 <-> s = s0 /\ a0 = a.
+  Proof.
+    unfold_monad; tauto.
+  Qed.
 
   Lemma highstependret_derive : forall  {A : Type} (c1: program Σ A)  (P  : Σ -> Prop) a P',
   P -@ c1 -⥅ (P' a) ♯ a ->
-  (forall X, Exec P (c1) X ->  Exec (P' a) (ret a) X).
+  (forall X, safeExec P (c1) X ->  safeExec (P' a) (ret a) X).
   Proof.
     intros.
-    unfold hs_eval, Exec in *; simpl in *. unfold weakestpre in *. 
+    unfold hs_eval, safeExec, safe in *.
     destructs H0. 
-    simpl in *.
     specialize (H _ H0) as [σₕ' [? ?]].
-    sets_unfold. sets_unfold in H1. 
     exists σₕ'.
     splits;auto.
-    intros.
-    unfold_monad in H3.
-    destruct H3;subst.
-    eapply H1;eauto.
+    rewrite wp_ret.
+    eapply wp_spec;eauto.
   Qed.
 
 
   Lemma highstepend_derive : forall  (c1: program Σ unit)  (P  : Σ -> Prop) P',
   P -@ c1 -→ P' ->
-  (forall X, Exec P (c1) X ->  Exec P' (ret tt) X).
+  (forall X, safeExec P  c1 X  -> safeExec P' (return tt) X).
   Proof.
     intros.
     destruct H.
@@ -85,36 +142,6 @@ Section  safeexec_rules.
     pose proof (highstependret_derive c1  P tt ((fun _ => P')) H).
     eapply H1;eauto.
   Qed.
-
-  Lemma highstepbind_derive : forall {A B: Type} (c1: program Σ A) (c2: A -> program Σ B) (P  : Σ -> Prop) a P',
-  P -@ c1 -⥅ (P') ♯ a ->
-  (forall X, Exec P (x <- c1;; c2 x) X ->  Exec (P') (c2 a) X).
-  Proof.
-    intros.
-    unfold hs_eval, Exec in *; simpl in *. unfold weakestpre in *. 
-    destructs H0. 
-    simpl in *.
-    specialize (H _ H0) as [σₕ' [? ?]].
-    sets_unfold. sets_unfold in H1.
-    exists σₕ'.
-    splits;auto.
-    intros.
-    unfold_monad in H1.
-    sets_unfold; sets_unfold in H1.
-    eapply H1;eauto.
-  Qed.
-
-  Lemma highstepseq_derive : forall  {A B: Type} (c1: program Σ A) (c2:  program Σ B) (P P': Σ -> Prop),
-    P -@ c1 -→ P'  ->
-    (forall X, Exec P (c1 ;; c2) X ->  Exec P' c2 X).
-  Proof.
-    intros.
-    destruct H.
-    unfold_monad in H0.
-    pose proof (highstepbind_derive c1 (fun _ => c2) P x ((P')) H).
-    eapply H1;eauto.
-  Qed. 
-
 
   Lemma highret_eval1 : forall {A: Type}  (P  : Σ -> Prop) (a: A), 
     P -@ (ret a) -→ P.
@@ -196,58 +223,6 @@ Section  safeexec_rules.
     eauto.
   Qed.
 
-  Lemma Exec_ex : forall {A B: Type} (P: A -> Σ -> Prop) (c:  program Σ B) X,
-  (exists a, Exec (P a) (c) X) <->  Exec (fun σ => exists a, P a σ) (c) X.
-  Proof.
-    unfold Exec;simpl;unfold weakestpre;intros;split;intros.
-    - destruct H as (? & ? & ? & ?).
-      sets_unfold. sets_unfold in H.
-      eexists.
-      split;eauto.
-    - destruct H as (? & (? & ?) & ?).
-      sets_unfold. sets_unfold in H0.
-      do 2 eexists.
-      split;eauto.
-  Qed. 
-
-  Lemma Exec_prorefine: forall {A : Type} (c1 c2: program Σ A)  (P  : Σ -> Prop) X,
-  c2 ⊆ c1 ->
-  Exec P c1 X -> Exec P c2 X.
-  Proof.
-    unfold Exec;simpl;unfold weakestpre; sets_unfold. intros.
-    destructs H0.
-    eexists.
-    split;eauto.
-    unfold safe in *.
-    intros.
-    sets_unfold in H.
-    eapply H1;eauto.
-  Qed.
-
-  Lemma Exec_X_subset {A: Type} (c: program Σ A) (P: Σ -> Prop) X1 X2:
-    X1 ⊆ X2 ->
-    Exec P c X1 ->
-    Exec P c X2.
-  Proof.
-    unfold Exec;simpl;unfold weakestpre;sets_unfold. intros Hx [s [H1 H2]].
-    exists s; split; auto.
-  Qed.
-
-  Lemma Exec_proequiv: forall {A : Type} (c1 c2: program Σ A)  (P  : Σ -> Prop) X,
-    c1 == c2 ->
-    Exec P c1 X -> Exec P c2 X.
-  Proof.
-    unfold Exec;simpl;unfold weakestpre;sets_unfold. intros.
-    destructs H0.
-    eexists.
-    split;eauto.
-    unfold safe in *.
-    intros.
-    sets_unfold in H.
-    eapply H1;eauto.
-    eapply H;eauto.
-  Qed.
-
   Lemma hs_eval_proequiv: forall {A : Type} (c1 c2: program Σ A)  (P  Q: Σ -> Prop) a,
   c1 == c2 ->
   P -@ c1 -⥅ Q ♯ a ->
@@ -261,45 +236,238 @@ Section  safeexec_rules.
     eapply H;eauto.
   Qed.
 
-  Lemma Exec_bind : forall {A B: Type} (c1: program Σ A) (c2: A -> program Σ B) (P : Σ -> Prop) ,
-    forall X, Exec P (x <- c1 ;; c2 x) X ->
-    exists X', Exec P c1 X' /\
-    (forall P' a, Exec P'  (ret a) X' -> 
-              Exec P' (c2 a) X).
+End hs_eval_rules.
+
+Section exec_rules.
+
+  Context {Σ: Type}.
+
+  Ltac destructs H := my_destruct Σ H.
+  Lemma safeExec_ex : forall {A B: Type} (P: A -> Σ -> Prop) (c:  program Σ B) X,
+  (exists a, safeExec (P a) (c) X) <->  safeExec (fun σ => exists a, P a σ) (c) X.
+  Proof.
+    unfold safeExec;intros;split;intros.
+    - destruct H as (? & ? & ? & ?).
+      eexists.
+      split;eauto.
+    - destruct H as (? & (? & ?) & ?).
+      do 2 eexists.
+      split;eauto.
+  Qed. 
+
+
+  Lemma safeExec_prorefine: forall {A : Type} (c1 c2: program Σ A)  (P  : Σ -> Prop) X,
+  c2 ⊆ c1 ->
+  safeExec P c1 X -> safeExec P  c2  X.
+  Proof.
+    unfold safeExec. intros.
+    destructs H0.
+    eexists.
+    split;eauto.
+    unfold safe in *.
+    eapply wp_progrefine;eauto.
+  Qed.
+
+  Lemma safeExec_X_subset {A: Type} (c: program Σ A) (P: Σ -> Prop) X1 X2:
+    X1 ⊆ X2 ->
+    safeExec P c X1 -> safeExec P c X2.
+  Proof.
+    unfold safeExec, safe; intros Hx [s [H1 H2]].
+    exists s; split; auto.
+    eapply wp_conseq;eauto.
+  Qed.
+
+  Lemma safeExec_proequiv: forall {A : Type} (c1 c2: program Σ A)  (P  : Σ -> Prop) X,
+  c1 == c2 ->
+  safeExec P c1 X  -> safeExec P c2 X.
+  Proof.
+    unfold safeExec. intros.
+    destructs H0.
+    eexists.
+    split;eauto.
+    unfold safe in *.
+    intros.
+    rewrite wp_progequiv;eauto.
+  Qed.
+
+  Lemma safeExec_choice_l: forall {A: Type} (c1 c2: program Σ A) P X,
+    safeExec P (choice c1 c2) X -> safeExec P c1  X.
+  Proof.
+    unfold safeExec,  safe.
+    intros.
+    destruct H as [σ [? ?]].
+    exists σ.
+    split; [tauto |].
+    rewrite wp_choice in H0.
+    rewrite Sets_intersect_included1 in H0.
+    auto.
+  Qed.
+
+  Lemma safeExec_choice_r: forall {A: Type} (c1 c2: program Σ A) P X,
+    safeExec P (choice c1 c2) X -> safeExec P c2 X.
+  Proof.
+    unfold safeExec,  safe.
+    intros.
+    destruct H as [σ [? ?]].
+    exists σ.
+    split; [tauto |].
+    rewrite wp_choice in H0.
+    rewrite Sets_intersect_included2 in H0.
+    auto.
+  Qed.
+
+  Lemma safeExec_test': forall (Q: Prop) P (X: unit -> Σ -> Prop),
+    Q ->
+    safeExec P (assume!! Q) X -> safeExec P (skip) X.
+  Proof.
+    unfold safeExec, safe. intros.
+    destructs H0.
+    eexists.
+    split;eauto.
+    rewrite wp_assume_coqprop in H1;auto.
+    rewrite wp_ret.
+    auto.
+  Qed.
+
+  Lemma safeExec_testst: forall (Q: Σ -> Prop) (P: Σ -> Prop) (X: unit -> Σ -> Prop),
+    (forall st, P st -> Q st) ->
+    safeExec P (assume Q) X -> safeExec P (skip) X.
+  Proof.
+    unfold safeExec, safe. intros.
+    destructs H0.
+    eexists.
+    split;eauto.
+    rewrite wp_assume in H1.
+    rewrite wp_ret.
+    apply H1.
+    auto.
+  Qed.
+
+
+  Lemma safeExec_any: forall (Q: Type) P (X: Q -> Σ -> Prop) q,
+    safeExec P (any Q) X -> safeExec P (ret q) X.
+  Proof.
+    unfold safeExec, safe. intros.
+    destructs H.
+    eexists.
+    split;eauto.
+    rewrite wp_any in H0.
+    sets_unfold in H0.
+    rewrite wp_ret.
+    apply H0.
+  Qed.
+
+  Lemma safeExec_get: forall {A: Type} (Pa: Σ -> A -> Prop) (P: Σ -> Prop) (X: A -> Σ -> Prop) a, 
+  (forall s, P s -> Pa s a) ->
+    safeExec P (get Pa) X -> safeExec P (ret a) X.
+  Proof. 
+    unfold safeExec, safe. intros.
+    destructs H0.
+    eexists.
+    split;eauto.
+    rewrite wp_get in H1.
+    sets_unfold in H1.
+    rewrite wp_ret.
+    apply H1;auto.
+  Qed.
+
+  Lemma safeExec_get': forall {A: Type} (f: Σ -> A) (P: Σ -> Prop) (X: A -> Σ -> Prop) a, 
+    (forall s, P s -> a = f s) ->
+    safeExec P (get' f) X -> safeExec P (ret a) X.
+  Proof. 
+    unfold safeExec, safe. intros.
+    destructs H0.
+    eexists.
+    split;eauto.
+    rewrite wp_get' in H1.
+    sets_unfold in H1.
+    rewrite wp_ret.
+    apply H1;auto.
+  Qed.
+
+  Lemma safeExec_update' : forall (f: Σ -> Σ) (P: Σ -> Prop) (X: unit -> Σ -> Prop), 
+    safeExec P (update' f) X -> safeExec (fun s => exists s0, s = f s0 /\ P s0) (skip) X.
+  Proof. 
+    unfold safeExec, safe. intros.
+    destructs H.
+    exists (f σₕ).
+    split;eauto.
+    rewrite wp_update' in H0.
+    sets_unfold in H0.
+    rewrite wp_ret.
+    apply H0;auto.
+  Qed.
+
+  (* primitive rule *)
+  Lemma safeExec_bind_reta  : forall {A B: Type} (c1: program Σ A) (c2: A -> program Σ B) (P : Σ -> Prop) P' a,
+    (forall X, safeExec P c1 X ->  safeExec (P') (ret a) X) ->
+    (forall X, safeExec P (x <- c1 ;; c2 x) X -> safeExec (P') (c2 a) X).
   Proof.
     intros.
-    unfold Exec in H. simpl_hdefs.
+    unfold safeExec, safe in *.
+    destructs H0.
+    rewrite wp_bind in H1.
+    specialize (H (fun a : A => weakestpre (c2 a) X) (ltac:(exists σₕ; auto))).
     destructs H.
-    unfold weakestpre in H0.
-    exists (fun (r : A) (x : Σ) => c1 st r x).
-    unfold Exec. simpl_hdefs;unfold weakestpre. sets_unfold.
+    exists σₕ0.
+    split;eauto.
+    rewrite wp_ret in H2.
+    auto. 
+  Qed.
+
+  Lemma safeExec_bind'  : forall {A B: Type} (c1: program Σ A) (c2: A -> program Σ B) (P : Σ -> Prop) P',
+    (forall X, safeExec P c1 X -> exists a, safeExec (P')  (ret a) X) ->
+    (forall X, safeExec P (x <- c1 ;; c2 x) X -> exists a, safeExec (P') (c2 a) X).
+  Proof.
+    intros.
+    unfold safeExec, safe in *.
+    destructs H0.
+    rewrite wp_bind in H1.
+    specialize (H (fun a : A => weakestpre (c2 a) X) (ltac:(exists σₕ; auto))).
+    destructs H.
+    exists x , σₕ0.
+    split;eauto.
+    rewrite wp_ret in H2.
+    auto. 
+  Qed.
+
+  Lemma safeExec_bind : forall {A B: Type} (c1: program Σ A) (c2: A -> program Σ B) (P : Σ -> Prop) ,
+    forall X, safeExec P (x <- c1 ;; c2 x) X ->
+    exists X', safeExec P c1 X' /\
+    (forall P' a, safeExec P'  (ret a) X' -> 
+              safeExec P' (c2 a) X).
+  Proof.
+    intros.
+    unfold safeExec in H.
+    destructs H.
+    unfold safe in H0.
+    exists (fun (r : A) (x : Σ) => c1 σₕ r x).
+    unfold safeExec.
     splits;eauto.
     { eexists.
       split;eauto.
       unfold safe.
-      intros. auto.
+      apply wp_self.
     }
     intros.
     destructs H1.
     eexists.
     split;eauto.
-    unfold_monad in H2.
-    specialize (H2 a st0 (ltac:(auto))).
-    unfold safe.
-    intros.
-    eapply H0.
-    unfold_monad.
-    sets_unfold; sets_unfold in H0; sets_unfold; sets_unfold in H2.
-    do 2 eexists.
-    split;eauto.
+    unfold safe in *.
+    rewrite wp_ret in H2.
+    rewrite wp_bind in H0.
+    sets_unfold in H2.
+    simple eapply wp_spec in H2;eauto.
+    auto. 
   Qed. 
 
-  Lemma Exec_bind_high {A B: Type}: forall a (Q: A -> Σ -> Prop) (P : Σ -> Prop) (c1: program Σ A) (c2: A -> program Σ B) X,
-    Exec P (x <- c1;; c2 x) X ->
+  (* this can be replaced by highstependret_derive*)
+  Lemma safeExec_bind_high {A B: Type}: forall a (Q: A -> Σ -> Prop) (P : Σ -> Prop) (c1: program Σ A) (c2: A -> program Σ B) X,
+    safeExec P (x <- c1;; c2 x) X ->
     (forall s1, P s1 -> exists s2, c1 s1 a s2 /\ Q a s2) ->
-    Exec (Q a) (c2 a) X.
+    safeExec (Q a) (c2 a) X.
   Proof.
-    unfold Exec;simpl_hdefs;unfold weakestpre; unfold_monad; sets_unfold; intros.
+    unfold safeExec, safe; unfold_monad; sets_unfold; intros.
     destruct H as [s [HP Hs]].
     specialize (H0 s HP); destruct H0 as [s1 [Hc1 Qs2]].
     exists s1; split; auto.
@@ -308,12 +476,12 @@ Section  safeexec_rules.
     exists a, s1; tauto.
   Qed.
 
-  Lemma Exec_bind_unit {B: Type}: forall (Q: Σ -> Prop) (P : Σ -> Prop) (c1: program Σ unit) (c2:program Σ B) X,
-    Exec P (c1;; c2) X ->
+  Lemma safeExec_bind_unit {B: Type}: forall (Q: Σ -> Prop) (P : Σ -> Prop) (c1: program Σ unit) (c2:program Σ B) X,
+    safeExec P (c1;; c2) X ->
     (forall s1, P s1 -> exists s2, c1 s1 tt s2 /\ Q s2) ->
-    Exec Q c2 X.
+    safeExec Q c2 X.
   Proof.
-    unfold Exec;simpl_hdefs;unfold weakestpre; unfold_monad; sets_unfold; intros.
+    unfold safeExec, safe; unfold_monad; sets_unfold; intros.
     destruct H as [s [HP Hs]].
     specialize (H0 s HP); destruct H0 as [s1 [Hc1 Qs2]].
     exists s1; split; auto.
@@ -322,288 +490,151 @@ Section  safeexec_rules.
     exists tt, s1; tauto.
   Qed.
 
-  Lemma Exec_conseq: forall {A: Type} (P' P: Σ -> Prop) (c: program Σ A)  X,
-    Exec P c X ->
+  Lemma safeExec_conseq: forall {A: Type} (P' P: Σ -> Prop) (c: program Σ A)  X,
+    safeExec P c X ->
     (forall s, P s -> P' s) ->
-    Exec P' c X.
+    safeExec P' c X.
   Proof.
-    unfold Exec;simpl_hdefs;unfold weakestpre;sets_unfold; intros.
+    unfold safeExec, safe; intros.
     destruct H as [hs [Ps Hc]].
     exists hs; split; auto.
   Qed.
-  
-  (* Lemma Exec_bind'  : forall {A B: Type} (c1: program Σ A) (c2: A -> program Σ B) (P : Σ -> Prop) P',
-    (forall X, Exec P c1 X -> exists a, Exec (P')  (ret a) X) ->
-    (forall X, Exec P (x <- c1 ;; c2 x) X -> exists a, Exec (P') (c2 a) X). *)
 
-  Lemma Exec_choice_left: forall {A: Type} (c1 c2: program Σ A) P X,
-    Exec P (choice c1 c2) X ->
-    Exec P c1 X.
-  Proof.
-    unfold Exec, choice;simpl_hdefs;unfold weakestpre;sets_unfold.
-    intros.
-    destruct H as [σ [? ?]].
-    exists σ.
-    split; [tauto | ].
-    intros.
-    specialize (H0 r σ' ltac:(left; tauto)).
-    tauto.
-  Qed.
 
-  Lemma Exec_choice_right: forall {A: Type} (c1 c2: program Σ A) P X,
-    Exec P (choice c1 c2) X ->
-    Exec P c2 X.
-  Proof.
-    unfold Exec, choice;simpl_hdefs;unfold weakestpre;sets_unfold.
-    intros.
-    destruct H as [σ [? ?]].
-    exists σ.
-    split; [tauto | ].
-    intros.
-    specialize (H0 r σ' ltac:(right; tauto)).
-    tauto.
-  Qed.
+  (* corollaries with bind *)
 
-  Lemma Exec_test_bind: forall {A: Type} (Q: Prop) (c: program Σ A) P X,
+  Lemma safeExec_test_bind: forall {A: Type} (Q: Prop) (c: program Σ A) P X,
     Q ->
-    Exec P (assume!! Q ;; c) X ->
-    Exec P c X.
+    safeExec P (assume!! Q ;; c) X  -> safeExec P c X.
   Proof.
-    intros.
-    eapply (Exec_bind_high tt (fun _ => P)) in H0; auto.
-    unfold test'; intros.
-    exists s1; tauto.
+    intros * H.
+    eapply safeExec_bind_reta with (a:= tt).
+    intros *.
+    apply safeExec_test';auto.
   Qed.
 
-  Lemma Exec_testst_bind: forall {A: Type} (Q: Σ -> Prop) (c: program Σ A) (P: Σ -> Prop) X,
+  Lemma safeExec_testst_bind: forall {A: Type} (Q: Σ -> Prop) (c: program Σ A) (P: Σ -> Prop) X,
     (forall st, P st -> Q st) ->
-    Exec P (assume Q;; c) X ->
-    Exec P c X.
+    safeExec P (assume Q ;; c) X  -> safeExec P c X.
   Proof.
-    unfold Exec, test, bind;simpl_hdefs;unfold weakestpre;sets_unfold.
-    intros.
-    destruct H0 as [σ [? ?]].
-    exists σ.
-    split; [tauto | ].
-    intros.
-    apply (H1 r σ').
-    exists tt, σ.
-    sets_unfold.
-    splits;auto.
+    intros * H.
+    eapply safeExec_bind_reta with (a:= tt).
+    intros *.
+    apply safeExec_testst;auto.
   Qed.
 
-  Lemma Exec_any_bind: forall {A: Type} (Q: Type) (c: Q -> program Σ A) (P: Σ -> Prop) X a,
-    Exec P (a <- any Q;; c a) X ->
-    Exec P (c a) X.
+  Lemma safeExec_any_bind: forall {A: Type} (Q: Type) (c: Q -> program Σ A) (P: Σ -> Prop) X a,
+    safeExec P (a <- any Q;; c a) X -> safeExec P (c a) X.
   Proof.
-    unfold Exec, any, bind;simpl_hdefs;unfold weakestpre;sets_unfold.
-    intros.
-    destruct H as [σ [? ?]].
-    exists σ.
-    split; [tauto | ].
-    intros.
-    apply (H0 r σ').
-    exists a, σ.
-    sets_unfold.
-    splits;auto.
-  Qed.
-
-  Lemma Exec_get_bind {A B: Type} (a: A) (Pa: Σ -> A -> Prop) (P: Σ -> Prop) (c: A -> program Σ B) X:
-    (forall s, P s -> Pa s a) ->
-    Exec P (a0 <- get Pa;; c a0) X ->
-    Exec P (c a) X.
-  Proof.
-    intros.
-    apply ( Exec_bind_high  a (fun _ => P)) in H0; auto.
-    intros; unfold get.
-    exists s1; split; auto.
-  Qed.
-
-  Lemma Exec_update'_bind {B: Type} (f: Σ -> Σ) (P: Σ -> Prop) (c:program Σ B) X:
-    Exec P (update' f;; c) X ->
-    Exec (fun s => exists s0, s = f s0 /\ P s0) c X.
-  Proof.
-    intros.
-    eapply Exec_bind_unit; eauto.
-    unfold update', update; intros.
-    exists (f s1).
-    split; auto.
-    exists s1; tauto.
-  Qed.
-
-  Lemma Exec_bind_rightsubst : forall {A B: Type} (c1: program Σ A) (c2 c2': A -> program Σ B) (P : Σ -> Prop) X X',
-    (forall σ a, safe σ (c2 a) X -> safe σ (c2' a) X') ->
-    (Exec P (x <- c1 ;; c2 x) X -> Exec P (x <- c1 ;; c2' x) X').
-  Proof.
-    unfold Exec, safe;simpl_hdefs;unfold weakestpre;sets_unfold.
-    unfold_monad.
-    intros.
-    destructs H0.
-    eexists.
-    split;eauto.
-    intros.
-    destruct H2 as (a  & σ'' & ? & ?).
-    sets_unfold;
-    sets_unfold in H; sets_unfold in H1;
-    sets_unfold in H2; sets_unfold in H3.
-    eapply H; eauto.
-  Qed.
-
-  Lemma Exec_subst : forall {A: Type} (c1 c1': program Σ A)  (P : Σ -> Prop) X X',
-    (forall σ, safe σ c1 X -> safe σ c1' X') ->
-    (Exec P (c1) X -> Exec P (c1') X').
-  Proof.
-    unfold Exec, safe.
-    intros.
-    destructs H0.
-    eexists.
-    split;eauto.
-  Qed.
-
-  Lemma Exec_monad_Atrue_finnal: forall  {A: Type} (m: program unit A) ,
-    Exec ATrue m (fun r x => m tt r x).
-  Proof.
-    intros.
-    unfold Exec, ATrue;simpl_hdefs;unfold weakestpre;sets_unfold.
-    exists tt.
-    splits;auto.
-  Qed.
-
-  Lemma Exec_ret_Atrue_finnal: forall  {A: Type}  (m: program Σ A) (l : A) (σ: Σ) ,
-    Exec ATrue (ret l) (fun r x => m σ r x) ->
-    exists σ', m σ l σ'.
-  Proof.
-    unfold Exec, ATrue;simpl_hdefs;unfold weakestpre;sets_unfold.
-    intros.
-    destructs H.
-    specialize (H0 l st (ltac:(unfold_monad;auto))).
-    exists st.
+    intros * H.
+    eapply safeExec_bind_reta with (a:= a);auto.
+    intros *.
+    apply safeExec_any;auto.
     auto.
   Qed.
 
-  Lemma Exec_choice_l {A: Type}:
-    forall (c0 c1: program Σ A) X (s: Σ -> Prop),
-      Exec s (choice c0 c1) X -> Exec s c0 X.
+  Lemma safeExec_get_bind {A B: Type} (a: A) (Pa: Σ -> A -> Prop) (P: Σ -> Prop) (c: A -> program Σ B) X:
+    (forall s, P s -> Pa s a) ->
+    safeExec P (a0 <- get Pa;; c a0) X -> safeExec P (c a) X.
   Proof.
-    unfold Exec;simpl_hdefs;unfold weakestpre.
-    intros.
-    destruct H as [? [? ?]].
-    unfold safe in *.
-    unfold choice in H0; simpl in H0.
-    exists x; split; auto.
-    simpl; sets_unfold.
-    unfold safe.
-    sets_unfold in H0.
-    intros; specialize (H0 r σ').
-    tauto.
-  Qed.
-  
-  (* same as choice_l *)
-  Lemma Exec_choice_r {A: Type}:
-    forall (c0 c1: program Σ A) X (s: Σ -> Prop),
-      Exec s (choice c0 c1) X -> Exec s c1 X.
-  Proof.
-    unfold Exec;simpl_hdefs;unfold weakestpre.
-    intros.
-    destruct H as [? [? ?]].
-    unfold safe in *.
-    unfold choice in H0; simpl in H0.
-    exists x; split; auto.
-    simpl;  sets_unfold.
-    sets_unfold in H0.
-    unfold safe.
-    intros; specialize (H0 r σ').
-    tauto.
+    intros * H.
+    eapply safeExec_bind_reta with (a:= a);auto.
+    intros *.
+    apply safeExec_get;auto.
   Qed.
 
-  Lemma Exec_test' {A: Type}:
-    forall (s: Σ -> Prop) (P: Prop) (c: program Σ A) X,
-      P ->
-      Exec s (test' P;; c) X ->
-      Exec s c X.
+  Lemma safeExec_update'_bind {B: Type} (f: Σ -> Σ) (P: Σ -> Prop) (c:program Σ B) X:
+    safeExec P (update' f;; c) X ->
+    safeExec (fun s => exists s0, s = f s0 /\ P s0) c X.
   Proof.
-    unfold Exec;simpl_hdefs;unfold weakestpre.
-    intros.
-    destructs H0.
-    exists st.
-    split; auto.
-    sets_unfold.
-    intros.
-    specialize (H1 r σ').
-    unfold test' in H1; simpl in H1.
-    unfold_monad in H1.
-    sets_unfold in H1.
-    apply H1.
-    exists tt; exists st; tauto.
+    intros * H.
+    eapply safeExec_bind_reta  with (a:= tt) in H.
+    exact H.
+    intros *.
+    apply safeExec_update';auto.
   Qed.
 
-  Lemma hseval_stateless_ret: forall  {A: Type}  (m: program unit A) (a : A),
-    m tt a tt ->
-    ATrue -@ m -⥅ ATrue ♯ a.
+
+  Lemma safeExec_monad_Atrue_finnal: forall  {A: Type} (m: program unit A) ,
+    safeExec ATrue m (fun r x => m tt r x).
   Proof.
-    intros. hnf. 
+    intros.
+    unfold safeExec, ATrue, safe.
     exists tt.
-    destruct σₕ.
-    easy.
+    splits;auto.
+    apply wp_self.
   Qed.
+
+  Lemma safeExec_ret_Atrue_finnal: forall  {A: Type}  (m: program Σ A) (l : A) (σ: Σ) ,
+    safeExec ATrue (ret l) (fun r x => m σ r x) ->
+    exists σ', m σ l σ'.
+  Proof.
+    unfold safeExec,safe; unfold_monad.
+    intros.
+    destructs H.
+    eapply wp_spec with (a:= l) (s2:= σₕ)  in H0;[ | auto].
+    exists σₕ.
+    auto.
+  Qed.
+
   
-  Lemma Exec_ret {A: Type} a (P: Σ -> Prop) (X: A -> Σ -> Prop):
-    Exec P (ret a) X ->
+  Lemma safeExec_ret {A: Type} a (P: Σ -> Prop) (X: A -> Σ -> Prop):
+    safeExec P (ret a) X ->
     exists s, P s /\ (a, s) ∈ X.
   Proof.
-    unfold Exec;simpl_hdefs;unfold weakestpre. unfold_monad.
+    unfold safeExec, safe.
     intros [s [? ?]].
-    specialize (H0 a s).
+    rewrite wp_ret in H0.
     exists s; tauto.
   Qed.
 
-  Lemma Exec_ret_tt (P: Σ -> Prop) (X: Σ -> Prop):
-    Exec P (ret tt) (fun _ => X) ->
+  Lemma safeExec_ret_tt (P: Σ -> Prop) (X: Σ -> Prop):
+    safeExec P (ret tt) (fun _ => X) ->
     exists s, P s /\  X s.
   Proof.
-    intros; apply Exec_ret in H.
+    intros; apply safeExec_ret in H.
     sets_unfold in H; auto.
   Qed.
 
-End  safeexec_rules.
+End  exec_rules.
 
-#[export] Instance Exec_programrefine_impl_Proper
+#[export] Instance safeExec_programrefine_impl_Proper
   {Σ: Type} {A: Type} (P: Σ -> Prop):
-  Proper (Sets.included ==> eq ==> (Basics.flip Basics.impl)) (@Exec Σ (program Σ A) _ _ P).
+  Proper (Sets.included ==> eq ==> (Basics.flip Basics.impl)) (@safeExec Σ A P).
 Proof.
   unfold Proper, respectful.
   intros. subst y0.
   hnf.
-  apply Exec_prorefine;eauto.
+  apply safeExec_prorefine;eauto.
 Qed.
 
-#[export] Instance Exec_X_subset_impl_Proper
+#[export] Instance safeExec_X_subset_impl_Proper
   {Σ: Type} {A: Type} (P: Σ -> Prop):
-  Proper (eq ==> Sets.included ==> Basics.impl) (@Exec Σ (program Σ A) _ _ P).
+  Proper (eq ==> Sets.included ==> Basics.impl) (@safeExec Σ A P).
 Proof.
   unfold Proper, respectful.
   intros; subst.
-  hnf; apply Exec_X_subset; auto.
+  hnf; apply safeExec_X_subset; auto.
 Qed.
 
-#[export] Instance Exec_programequiv_iff_Proper
+#[export] Instance safeExec_programequiv_iff_Proper
   {Σ: Type} {A: Type} (P: Σ -> Prop):
-  Proper (Sets.equiv ==> eq ==>  iff) (@Exec Σ (program Σ A) _ _ P).
+  Proper (Sets.equiv ==> eq ==>  iff) (@safeExec Σ A P).
 Proof.
   unfold Proper, respectful.
   intros. subst y0. split. 
-  apply Exec_proequiv. auto.
-  apply Exec_proequiv. symmetry. auto.
+  apply safeExec_proequiv. auto.
+  apply safeExec_proequiv. symmetry. auto.
 Qed.
 
-#[export] Instance Exec_programequiv_iff_Proper'
+#[export] Instance safeExec_programequiv_iff_Proper'
   {Σ: Type} {A: Type} (P: Σ -> Prop):
-  Proper (Sets.equiv ==> eq ==>  iff) (@Exec Σ (program Σ A) _ _ P).
+  Proper (Sets.equiv ==> eq ==>  iff) (@safeExec Σ A P).
 Proof.
   unfold Proper, respectful.
   intros. subst y0. split. 
-  apply Exec_proequiv. auto.
-  apply Exec_proequiv. symmetry. auto.
+  apply safeExec_proequiv. auto.
+  apply safeExec_proequiv. symmetry. auto.
 Qed.
 
 #[export] Instance hseval_programequiv_Proper
@@ -634,11 +665,11 @@ Proof.
   apply H.
 Qed.
 
-Arguments program_para_equiv {Σ} {A B}%type_scope [f1] [f2].
+Arguments program_para_equiv {Σ} {A B}%_type_scope [f1] [f2].
 
 Ltac __prove_by_one_abs_step x :=
   match goal with
-  | H: Exec ?P1 (bind ?c11 ?c12) ?X |- Exec ?P2 ?c2 ?X =>
+  | H: safeExec ?P1 (bind ?c11 ?c12) ?X |- safeExec ?P2 ?c2 ?X =>
       unify (c12 x) c2; 
       refine (highstepbind_derive _ _ _ x P2 _ X H);
       clear H
@@ -671,29 +702,29 @@ Ltac abs_ret_step :=
 
 Ltac safe_step H := prog_nf in H;
   match type of H with
-  | Exec _ ((test' _ ) ;; _) _ => apply Exec_test' in H; [try safe_step H | auto]
+  | safeExec _ ((test' _ ) ;; _) _ => apply safeExec_test' in H; [try safe_step H | auto]
   end.
 
 Ltac safe_choice_l H :=
-  prog_nf in H;apply Exec_choice_l in H; try safe_step H.
+  prog_nf in H;apply safeExec_choice_l in H; try safe_step H.
 
 Ltac safe_choice_r H :=
-  prog_nf in H;apply Exec_choice_r in H; try safe_step H.
+  prog_nf in H;apply safeExec_choice_r in H; try safe_step H.
 
 Ltac safe_equiv :=
-  eapply Exec_proequiv; eauto.  
+  eapply safeExec_proequiv; eauto.  
 
 
 Section  safeexec_Hoare_composition_rules.
   
   Context {Σ: Type}.
 
-  Ltac destructs H := st_destruct Σ H.
-  Lemma Exec_result_state {A: Type} (P: Σ -> Prop) (c: program Σ A):
+  Ltac destructs H := my_destruct Σ H.
+  Lemma safeExec_result_state {A: Type} (P: Σ -> Prop) (c: program Σ A):
     (exists s, P s) ->
-    Exec P c (result_state P c).
+    safeExec P c (result_state P c).
   Proof.
-    unfold Exec, result_state, safe.
+    unfold safeExec, result_state, safe.
     intros [s HP].
     exists s; split; auto.
     sets_unfold; intros a s' ?.
@@ -712,15 +743,15 @@ Section  safeexec_Hoare_composition_rules.
   Lemma Hoare_safeexec_compose {A: Type} (P1 : Σ -> Prop) (c: program Σ A) (Q: A -> Σ -> Prop):
     Hoare P1 c Q ->
     forall (P2: Σ -> Prop) (a: A) (σ : Σ),
-    Exec P2 (return a) (c σ) -> 
+    safeExec P2 (return a) (c σ) -> 
     σ ∈ P1 ->
     (exists σ', Q a σ' /\ P2 σ').
   Proof.
-    unfold Hoare, Exec;simpl_hdefs;unfold weakestpre.
+    unfold Hoare, safeExec, safe.
     intros. 
     destructs H0.
     sets_unfold.
-    specialize (H2 a st (ltac:(unfold_monad;auto))).
+    specialize (H2 a σₕ (ltac:(unfold_monad;auto))).
     specialize (H σ _ _ H1 H2).
     eexists. eauto.
   Qed.

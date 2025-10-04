@@ -21,7 +21,7 @@ Proof.
   intros.
   unfold Byte.eqm, unsigned_last_nbits. 
   unfold Zbits.eqmod. exists (x / 2 ^ 8).
-  rewrite (Z_div_mod_eq x (2^8)) at 1; try lia.
+  rewrite (Z_div_mod_eq_full x (2^8)) at 1; try lia.
   rewrite Z.mul_comm.
   reflexivity.
 Qed.
@@ -33,11 +33,11 @@ Proof.
   unfold Zbits.eqmod. 
   destruct (zlt (x mod 2 ^ 8) (2 ^ (8 - 1))).
   - exists (x / 2 ^ 8).
-    rewrite (Z_div_mod_eq x (2^8)) at 1; try lia.
+    rewrite (Z_div_mod_eq_full x (2^8)) at 1; try lia.
     rewrite Z.mul_comm.
     reflexivity.
   - exists (x / 2 ^ 8 + 1).
-    rewrite (Z_div_mod_eq x (2^8)) at 1; try lia.
+    rewrite (Z_div_mod_eq_full x (2^8)) at 1; try lia.
     rewrite Z.mul_comm.
     rewrite Z.mul_add_distr_r.
     replace Byte.modulus with (2 ^ 8) by reflexivity.

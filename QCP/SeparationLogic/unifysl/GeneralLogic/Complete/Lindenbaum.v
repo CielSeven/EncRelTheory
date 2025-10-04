@@ -86,11 +86,11 @@ Proof.
     constructor.
     - erewrite <- Lindenbaum_pointwise_finite_decided in H by eauto.
       revert H; apply (Lindenbaum_included_n_m (S m)).
-      apply Max.le_max_r.
+      apply Nat.le_max_r.
     - revert H1.
       apply Forall_impl; intro.
       apply Lindenbaum_included_n_m.
-      apply Max.le_max_l.
+      apply Nat.le_max_l.
 Qed.
 
 Hypothesis H_init: P init.

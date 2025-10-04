@@ -11,7 +11,7 @@ Definition impp {model: Type} (X: Ensemble model) (Y: Ensemble model): Ensemble 
 
 End Semantics.
 
-Class TrivialMinimumSemantics (L: Language) {minL: MinimumLanguage L} (MD: Model) (SM: Semantics L MD): Type := {
+Class TrivialMinimumSemantics (L: Language) {minL: MinimumLanguage L} (MD: Model) (SM: Semantics L MD):= {
   denote_impp: forall x y, Same_set _ (denotation (x --> y)) (Semantics.impp (denotation x) (denotation y))
 }.
 

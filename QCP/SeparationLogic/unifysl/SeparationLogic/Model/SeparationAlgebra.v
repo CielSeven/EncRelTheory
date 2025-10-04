@@ -1,6 +1,6 @@
 Class Join (worlds: Type): Type := join: worlds -> worlds -> worlds -> Prop.
 
-Class SeparationAlgebra (worlds: Type) {SA: Join worlds}: Type :=
+Class SeparationAlgebra (worlds: Type) {SA: Join worlds} :=
 {
   join_comm: forall m1 m2 m: worlds,
     join m1 m2 m ->

@@ -3,7 +3,7 @@ Require Import Coq.ZArith.ZArith.
 Require Import Coq.Classes.Morphisms.
 Import SetsNotation.
 From FP Require Import SetsFixedpoints PartialOrder_Setoid.
-From MonadLib.SetMonad Require Export Monad.
+From MonadLib Require Export Monad.
 Local Open Scope sets.
 Local Open Scope nat.
 

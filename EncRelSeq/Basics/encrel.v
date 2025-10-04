@@ -75,7 +75,7 @@ Section normal_validity_soundness.
 
   Import NormalDenoConstructs.
   Theorem quadruple_conrrectness (P: @binasrt Σₗ Σₕ) (cₗ: (@denosem Σₗ)) (cₕ: (@denosem Σₕ)) (Q : @binasrt Σₗ Σₕ):
-    ⊢ {{P}} cₗ ≾ cₕ {{Q}} <-> ⊢ₑ ⟨ ↑ P && [cₕ]ₕ ⟩ cₗ ⟨ ↑ Q  && [skip]ₕ ⟩.
+    ⊢ {{P}} cₗ ≾ cₕ {{Q}} <-> ⊢ₑ ⟨ ↑ P && [ₕ cₕ ]ₕ ⟩ cₗ ⟨ ↑ Q  && [ₕ skip ]ₕ ⟩.
   Proof.
     intros.
     split;intros.
@@ -98,7 +98,7 @@ Section  refinement_soundness.
   }.
   
   Lemma lh_refinement (cₗ: @denosem Σₗ) (cₕ :@denosem Σₕ): 
-    ⊢ₑ ⟨ ↑ R && [cₕ]ₕ ⟩ cₗ  ⟨ ↑ R && [skip]ₕ ⟩ ->
+    ⊢ₑ ⟨ ↑ R && [ₕ cₕ ]ₕ ⟩ cₗ  ⟨ ↑ R && [ₕ skip ]ₕ ⟩ ->
     denote_refine cₗ cₕ.
   Proof.
     intros HRT. apply quadruple_conrrectness in HRT.

@@ -5,15 +5,6 @@ Require Import Coq.Classes.RelationClasses.
 Require Import Coq.Classes.Morphisms.
 Require Import Coq.micromega.Psatz.
 
-
-Definition ident := positive.
-
-Definition ident_eq_dec : forall x y : ident, {x = y} + {x <> y} := Pos.eq_dec.
-Definition ident_eqb (x y : ident) : bool := Pos.eqb x y.
-Definition ident_eqb_refl : forall x, ident_eqb x x = true := Pos.eqb_refl.
-Definition ident_eqb_eq : forall x y, ident_eqb x y = true <-> x = y := Pos.eqb_eq.
-
-
 Definition var : Type := positive.
 Definition func : Type := positive.
 

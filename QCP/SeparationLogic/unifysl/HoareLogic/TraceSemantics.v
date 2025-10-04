@@ -11,7 +11,7 @@ Require Import Logic.HoareLogic.BigStepSemantics.
 Local Open Scope kripke_model.
 Import KripkeModelNotation_Intuitionistic.
 
-Class Action: Type := {
+Class Action:= {
   action: Type;
   trace := list action;
   traces := trace -> Prop
@@ -26,26 +26,26 @@ Definition trace_app {Ac: Action}: trace -> trace -> trace := @app _.
 Inductive traces_app {Ac: Action}: traces -> traces -> traces :=
   traces_app_intro: forall tr1 tr2 (Tr1 Tr2: traces), Tr1 tr1 -> Tr2 tr2 -> traces_app Tr1 Tr2 (trace_app tr1 tr2).
 
-Class Command2Traces (P: ProgrammingLanguage) (Ac: Action): Type := {
+Class Command2Traces (P: ProgrammingLanguage) (Ac: Action):= {
   cmd_denote: cmd -> traces
 }.
 
-Class ActionInterpret (state: Type) (Ac: Action): Type := {
+Class ActionInterpret (state: Type) (Ac: Action):= {
   state_enable: action -> state -> MetaState state -> Prop (*;
   state_enable_pf: forall a s ms1 ms2, state_enable a s ms1 -> state_enable a s ms2 -> ms1 = ms2*)
 }.
 
-Class TraceSemantics (P: ProgrammingLanguage) (state: Type) (Ac: Action): Type := {
-  c2t :> Command2Traces P Ac;
-  ac_sem :> ActionInterpret state Ac
+Class TraceSemantics (P: ProgrammingLanguage) (state: Type) (Ac: Action):= {
+  c2t :: Command2Traces P Ac;
+  ac_sem :: ActionInterpret state Ac
 }.
 
-Class Action_resource (Ac: Action) (Res: Resource) : Type := {
+Class Action_resource (Ac: Action) (Res: Resource) := {
   Aacquire_res: resource -> action;
   Arelease_res: resource -> action;
 }.
 
-Class NormalAction_resource (Ac: Action) (Res: Resource) {Acr: Action_resource Ac Res}: Type := {
+Class NormalAction_resource (Ac: Action) (Res: Resource) {Acr: Action_resource Ac Res}:= {
   Aacquire_res_inv: forall r1 r2, Aacquire_res r1 = Aacquire_res r2 -> r1 = r2;
   Arelease_res_inv: forall r1 r2, Arelease_res r1 = Arelease_res r2 -> r1 = r2;
   Aacquire_Arelease_res: forall r1 r2, Aacquire_res r1 <> Arelease_res r2;
@@ -124,7 +124,7 @@ Class Action_Parallel (Ac: Action): Type := {
   race_actions: action -> action -> Prop;
 }.
 
-Class NormalAction_Parallel_resource (Ac: Action) (Res: Resource) {AcP: Action_Parallel Ac} {Acr: Action_resource Ac Res}: Type := {
+Class NormalAction_Parallel_resource (Ac: Action) (Res: Resource) {AcP: Action_Parallel Ac} {Acr: Action_resource Ac Res}:= {
   res_actions_no_race: forall a1 a2, race_actions a1 a2 -> ~ is_resources_action a1 /\ ~ is_resources_action a2;
   race_not_resource: ~ is_resources_action race
 }.
@@ -138,7 +138,7 @@ Inductive trace_interleave {Ac: Action} {Res: Resource} {AcP: Action_Parallel Ac
 Inductive traces_interleave {Ac: Action} {Res: Resource} {AcP: Action_Parallel Ac} {Acr: Action_resource Ac Res}: traces -> traces -> traces :=
 | traces_interleave_intro: forall (Tr1 Tr2: traces) tr1 tr2 tr, Tr1 tr1 -> Tr2 tr2 -> trace_interleave (fun _ => False) (fun _ => False) tr1 tr2 tr -> traces_interleave Tr1 Tr2 tr.
 
-Class ActionInterpret_resource (state: Type) (Ac: Action) (Res: Resource) {Acr: Action_resource Ac Res} (ac_sem: ActionInterpret (resources * state) Ac): Type := {
+Class ActionInterpret_resource (state: Type) (Ac: Action) (Res: Resource) {Acr: Action_resource Ac Res} (ac_sem: ActionInterpret (resources * state) Ac):= {
   state_enable_Aacquire_res: forall r (A1 A2: resources) (s: state),
     join A1 (eq r) A2 -> state_enable (Aacquire_res r) (A1, s) (Terminating (A2, s));
   state_enable_Arelease_res: forall r (A1 A2: resources) (s: state),
@@ -149,22 +149,22 @@ Class ActionInterpret_resource (state: Type) (Ac: Action) (Res: Resource) {Acr: 
     ~ is_resources_action a -> state_enable a (A, s) (lift_function (pair A) ms) -> state_enable a (A', s) (lift_function (pair A') ms)
 }.
 
-Class ActionInterpret_Parallel_resource (state: Type) {J: Join state} (Ac: Action) {AcP: Action_Parallel Ac} (Res: Resource) {Acr: Action_resource Ac Res} (ac_sem: ActionInterpret (resources * state) Ac): Type := {
+Class ActionInterpret_Parallel_resource (state: Type) {J: Join state} (Ac: Action) {AcP: Action_Parallel Ac} (Res: Resource) {Acr: Action_resource Ac Res} (ac_sem: ActionInterpret (resources * state) Ac):= {
   state_enable_race: forall A s ms, state_enable race (A, s) ms <-> ms = Error; (* TODO: is this line necessary? *)
   state_enable_race_actions_spec: forall a1 a2 (A1 A2: resources) (s1 s2 s: state),
       race_actions a1 a2 -> ~ state_enable a1 (A1, s1) Error -> ~ state_enable a2 (A2, s2) Error -> join s1 s2 s -> False
   (* This formalization is critical. Even if there is no ms s.t. stable_enable a1 (s1, A1) ms, it still means (s1, A1) has a domain to perform a1. It's just the result does not match, i.e. the read action. *)
 }.
 
-Class Command2Traces_Sresource (P: ProgrammingLanguage) (Ac: Action) (Res: Resource) {Acr: Action_resource Ac Res} {CPR: ConcurrentProgrammingLanguage_Sresource P Res} (c2t: Command2Traces P Ac): Type := {
+Class Command2Traces_Sresource (P: ProgrammingLanguage) (Ac: Action) (Res: Resource) {Acr: Action_resource Ac Res} {CPR: ConcurrentProgrammingLanguage_Sresource P Res} (c2t: Command2Traces P Ac) := {
   Sresource_denote: forall r c, cmd_denote (Sresource r c) = traces_app (singleton_traces (singleton_trace (Aacquire_res r))) (traces_app (cmd_denote c) (singleton_traces (singleton_trace (Arelease_res r))))
 }.
 
-Class Command2Traces_Sparallel_resource (P: ProgrammingLanguage) (state: Type) (Ac: Action) (Res: Resource) {AcP: Action_Parallel Ac} {Acr: Action_resource Ac Res} {CPP: ConcurrentProgrammingLanguage_Sparallel P} (c2t: Command2Traces P Ac): Type := {
+Class Command2Traces_Sparallel_resource (P: ProgrammingLanguage) (state: Type) (Ac: Action) (Res: Resource) {AcP: Action_Parallel Ac} {Acr: Action_resource Ac Res} {CPP: ConcurrentProgrammingLanguage_Sparallel P} (c2t: Command2Traces P Ac) := {
   Sparallel_denote: forall c1 c2, cmd_denote (Sparallel c1 c2) = traces_interleave (cmd_denote c1) (cmd_denote c2)
 }.
 
-Class StructuralResourceAccess (P: ProgrammingLanguage) (Ac: Action) (Res: Resource) {Acr: Action_resource Ac Res} (c2t: Command2Traces P Ac): Type := {
+Class StructuralResourceAccess (P: ProgrammingLanguage) (Ac: Action) (Res: Resource) {Acr: Action_resource Ac Res} (c2t: Command2Traces P Ac):= {
   resource_sequential: forall c r tr, cmd_denote c tr -> start_by_Aacq r tr
 }.
 
