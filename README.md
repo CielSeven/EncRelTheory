@@ -34,7 +34,7 @@ This repository provides a machine-checked Rocq formalization of our encoding th
 
 ### Prerequisites
 
-- [Rocq (Coq) Platform 8.15](https://rocq-prover.org/)
+- [Rocq (Coq) Platform 8.20](https://rocq-prover.org/)
 - `make`
 
 ### Build Instructions (≈30 minutes)

@@ -54,3 +54,8 @@ _CoqProject
 CONFIGURE
 */CONFIGURE
 */*/CONFIGURE
+
+Makefile.coq.conf
+Makefile.coq
+.claude
+*/*/*/.depend
