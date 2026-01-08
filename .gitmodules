@@ -6,3 +6,6 @@
 	path = fixedpoints
 	url = https://bitbucket.org/qinxiang-SJTU/fixedpoints.git
 	branch = master
+[submodule "sets"]
+	path = sets
+	url = https://bitbucket.org/qinxiang-SJTU/sets.git

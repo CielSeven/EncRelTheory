@@ -9,7 +9,7 @@ Require Import Coq.Logic.Classical_Prop.
 From SetsClass Require Import SetsClass.
 From AUXLib Require Import Feq Idents  List_lemma VMap int_auto ListLib.
 From compcert.lib Require Import Integers.
-From LangLib.ImpP Require Import PermissionModel Mem mem_lib Imp Assertion ImpTactics ImpHoareTactics slllib GraphAdjList. 
+From LangLib.ImpP Require Import PermissionModel Mem mem_lib Imp Assertion ImpTactics ImpHoareTactics slllib GraphAdjListM. 
 From EncRelSeq Require Import callsem basicasrt contexthoare_imp. 
 From EncRelSeq.MonadsAsHigh.AbsMonad Require Import  encimpmonad.
 Require Import MonadLib.StateRelMonad.StateRelMonad.
@@ -33,6 +33,48 @@ Local Open Scope com_scope.
 Import MonadNotation.
 Local Open Scope monad.
 
+Record Vertex_field : Type := {
+   vist: Z -> Z;
+}.
+
+Definition dfs_vertex_field_storage (vpm: Perm.t) (vl: Vertex_field) (v: Z) : assertion :=
+  PV (v + 1) @ vint ↦ₗ (vist vl v) $ vpm.
+
+Lemma  subst_local_dfs_vertex_field_storage:  forall pm V_field v x n, 
+ subst_local x n (dfs_vertex_field_storage pm V_field v) --||-- dfs_vertex_field_storage pm V_field v.
+Proof.
+  unfold dfs_vertex_field_storage;intros.
+  erewrite ! subst_local_pv.
+  apply logic_equiv_refl.
+Qed.
+
+Lemma  subst_global_dfs_vertex_field_storage:  forall Vpm V_field v x n, subst_global x n (dfs_vertex_field_storage Vpm V_field v) --||-- dfs_vertex_field_storage Vpm V_field v.
+Proof.
+  unfold dfs_vertex_field_storage;intros.
+  erewrite ! subst_global_pv.
+  apply logic_equiv_refl.
+Qed.
+
+Lemma closedlvars_dfs_vertex_field_storage: forall Vpm V_field v vs, 
+ closed_wrt_lvars vs (dfs_vertex_field_storage Vpm V_field v).
+Proof.
+  intros. unfold dfs_vertex_field_storage. solve_closedlvars assumption. Qed.
+
+Lemma closedgvars_dfs_vertex_field_storage: forall Vpm V_field v vs, 
+ closed_wrt_gvars vs (dfs_vertex_field_storage Vpm V_field v).
+Proof.
+  intros. unfold dfs_vertex_field_storage. solve_closedgvars assumption. Qed.
+
+#[local] Instance dfs_Vertex_field_M: @Vertex_Field_M Vertex_field:= {
+  vertex_field_storage := dfs_vertex_field_storage;
+  subst_local_vertex_field_storage:= subst_local_dfs_vertex_field_storage;
+  subst_global_vertex_field_storage := subst_global_dfs_vertex_field_storage;
+  closedlvars_vertex_field_storage := closedlvars_dfs_vertex_field_storage;
+  closedgvars_vertex_field_storage := closedgvars_dfs_vertex_field_storage;
+}.
+
+Import NoEdgeField_Graph.
+
 Definition vis_func (vis: Z -> Prop) (cvis : Z -> Z) : Prop := 
     forall v, (vis v <-> cvis v <> 0) /\ ((~ vis v) <-> cvis v = 0).
 
@@ -42,6 +84,9 @@ Definition dfs_field cvis: Vertex_field :=
 Definition cvisupdate (v: Z) (n: Z) (cvis : Z -> Z) : Z -> Z :=
   fun x => if (x =? v) then n else cvis x.
 
+Definition dfs_graph_rep {E_Order: Edge_Order} Gsh pm pg vf:= @graphrep E_Order Vertex_field unit dfs_Vertex_field_M NoEdgeField_M Gsh pm pg vf tt.
+
+
 Definition dfs_rec_spec := {|
   FS_With := (unit -> (state Z) -> Prop) * (PreGraph Z Z) * list Z * Edge_Order * Perm.t * addr ;
   FS_Pre := fun '(X, pg, vertexl, E_Order, Gsh, xv) =>
@@ -50,13 +95,13 @@ Definition dfs_rec_spec := {|
             !! (vis_func vis cvis) &&  !! (vis = ∅)  &&
             !! (safeExec (fun s => s.(visited) = vis /\ s.(stack) = nil) (DFS pg xv) X) &&
             GV _arg1 @ vptr ↦ₗ xv && 
-            @graphrep E_Order Gsh ➀ pg (dfs_field cvis) );
+            @dfs_graph_rep E_Order Gsh ➀ pg (dfs_field cvis));
   FS_Post := fun '(X, pg, vertexl,  E_Order, Gsh, xv) =>
             (EX vis cvis, 
             !! (vis_func vis cvis) &&  
             !! (safeExec  (fun s => s.(visited) = vis /\ s.(stack) = nil) 
                           (return tt) X) &&
-            @graphrep E_Order Gsh ➀ pg (dfs_field cvis) )
+            @dfs_graph_rep E_Order Gsh ➀ pg (dfs_field cvis))
 |}.
 
 
@@ -72,14 +117,14 @@ Definition dfs_rec_spec_aux := {|
               (fun s : state Z => visited s = vis /\ stack s = v :: stk)
               (DFS pg xv) X &&
             GV _arg1 @ vptr ↦ₗ xv && 
-            @graphrep E_Order Gsh ➀ pg (dfs_field cvis) );
+            @dfs_graph_rep E_Order Gsh ➀ pg (dfs_field cvis) );
   FS_Post := fun '(X, pg, vertexl, E_Order, Gsh, stk, xv, v, e, vis) =>
             (EX vis_new cvis, 
             !! (vis_func vis_new cvis) &&  !! (vis_new xv) && 
             !! (forall w, vis w -> vis_new w ) &&
             !! ((safeExec)  (fun s => s.(visited) = vis_new /\ s.(stack) = stk) 
                           (repeat_break (body_DFS pg) v) X) &&
-            @graphrep E_Order Gsh ➀ pg (dfs_field cvis) )
+            @dfs_graph_rep E_Order Gsh ➀ pg (dfs_field cvis) )
 |}. 
 
 Definition dfs_rec_spec_fc := {|
@@ -87,11 +132,11 @@ Definition dfs_rec_spec_fc := {|
   FS_Pre := fun '(pg, vertexl, E_Order, Gsh, xv) =>
             (!! (vlis_prop pg vertexl) && !! (pg.(vvalid) xv) && 
             GV _arg1 @ vptr ↦ₗ xv && 
-            @graphrep E_Order Gsh ➀ pg (dfs_field (fun v => 0)) );
+            @dfs_graph_rep E_Order Gsh ➀ pg (dfs_field (fun v => 0)) );
   FS_Post := fun '(pg, vertexl, E_Order, Gsh, xv) =>
             (EX cvis, 
             !! (forall u, cvis u <> 0 <-> reachable pg xv u) &&
-            @graphrep E_Order Gsh ➀ pg (dfs_field cvis) )
+            @dfs_graph_rep E_Order Gsh ➀ pg (dfs_field cvis) )
 |}.
 
 Lemma step_aux_elis_prop {E_Order:Edge_Order}: forall pg x y e el,
@@ -199,9 +244,29 @@ Definition Δ : funcspecs :=
 
 Ltac hoareasrt_simpl ::= asrt_simpl_aux graph_asrt_simpl.
 
+Lemma fold_field_storage V_field Vsh v:
+  PV (v + 1) @ vint ↦ₗ (vist V_field v) $ Vsh 
+  |-- vertex_field_storage Vsh V_field v.
+Proof.
+  unfold vertex_field_storage. simpl.
+  cancel.
+Qed.
+
+Lemma vertex_field_storage_eq: forall vf vf_new v',  
+  vist vf v' = vist vf_new v' ->
+  (forall pm, vertex_field_storage pm vf v' --||-- vertex_field_storage pm vf_new v').
+Proof.
+  intros.
+  unfold vertex_field_storage.
+  simpl. unfold dfs_vertex_field_storage.
+  rewrite H.
+  reflexivity.
+Qed. 
+
 Lemma dfs_rec_triplesat: triple_body_nrm ρ Δ _dfs_rec dfs_rec_spec.
 Proof.
   funcproof_init.
+  unfold dfs_graph_rep.
   rename z into x. rename v into Gsh. rename l into vertexl. 
   rename v0 into E_Order.  rename v1 into pg. rename v2 into vis. rename v3 into cvis.
    assert (~ vis x). { subst vis. auto. } clear H2. rename H4 into H2.
@@ -216,7 +281,8 @@ Proof.
   cbn [vertex_storage]. refl.
   hoare_simpl_pre.
   rename l into el.
-  unfold AVertex, field_storage.
+  unfold AVertex, vertex_field_storage. simpl.
+  unfold dfs_vertex_field_storage.
   hoare_simpl_pre.
   forward_simpl.
   entailer!.
@@ -242,9 +308,9 @@ Proof.
   (LV _x @ vptr ↦ₗ  v_ptr &&
     PV v_ptr + 1 @ vint ↦ₗ (vist (dfs_field cvis_loop) v_ptr) $ ➀ **
     (PV v_ptr @ vptr ↦ₗ hd 0 el $ Gsh **
-    (edge_seg Gsh pg el1 (hd 0 el2) **
-    (edge_storage Gsh pg el2 **
-      vertex_storage Gsh ➀ pg (dfs_field cvis_loop) vl))))
+    (edge_seg Gsh pg tt el1 (hd 0 el2) **
+    (edge_storage Gsh pg tt el2 **
+      vertex_storage Gsh ➀ pg (dfs_field cvis_loop) tt vl))))
   ).
   { Exists nil el (cvisupdate v_ptr 1 cvis) (vis ∪ [v_ptr]).
     quick_entailer!.
@@ -256,7 +322,8 @@ Proof.
     erewrite vertex_storage_app_r with (vs1:= (v_ptr :: nil)) (vf_new := (dfs_field (cvisupdate v_ptr 1 cvis))).
     entailer!.
     simpl. auto. 
-    intros. simpl in H6. 
+    intros. simpl in H6.
+    apply vertex_field_storage_eq. 
     simpl. unfold cvisupdate. 
     destruct (v' =? v_ptr) eqn:?;auto.
     lia.
@@ -290,40 +357,43 @@ Proof.
     { instantiate (1:= 
        LV _v @ vptr ↦ₗ pg.(dst) e &&
       (LV _e @ vptr ↦ₗ e &&
-      (LV _x @ vptr ↦ₗ v_ptr && @graphrep E_Order Gsh ➀ pg (dfs_field cvis)))).
+      (LV _x @ vptr ↦ₗ v_ptr && @dfs_graph_rep E_Order Gsh ➀ pg (dfs_field cvis)))).
       sep_apply fold_field_storage.
       asrt_simpl.
       sep_apply (fold_edge_node Gsh e (pg.(dst) e) (hd 0 el2)).
       asrt_simpl.
       sep_apply singleton_eseg.
       asrt_simpl.
-      strongseplift (edge_storage Gsh pg el2).
-      strongseplift (edge_seg Gsh pg (e :: nil) (hd 0 el2)).
+      strongseplift (edge_storage Gsh pg tt el2).
+      strongseplift (edge_seg Gsh pg tt (e :: nil) (hd 0 el2)).
       rewrite sepcon_assoc_logic_equiv.
       unfoldimpmodel.
-      rewrite (edge_seg_list Gsh pg (e::nil) el2).
+      rewrite (edge_seg_list Gsh pg tt (e::nil) el2).
       asrt_simpl.
       simpl (((e :: nil) ++ el2)).
-      strongseplift (edge_storage Gsh pg (e :: el2)).
-      strongseplift (edge_seg Gsh pg el1 e).
+      strongseplift (edge_storage Gsh pg tt (e :: el2)).
+      strongseplift (edge_seg Gsh pg tt el1 e).
       replace e with (hd 0 (e::el2)) at 1 by (cbn;auto).
       rewrite sepcon_assoc_logic_equiv.
       rewrite (edge_seg_list). unfoldimpmodel.
       rewrite <- H1.
-      rewrite <- (fold_graph_field' Gsh ➀ pg (dfs_field cvis) v_ptr vl  (el1 ++ e :: el2)).
+      unfold dfs_graph_rep.
+      rewrite <- (fold_graph_field' Gsh ➀ pg (dfs_field cvis) tt v_ptr vl  (el1 ++ e :: el2)).
       quick_entailer!.
       all : auto.
       rewrite H1. auto.
     }
     eapply hoare_conseq_pre.
-    { rewrite unfold_graph;[ | eauto].
+    { unfold dfs_graph_rep.
+      rewrite unfold_graph;[ | eauto].
       assert (In (pg.(dst) e) (v_ptr :: vl)).
       { apply H. auto. }
-      pose proof vertex_storage_valid_pointer  Gsh ➀ pg (dfs_field cvis) (v_ptr :: vl) (pg.(dst) e) H9.
+      pose proof vertex_storage_valid_pointer  Gsh ➀ pg (dfs_field cvis) tt (v_ptr :: vl) (pg.(dst) e) H9.
       erewrite (prop_add_left _ _ H10). 
       rewrite fold_graph.
       rewrite unfold_field_storage with (v:= (pg.(dst) e));[ | eauto].
-      unfold field_storage.
+      unfold vertex_field_storage. simpl.
+      unfold dfs_vertex_field_storage.
       refl. 
       auto. }
     hoare_simpl_pre.
@@ -364,8 +434,10 @@ Proof.
          (LV _e @ vptr ↦ₗ e &&
           (LV _x @ vptr ↦ₗ v_ptr && emp))))).
         entailer!.
+        unfold dfs_graph_rep.
         rewrite <- fold_graph_field with (v:= pg.(dst) e).
-        unfold field_storage.
+        unfold vertex_field_storage. simpl.
+        unfold dfs_vertex_field_storage.
         simpl.
         entailer!.
         { prog_nf in H5. auto. }
@@ -393,6 +465,7 @@ Proof.
       rename H13 into Hel1. rename H12 into Habs.
       (* _e := [_e + 1] *)
       eapply hoare_conseq_pre.
+      unfold dfs_graph_rep.
       erewrite unfold_graph;[refl | eauto ].
       eapply hoare_conseq_pre.
       cbn [vertex_storage]. refl.
@@ -400,10 +473,11 @@ Proof.
       assert (l = el1 ++ e :: el2).
       { rewrite H1. eapply edge_deterministic;eauto. }
       subst l. clear H12 H13.
-      unfold AVertex, field_storage.
+      unfold AVertex, vertex_field_storage. simpl.
+      unfold dfs_vertex_field_storage.
       eapply hoare_conseq_pre.
       { rewrite <- edge_seg_list.
-        simpl (edge_storage Gsh pg (e :: el2)).
+        simpl (edge_storage Gsh pg tt (e :: el2)).
         refl.
       }
       hoare_simpl_pre.
@@ -423,16 +497,17 @@ Proof.
       2: { rewrite <- H1. rewrite <- app_assoc. simpl. auto.  }
       sep_apply (fold_edge_node Gsh e (pg.(dst) e) (hd 0 el2)).
       asrt_simpl.
-      sep_apply singleton_eseg;auto.
+      sep_apply singleton_eseg_noef;auto.
       asrt_simpl.
       replace ((hd 0 (e :: el2))) with (hd 0 (e::nil)) by (cbn;auto).
-      strongseplift (edge_seg Gsh pg (e :: nil) (hd 0 el2)).
-      strongseplift (edge_seg Gsh pg el1 (hd 0 (e :: nil))).
+      strongseplift (edge_seg Gsh pg tt (e :: nil) (hd 0 el2)).
+      strongseplift (edge_seg Gsh pg tt el1 (hd 0 (e :: nil))).
       rewrite sepcon_assoc_logic_equiv.
       unfoldimpmodel.
-      erewrite (eseg_eseg Gsh pg el1 (e::nil) (hd 0 el2)).
+      erewrite (eseg_eseg Gsh pg tt el1 (e::nil) (hd 0 el2)).
       rewrite H1. 
       quick_entailer!. 
+      entailer!.
     + (* vist (dfs_field cvis) (pg.(dst) e) <> 0 *) 
       apply bfalse_valeq_neq in H10.
       simpl in H10.
@@ -443,10 +518,12 @@ Proof.
         instantiate (1:= LV _vis @ vint ↦ₗ vist (dfs_field cvis) (pg.(dst) e) &&
         (LV _v @ vptr ↦ₗ pg.(dst) e &&
          (LV _e @ vptr ↦ₗ e &&
-          (LV _x @ vptr ↦ₗ v_ptr && @graphrep E_Order Gsh ➀ pg (dfs_field cvis))))).
+          (LV _x @ vptr ↦ₗ v_ptr && @dfs_graph_rep E_Order Gsh ➀ pg (dfs_field cvis))))).
+        unfold dfs_graph_rep.
         rewrite <- fold_graph_field.
         quick_entailer!. }
       eapply hoare_conseq_pre.
+      unfold dfs_graph_rep.
       erewrite unfold_graph;[refl | eauto ].
       eapply hoare_conseq_pre.
       cbn [vertex_storage]. refl.
@@ -454,10 +531,11 @@ Proof.
       assert (l = el1 ++ e :: el2).
       { rewrite H1. eapply edge_deterministic;eauto. }
       subst l. clear H11 H12.
-      unfold AVertex, field_storage.
+      unfold AVertex, vertex_field_storage. simpl.
+      unfold dfs_vertex_field_storage.
       eapply hoare_conseq_pre.
       { rewrite <- edge_seg_list.
-        simpl (edge_storage Gsh pg (e :: el2)).
+        simpl (edge_storage Gsh pg tt (e :: el2)).
         refl.
       }
       hoare_simpl_pre.
@@ -479,16 +557,17 @@ Proof.
       2: { rewrite <- H1. rewrite <- app_assoc. simpl. auto.  }
       sep_apply (fold_edge_node Gsh e (pg.(dst) e) (hd 0 el2)).
       asrt_simpl.
-      sep_apply singleton_eseg;auto.
+      sep_apply singleton_eseg_noef;auto.
       asrt_simpl.
       replace ((hd 0 (e :: el2))) with (hd 0 (e::nil)) by (cbn;auto).
-      strongseplift (edge_seg Gsh pg (e :: nil) (hd 0 el2)).
-      strongseplift (edge_seg Gsh pg el1 (hd 0 (e :: nil))).
+      strongseplift (edge_seg Gsh pg tt (e :: nil) (hd 0 el2)).
+      strongseplift (edge_seg Gsh pg tt el1 (hd 0 (e :: nil))).
       rewrite sepcon_assoc_logic_equiv.
       unfoldimpmodel.
-      erewrite (eseg_eseg Gsh pg el1 (e::nil) (hd 0 el2)).
+      erewrite (eseg_eseg Gsh pg tt el1 (e::nil) (hd 0 el2)).
       rewrite H1. 
       quick_entailer!.
+      entailer!.
   - clear vis cvis H1 H2 H3.
     Intros el1 el2 cvis vis.
     andp_lift (Abfalse <{ _e != ENull }>).
@@ -503,7 +582,7 @@ Proof.
       rewrite app_nil_r in H1.
       subst el1. 
       quick_entailer!.
-      simpl (edge_storage Gsh pg nil).
+      simpl (edge_storage Gsh pg tt nil).
       simpl ((hd 0 nil)).
       sep_apply edgeseg_zero.
       asrt_simpl.
@@ -543,7 +622,8 @@ Proof.
   rename l into recstk. rename l0 into uvl. rename v2 into pg. rename z0 into u_ptr.  rename z into ue.
   rename v1 into E_Order. 
   rename v3 into cvis_pre. 
-  rename H3 into Hue.  rename H4 into Hedst. rename H5 into H3. 
+  rename H3 into Hue.  rename H4 into Hedst. rename H5 into H3.
+  unfold dfs_graph_rep. 
   (* _x := % _arg1; *)
   forward_simpl.
   (* [_x + 1]:= 1; *)
@@ -555,7 +635,8 @@ Proof.
   cbn [vertex_storage]. refl.
   hoare_simpl_pre.
   rename l into el.
-  unfold AVertex, field_storage.
+  unfold AVertex, vertex_field_storage. simpl.
+  unfold dfs_vertex_field_storage.
   hoare_simpl_pre.
   forward_simpl.
   entailer!.
@@ -581,9 +662,9 @@ Proof.
   (LV _x @ vptr ↦ₗ  v_ptr &&
     PV v_ptr + 1 @ vint ↦ₗ (vist (dfs_field cvis_loop) v_ptr) $ ➀ **
     (PV v_ptr @ vptr ↦ₗ hd 0 el $ Gsh **
-    (edge_seg Gsh pg el1 (hd 0 el2) **
-    (edge_storage Gsh pg el2 **
-      vertex_storage Gsh ➀ pg (dfs_field cvis_loop) vl))))
+    (edge_seg Gsh pg tt el1 (hd 0 el2) **
+    (edge_storage Gsh pg tt el2 **
+      vertex_storage Gsh ➀ pg (dfs_field cvis_loop) tt vl))))
   ).
   { Exists nil el (cvisupdate v_ptr 1 cvis_pre) (vis_pre ∪ [v_ptr]).
     quick_entailer!.
@@ -595,7 +676,8 @@ Proof.
     erewrite vertex_storage_app_r with (vs1:= (v_ptr :: nil)) (vf_new := (dfs_field (cvisupdate v_ptr 1 cvis_pre))).
     entailer!.
     simpl. auto. 
-    { intros. simpl in H6. 
+    { intros. simpl in H6.
+    apply vertex_field_storage_eq. 
     simpl. unfold cvisupdate. 
     destruct (v' =? v_ptr) eqn:?;auto.
     lia. }
@@ -632,40 +714,43 @@ Proof.
     { instantiate (1:= 
        LV _v @ vptr ↦ₗ pg.(dst) e &&
       (LV _e @ vptr ↦ₗ e &&
-      (LV _x @ vptr ↦ₗ v_ptr && @graphrep E_Order Gsh ➀ pg (dfs_field cvis)))).
+      (LV _x @ vptr ↦ₗ v_ptr && @dfs_graph_rep E_Order Gsh ➀ pg (dfs_field cvis)))).
+      unfold dfs_graph_rep.
       sep_apply fold_field_storage.
       asrt_simpl.
       sep_apply (fold_edge_node Gsh e (pg.(dst) e) (hd 0 el2)).
       asrt_simpl.
       sep_apply singleton_eseg.
       asrt_simpl.
-      strongseplift (edge_storage Gsh pg el2).
-      strongseplift (edge_seg Gsh pg (e :: nil) (hd 0 el2)).
+      strongseplift (edge_storage Gsh pg tt el2).
+      strongseplift (edge_seg Gsh pg tt (e :: nil) (hd 0 el2)).
       rewrite sepcon_assoc_logic_equiv.
       unfoldimpmodel.
-      rewrite (edge_seg_list Gsh pg (e::nil) el2).
+      rewrite (edge_seg_list Gsh pg tt (e::nil) el2).
       asrt_simpl.
       simpl (((e :: nil) ++ el2)).
-      strongseplift (edge_storage Gsh pg (e :: el2)).
-      strongseplift (edge_seg Gsh pg el1 e).
+      strongseplift (edge_storage Gsh pg tt (e :: el2)).
+      strongseplift (edge_seg Gsh pg tt el1 e).
       replace e with (hd 0 (e::el2)) at 1 by (cbn;auto).
       rewrite sepcon_assoc_logic_equiv.
       rewrite (edge_seg_list). unfoldimpmodel.
       rewrite <- H1.
-      rewrite <- (fold_graph_field' Gsh ➀ pg (dfs_field cvis) v_ptr vl  (el1 ++ e :: el2)).
+      rewrite <- (fold_graph_field' Gsh ➀ pg (dfs_field cvis) tt v_ptr vl  (el1 ++ e :: el2)).
       quick_entailer!.
       all : auto.
       rewrite H1. auto.
     }
+    unfold dfs_graph_rep.
     eapply hoare_conseq_pre.
     { rewrite unfold_graph;[ | eauto].
       assert (In (pg.(dst) e) (v_ptr :: vl)).
       { apply H. auto. }
-      pose proof vertex_storage_valid_pointer  Gsh ➀ pg (dfs_field cvis) (v_ptr :: vl) (pg.(dst) e) H9.
+      pose proof vertex_storage_valid_pointer  Gsh ➀ pg (dfs_field cvis) tt (v_ptr :: vl) (pg.(dst) e) H9.
       erewrite (prop_add_left _ _ H10). 
       rewrite fold_graph.
       rewrite unfold_field_storage with (v:= (pg.(dst) e));[ | eauto].
-      unfold field_storage.
+      unfold vertex_field_storage. simpl.
+      unfold dfs_vertex_field_storage.
       refl. 
       auto. }
     hoare_simpl_pre.
@@ -701,6 +786,7 @@ Proof.
       { cbn;auto. }
       { (* ==> pre*)
         unfold FS_Pre. cbn.
+        unfold dfs_graph_rep.
         Exists cvis.
         instantiate (1:= (
         (LV _v @ vptr ↦ₗ pg.(dst) e &&
@@ -708,7 +794,8 @@ Proof.
           (LV _x @ vptr ↦ₗ v_ptr && emp))))).
         entailer!.
         rewrite <- fold_graph_field with (v:= pg.(dst) e).
-        unfold field_storage.
+        unfold vertex_field_storage. simpl.
+        unfold dfs_vertex_field_storage.
         simpl.
         entailer!.
         { unfold out_edges. 
@@ -734,6 +821,7 @@ Proof.
       clear Hel1.
       rename H13 into Hel1. rename H12 into Habs.
       (* _e := [_e + 1] *)
+      unfold dfs_graph_rep.
       eapply hoare_conseq_pre.
       erewrite unfold_graph;[refl | eauto ].
       eapply hoare_conseq_pre.
@@ -742,10 +830,11 @@ Proof.
       assert (l = el1 ++ e :: el2).
       { rewrite H1. eapply edge_deterministic;eauto. }
       subst l. clear H12 H13.
-      unfold AVertex, field_storage.
+      unfold AVertex, vertex_field_storage. simpl.
+      unfold dfs_vertex_field_storage.
       eapply hoare_conseq_pre.
       { rewrite <- edge_seg_list.
-        simpl (edge_storage Gsh pg (e :: el2)).
+        simpl (edge_storage Gsh pg tt (e :: el2)).
         refl.
       }
       hoare_simpl_pre.
@@ -765,16 +854,17 @@ Proof.
       2: { rewrite <- H1. rewrite <- app_assoc. simpl. auto.  }
       sep_apply (fold_edge_node Gsh e (pg.(dst) e) (hd 0 el2)).
       asrt_simpl.
-      sep_apply singleton_eseg;auto.
+      sep_apply singleton_eseg_noef;auto.
       asrt_simpl.
       replace ((hd 0 (e :: el2))) with (hd 0 (e::nil)) by (cbn;auto).
-      strongseplift (edge_seg Gsh pg (e :: nil) (hd 0 el2)).
-      strongseplift (edge_seg Gsh pg el1 (hd 0 (e :: nil))).
+      strongseplift (edge_seg Gsh pg tt (e :: nil) (hd 0 el2)).
+      strongseplift (edge_seg Gsh pg tt el1 (hd 0 (e :: nil))).
       rewrite sepcon_assoc_logic_equiv.
       unfoldimpmodel.
-      erewrite (eseg_eseg Gsh pg el1 (e::nil) (hd 0 el2)).
+      erewrite (eseg_eseg Gsh pg tt el1 (e::nil) (hd 0 el2)).
       rewrite H1. 
-      quick_entailer!. 
+      quick_entailer!.
+      entailer!. 
     + (* vist (dfs_field cvis) (pg.(dst) e) <> 0 *) 
       apply bfalse_valeq_neq in H10.
       simpl in H10.
@@ -785,9 +875,11 @@ Proof.
         instantiate (1:= LV _vis @ vint ↦ₗ vist (dfs_field cvis) (pg.(dst) e) &&
         (LV _v @ vptr ↦ₗ pg.(dst) e &&
          (LV _e @ vptr ↦ₗ e &&
-          (LV _x @ vptr ↦ₗ v_ptr && @graphrep E_Order Gsh ➀ pg (dfs_field cvis))))).
+          (LV _x @ vptr ↦ₗ v_ptr && @dfs_graph_rep E_Order Gsh ➀ pg (dfs_field cvis))))).
+        unfold dfs_graph_rep.
         rewrite <- fold_graph_field.
         quick_entailer!. }
+      unfold dfs_graph_rep.
       eapply hoare_conseq_pre.
       erewrite unfold_graph;[refl | eauto ].
       eapply hoare_conseq_pre.
@@ -796,10 +888,11 @@ Proof.
       assert (l = el1 ++ e :: el2).
       { rewrite H1. eapply edge_deterministic;eauto. }
       subst l. clear H11 H12.
-      unfold AVertex, field_storage.
+      unfold AVertex, vertex_field_storage. simpl.
+      unfold dfs_vertex_field_storage.
       eapply hoare_conseq_pre.
       { rewrite <- edge_seg_list.
-        simpl (edge_storage Gsh pg (e :: el2)).
+        simpl (edge_storage Gsh pg tt (e :: el2)).
         refl.
       }
       hoare_simpl_pre.
@@ -821,16 +914,17 @@ Proof.
       2: { rewrite <- H1. rewrite <- app_assoc. simpl. auto.  }
       sep_apply (fold_edge_node Gsh e (pg.(dst) e) (hd 0 el2)).
       asrt_simpl.
-      sep_apply singleton_eseg;auto.
+      sep_apply singleton_eseg_noef;auto.
       asrt_simpl.
       replace ((hd 0 (e :: el2))) with (hd 0 (e::nil)) by (cbn;auto).
-      strongseplift (edge_seg Gsh pg (e :: nil) (hd 0 el2)).
-      strongseplift (edge_seg Gsh pg el1 (hd 0 (e :: nil))).
+      strongseplift (edge_seg Gsh pg tt (e :: nil) (hd 0 el2)).
+      strongseplift (edge_seg Gsh pg tt el1 (hd 0 (e :: nil))).
       rewrite sepcon_assoc_logic_equiv.
       unfoldimpmodel.
-      erewrite (eseg_eseg Gsh pg el1 (e::nil) (hd 0 el2)).
+      erewrite (eseg_eseg Gsh pg tt el1 (e::nil) (hd 0 el2)).
       rewrite H1. 
       quick_entailer!.
+      entailer!.
   - clear  cvis_pre H1 H2 H3. 
     Intros el1 el2 cvis vis.
     andp_lift (Abfalse <{ _e != ENull }>).
@@ -846,7 +940,7 @@ Proof.
       rewrite app_nil_r in H1.
       subst el1. 
       quick_entailer!.
-      simpl (edge_storage Gsh pg nil).
+      simpl (edge_storage Gsh pg tt nil).
       simpl ((hd 0 nil)).
       sep_apply edgeseg_zero.
       asrt_simpl.
@@ -886,9 +980,9 @@ Proof.
   rename v0 into E_Order.  rename v1 into pg. 
   pose proof @rh_hoare_vc_safeexec _ _ _ unit ((Z * (Z -> Prop ))%type * (Z -> Z))%type ((Z * (Z -> Prop ))%type * (Z -> Z))%type Δ f_dfs_rec
   (fun '(xv, vis, cvis) => DFS pg xv)
-  (fun '(xv, vis, cvis) => GV _arg1 @ vptr ↦ₗ xv && graphrep Gsh ➀ pg (dfs_field cvis))
+  (fun '(xv, vis, cvis) => GV _arg1 @ vptr ↦ₗ xv && dfs_graph_rep Gsh ➀ pg (dfs_field cvis))
   (fun '(xv, vis, cvis) s => s.(visited) = vis /\ s.(stack) = nil) 
-  (fun '(xv, vis, cvis) _ => graphrep Gsh ➀ pg (dfs_field cvis))
+  (fun '(xv, vis, cvis) _ => dfs_graph_rep  Gsh ➀ pg (dfs_field cvis))
   (fun '(xv, vis, cvis) _ s => s.(visited) = vis /\ s.(stack) = nil) 
   (fun '(xv, vis, cvis)  => pg.(vvalid) xv /\ vis = ∅ /\ vis_func vis cvis) (fun '(xv, vis, cvis) _  => vis_func vis cvis) 
   (fun s => s.(stack) = nil /\ s.(visited) = ∅)

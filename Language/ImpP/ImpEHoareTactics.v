@@ -28,7 +28,7 @@ Ltac imp_rule :=
       eapply hoare_AsgnGlobal ;
       asrt_simpl;symbolic_execution
   | |- ?delta ⊢ {{ ?P }} CLoad ?x ?e {{ ?Q }} =>
-      eapply hoare_LoadFull;[ symbolic_execution | symbolic_execution]
+      eapply hoare_LoadFull;[ symbolic_execution | entailer!; symbolic_execution]
 
   | |- ?delta ⊢ {{ ?P }} CStore ?x ?e {{ ?Q }} =>
       eapply hoare_Store';[  symbolic_execution | symbolic_execution | idtac | 

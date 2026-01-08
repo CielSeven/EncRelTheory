@@ -14,9 +14,9 @@ COQDEP=$(COQBIN)coqdep$(SUF)
 DIRS = \
 	Examples Language auxlib EncRelSeq compcert_lib sets unifysl fixedpoints monadlib 
  
-COQ_FLAG = -R $(QCP_DIR)sets SetsClass -R $(QCP_DIR)unifysl Logic -R $(QCP_DIR)compcert_lib compcert.lib -R $(QCP_DIR)auxlibs AUXLib -R EncRelSeq EncRelSeq -R Language LangLib -R Examples Examples -R fixedpoints FP -R monadlib MonadLib -R $(QCP_DIR)SeparationLogic SimpleC.SL -R $(QCP_DIR)examples SimpleC.EE -R $(QCP_DIR)StrategyLib SimpleC.StrategyLib
+COQ_FLAG = -R sets SetsClass -R $(QCP_DIR)unifysl Logic -R $(QCP_DIR)compcert_lib compcert.lib -R $(QCP_DIR)auxlibs AUXLib -R EncRelSeq EncRelSeq -R Language LangLib -R Examples Examples -R fixedpoints FP -R monadlib MonadLib -R $(QCP_DIR)SeparationLogic SimpleC.SL -R $(QCP_DIR)examples SimpleC.EE -R $(QCP_DIR)StrategyLib SimpleC.StrategyLib
  
-DEP_FLAG = -R $(QCP_DIR)sets SetsClass -R $(QCP_DIR)unifysl Logic -R $(QCP_DIR)compcert_lib compcert.lib -R $(QCP_DIR)auxlibs AUXLib -R EncRelSeq EncRelSeq -R Language LangLib -R Examples Examples -R fixedpoints FP -R monadlib MonadLib -R $(QCP_DIR)SeparationLogic SimpleC.SL -R $(QCP_DIR)examples SimpleC.EE -R $(QCP_DIR)StrategyLib SimpleC.StrategyLib
+DEP_FLAG = -R sets SetsClass -R $(QCP_DIR)unifysl Logic -R $(QCP_DIR)compcert_lib compcert.lib -R $(QCP_DIR)auxlibs AUXLib -R EncRelSeq EncRelSeq -R Language LangLib -R Examples Examples -R fixedpoints FP -R monadlib MonadLib -R $(QCP_DIR)SeparationLogic SimpleC.SL -R $(QCP_DIR)examples SimpleC.EE -R $(QCP_DIR)StrategyLib SimpleC.StrategyLib
 
 Compcertlib_FILES = \
   Coqlib.v Integers.v Zbits.v 
@@ -91,7 +91,7 @@ MONAD_FILES = \
 Language_FILES = \
 	ImpP/Mem.v ImpP/PermissionModel.v ImpP/mem_lib.v ImpP/Imp.v \
 	ImpP/Seplogicrules.v ImpP/Assertion.v ImpP/ImpTactics.v  ImpP/ImpHoareTactics.v ImpP/ImpEHoareTactics.v \
-	ImpP/slllib.v ImpP/ArrayLib.v ImpP/bst_lib.v ImpP/GraphAdjList.v
+	ImpP/slllib.v ImpP/ArrayLib.v ImpP/bst_lib.v ImpP/GraphAdjListM.v \
 
 Examples_FILES = \
   	impexample/Cmergesort.v impexample/CmergesortProof.v \
@@ -215,7 +215,7 @@ $(QCPFILES:%.v=%.vo): %.vo: %.v
 
 FILES = \
 	$(Unify_FILES:%.v=QCP/SeparationLogic/unifysl/LogicGenerator/demo932/%.v) \
-    $(Sets_FILES:%.v=QCP/SeparationLogic/sets/%.v) \
+    $(Sets_FILES:%.v=sets/%.v) \
     $(Compcertlib_FILES:%.v=QCP/SeparationLogic/compcert_lib/%.v) \
     $(Auxlibs_FILES:%.v=QCP/SeparationLogic/auxlibs/%.v) \
     $(FIXPOINT_FILES:%.v=fixedpoints/%.v) \
@@ -251,7 +251,7 @@ $(TEST_VC_code_FILE_NAME:%=Examples/QCPexample/VC/code_proof/%_goal.v) : Example
 	@$(SymExec_DIR)symexec$(SYM_SUF) --goal-file=Examples/QCPexample/VC/code_proof/$*_goal.v --proof-auto-file=Examples/QCPexample/VC/code_proof/$*_proof_auto.v --proof-manual-file=Examples/QCPexample/VC/code_proof/$*_proof_manual.v --input-file=Examples/QCPexample/annotated_C/$*.c  -slp Examples/QCPexample/annotated_C/ Examples.QCPexample.VC.strategy_proof -slp QCP/QCP_examples/ SimpleC.EE -IQCP/QCP_examples --coq-logic-path=Examples.QCPexample --no-exec-info
 
 
-sets: $(Sets_FILES:%.v=QCP/SeparationLogic/sets/%.vo)
+sets: $(Sets_FILES:%.v=sets/%.vo)
 	@echo "====== sets built ======"
 
 

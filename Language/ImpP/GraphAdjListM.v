@@ -316,20 +316,32 @@ End graph_def_lemmas.
 (*                                                                                   *)                 
 (*  struct vertex {                                                                  *)
 (*    struct edge* vedge;                                                            *)
-(*    int visited; };                                                                *)
+(*    vertex fields ..  };                                                           *)
 (*  struct edge {                                                                    *)
 (*   struct vertex* etail;                                                           *)
 (*   struct edge* next; };                                                           *)
+(*   edge fields ..  };                                                              *)
 (*                                                                                   *)
 (*************************************************************************************)
 Import ImpRules.
 Local Open Scope asrt_scope.
-Record Vertex_field : Type := {
-   vist: Z -> Z;
+
+
+Class Vertex_Field_M {Vertex_field: Type} : Type :={
+  vertex_field_storage: Perm.t -> Vertex_field -> Z -> assertion;
+  subst_local_vertex_field_storage: forall (pm : Perm.t) (V_field : Vertex_field) (v : Z) (x : var) (n : value), subst_local x n (vertex_field_storage pm V_field v) --||-- vertex_field_storage pm V_field v;
+  subst_global_vertex_field_storage: forall (pm : Perm.t) (V_field : Vertex_field) (v : Z) (x : var) (n : value), subst_global x n (vertex_field_storage pm V_field v) --||-- vertex_field_storage pm V_field v;
+  closedlvars_vertex_field_storage : forall Vpm V_field  v vs,  closed_wrt_lvars vs (vertex_field_storage Vpm V_field v);
+  closedgvars_vertex_field_storage : forall Vpm V_field  v vs,  closed_wrt_gvars vs (vertex_field_storage Vpm V_field v);
 }.
 
-Definition field_storage (vpm: Perm.t) (vl: Vertex_field) (v: Z) : assertion :=
-  PV (v + 1) @ vint ↦ₗ (vist vl v) $ vpm.
+Class Edge_Field_M {Edge_field: Type}: Type :={
+  edge_field_storage: Perm.t -> Edge_field -> Z -> assertion;
+  subst_local_edge_field_storage: forall (pm : Perm.t) (E_field : Edge_field) (v : Z) (x : var) (n : value), subst_local x n (edge_field_storage pm E_field v) --||-- edge_field_storage pm E_field v;
+  subst_global_edge_field_storage: forall (pm : Perm.t) (E_field : Edge_field) (v : Z) (x : var) (n : value), subst_global x n (edge_field_storage pm E_field v) --||-- edge_field_storage pm E_field v;
+  closedlvars_edge_field_storage : forall pm E_field v vs,  closed_wrt_lvars vs (edge_field_storage pm E_field v);
+  closedgvars_edge_field_storage : forall pm E_field v vs,  closed_wrt_gvars vs (edge_field_storage pm E_field v);
+}.
 
 Definition data_at_t_edge_node (gpm: Perm.t) (vl : Z * Z) e :assertion :=
   let (v, y) := vl in 
@@ -340,20 +352,26 @@ Section model_def.
 
 (**************************************  Edge Storage Specifications ***************************)
 Context {E_Order:Edge_Order}.
+Context {Vertex_field: Type}.
+Context {Edge_field: Type}.
+Context `{V_field_M:@Vertex_Field_M Vertex_field}.
+Context `{E_field_M:@Edge_Field_M Edge_field}.
 Context (Gsh Vsh: Perm.t).
 Context (GshH: Perm.readable_perm Gsh).
 Context (G:PreGraph Z Z).
 Context (V_field:Vertex_field).
+Context (E_field:Edge_field).
 
 Definition AVertex pedge v: assertion := 
   PV v @ vptr ↦ₗ pedge $ Gsh **
-  field_storage Vsh V_field v.
+  vertex_field_storage Vsh V_field v.
 
 Fixpoint edge_storage (sigma: list Z) : assertion := 
 match sigma with
  | nil => emp
  | e::es => !! ( G.(vvalid) (G.(dst) e)) &&   !! (isvalidptr e) && 
-   data_at_t_edge_node Gsh ((G.(dst) e), (hd 0 es) ) e
+   data_at_t_edge_node Gsh ((G.(dst) e), (hd 0 es) ) e **
+   edge_field_storage Gsh E_field e 
    ** edge_storage es
 end.
 
@@ -363,7 +381,8 @@ Fixpoint edge_seg (sigma: list Z) (pend:Z) : assertion:=
 match sigma with
  | nil => ImpRules.emp
  | e::es => !! ( G.(vvalid) (G.(dst) e)) && !! (isvalidptr e) && 
- data_at_t_edge_node Gsh ((G.(dst) e),(hd pend es) ) e
+ data_at_t_edge_node Gsh ((G.(dst) e),(hd pend es) ) e **
+ edge_field_storage Gsh E_field e 
  ** edge_seg es pend
 end.
 
@@ -398,7 +417,7 @@ Definition rest_of_graph v : assertion:=
 lemmas    *)
 
 Lemma field_rep_valid_pointer v:
-   field_storage Vsh V_field v **
+   vertex_field_storage Vsh V_field v **
    rest_of_graph v
    |-- !! isvalidptr v.
 Proof.
@@ -448,7 +467,8 @@ Qed.
 
 Lemma singleton_eseg: forall  (x y: Z),
   G.(vvalid) (G.(dst) x) -> isvalidptr x ->
-  data_at_t_edge_node Gsh ((G.(dst) x),y) x
+  data_at_t_edge_node Gsh ((G.(dst) x),y) x **
+  edge_field_storage Gsh E_field x 
   |-- edge_seg (x::nil) y.
 Proof.
   intros.
@@ -553,7 +573,7 @@ Qed.
  ********************** Vertex Lemmas *)
  
 Lemma fold_pure_storage: forall pedge v,
-  field_storage Vsh V_field v **
+  vertex_field_storage Vsh V_field v **
   PV v @ vptr ↦ₗ pedge $ Gsh 
   |-- AVertex pedge v.
 Proof. intros.
@@ -899,26 +919,15 @@ Proof.
   quick_entailer!.
 Qed.
 
-Lemma fold_field_storage v:
-  PV (v + 1) @ vint ↦ₗ (vist V_field v) $ Vsh 
-  |-- field_storage Vsh V_field v.
-Proof.
-  unfold field_storage.
-  cancel.
-Qed.
-
-
 Theorem fold_graph_field (v:Z):
-  field_storage Vsh V_field v 
+  vertex_field_storage Vsh V_field v 
   ** rest_of_graph v
   |-- graphrep.
 Proof.
   unfold graphrep.
-  unfold field_storage.
   unfold rest_of_graph.
   Intros vs es.
-  sep_apply (fold_field_storage).
-  sepcon_lift (field_storage Vsh V_field v).
+  sepcon_lift (vertex_field_storage Vsh V_field v).
   sepcon_lift (PV v @ vptr ↦ₗ hd 0 es $ Gsh).
   sep_apply (fold_pure_storage).
   sep_apply (fold_vertex_storage H).
@@ -930,7 +939,7 @@ Qed.
 
 Theorem fold_graph_field' :forall  (v:Z) (vs: list Z) (es: list Z),
   elis_prop G v es -> vlis_prop G (v::vs) -> isvalidptr v ->
-  field_storage Vsh V_field v 
+  vertex_field_storage Vsh V_field v 
   ** PV v @ vptr ↦ₗ (hd 0 es) $ Gsh **
   vertex_storage vs **
   edge_storage es
@@ -946,12 +955,12 @@ Qed.
 
 Theorem unfold_field_storage (v:Z):
   G.(vvalid) v ->
-  graphrep |-- field_storage Vsh V_field v 
+  graphrep |-- vertex_field_storage Vsh V_field v 
   ** rest_of_graph v.
 Proof.
   intros.
   unfold graphrep.
-  unfold field_storage.
+  unfold vertex_field_storage.
   unfold rest_of_graph.
   Intros vs.
   pose proof vertex_in_vprop G H0 H.
@@ -962,36 +971,44 @@ Proof.
   Intros es.
   Exists vs' es.
   unfold AVertex.
-  unfold field_storage.
+  unfold vertex_field_storage.
   quick_entailer!.
 Qed.
 
 End model_def.
 
 
+
+Section model_lemmas.
+Context {E_Order:Edge_Order}.
+Context {Vertex_field: Type}.
+Context {Edge_field: Type}.
+Context `{V_field_M:@Vertex_Field_M Vertex_field}.
+Context `{E_field_M:@Edge_Field_M Edge_field}.
+
 (** ***************************************
  **********   Lemmas About Vertex Field, vertex storage, rest_of_graph_aux graphrep   *)
-Definition rest_of_graph_aux {E_Order : Edge_Order} Gsh Vsh G vf v vs es : assertion:= 
+Definition rest_of_graph_aux  Gsh Vsh G vf ef v vs es : assertion:= 
   !! (elis_prop G v es) && !! (vlis_prop G (v::vs)) && !! (isvalidptr v) &&
   PV v @ vptr ↦ₗ (hd 0 es) $ Gsh **
-  vertex_storage Gsh Vsh G vf vs **
-  edge_storage Gsh G es.
+  vertex_storage Gsh Vsh G vf ef vs **
+  edge_storage Gsh G ef es.
 
-Lemma fold_rest_of_graph_aux : forall {E_Order : Edge_Order} Gsh Vsh G vf v vs es,
+Lemma fold_rest_of_graph_aux: forall  Gsh Vsh G vf ef v vs es,
   elis_prop G v es -> vlis_prop G (v::vs) -> isvalidptr v ->
   PV v @ vptr ↦ₗ (hd 0 es) $ Gsh **
-  vertex_storage Gsh Vsh G vf vs **
-  edge_storage Gsh G es
-  |--  rest_of_graph_aux Gsh Vsh G vf v vs es.
+  vertex_storage Gsh Vsh G vf ef vs **
+  edge_storage Gsh G ef es
+  |--  rest_of_graph_aux Gsh Vsh G vf ef v vs es.
 Proof.
   intros.
   unfold rest_of_graph_aux.
   quick_entailer!.
 Qed.
 
-Lemma vertex_storage_permutation : forall {E_Order : Edge_Order} Gsh Vsh G vf vs vs',
+Lemma vertex_storage_permutation : forall Gsh Vsh G vf ef vs vs',
   Permutation vs vs' ->
-  vertex_storage Gsh Vsh G vf vs --||-- vertex_storage Gsh Vsh G vf vs'.
+  vertex_storage Gsh Vsh G vf ef vs --||-- vertex_storage Gsh Vsh G vf ef vs'.
 Proof.
   intros.
   induction H.
@@ -1011,11 +1028,11 @@ Proof.
     auto.
 Qed.
 
-Lemma vertex_storage_in: forall {E_Order : Edge_Order} Gsh Vsh G vf vs v,
+Lemma vertex_storage_in: forall Gsh Vsh G vf ef vs v,
   In v vs ->
-  vertex_storage Gsh Vsh G vf vs --||-- 
+  vertex_storage Gsh Vsh G vf ef vs --||-- 
   EX vs', !! Permutation vs (v::vs') &&
-          vertex_storage Gsh Vsh G vf (v::vs').
+          vertex_storage Gsh Vsh G vf ef (v::vs').
 Proof.
   intros. revert v H.
   induction vs;intros.
@@ -1027,7 +1044,7 @@ Proof.
         quick_entailer!.
       * Intros vs'.
         quick_entailer!.
-        erewrite (vertex_storage_permutation Gsh Vsh G vf (v::vs));eauto.
+        erewrite (vertex_storage_permutation Gsh Vsh G vf ef (v::vs));eauto.
         refl.
     + cbn. 
       apply logic_equiv_derivable1. unfoldimpmodel. split.
@@ -1041,20 +1058,20 @@ Proof.
       * Intros vs' es.
         specialize (IHvs _ H).
         quick_entailer!.
-        eapply derivable1_trans with (vertex_storage Gsh Vsh G vf (a::vs)).
+        eapply derivable1_trans with (vertex_storage Gsh Vsh G vf ef (a::vs)).
         unfoldimpmodel.
-        { erewrite (vertex_storage_permutation Gsh Vsh G vf (a::vs));eauto.
+        { erewrite (vertex_storage_permutation Gsh Vsh G vf ef (a::vs));eauto.
         simpl.
         Exists es. quick_entailer!. }
         cbn.
         refl.
 Qed.
 
-Lemma vertex_storage_app_r {E_Order : Edge_Order}: forall vs1 vs2 Gsh pm pg vf vf_new,
+Lemma vertex_storage_app_r: forall vs1 vs2 Gsh pm pg vf ef vf_new,
   vlis_prop pg (vs1 ++ vs2) ->
-  (forall v', ~ List.In v' vs1 -> vist vf v' = vist vf_new v') ->
-  vertex_storage Gsh pm pg vf vs2
-  |-- vertex_storage Gsh pm pg vf_new vs2.
+  (forall v', ~ List.In v' vs1 -> vertex_field_storage pm vf v' --||-- vertex_field_storage pm vf_new v') ->
+  vertex_storage Gsh pm pg vf ef vs2
+  |-- vertex_storage Gsh pm pg vf_new ef vs2.
 Proof.
   intros vs1 vs2. revert vs1. 
   induction vs2;intros.
@@ -1071,7 +1088,7 @@ Proof.
     simpl.
     eapply ex_elim_both.
     intros es.
-    unfold AVertex, field_storage.
+    unfold AVertex.
     rewrite H2.
     asrt_simpl.
     quick_entailer!.
@@ -1081,11 +1098,11 @@ Proof.
     apply H5. apply in_or_app. tauto.
 Qed.
 
-Lemma vertex_storage_hd {E_Order : Edge_Order}: forall v vs2 Gsh pm pg vf vf_new,
+Lemma vertex_storage_hd: forall v vs2 Gsh pm pg vf ef vf_new,
   vlis_prop pg (v:: vs2) ->
-  (forall v', v' <> v -> vist vf v' = vist vf_new v') ->
-  vertex_storage Gsh pm pg vf vs2
-  |-- vertex_storage Gsh pm pg vf_new vs2.
+  (forall v', v' <> v -> vertex_field_storage pm vf v' --||-- vertex_field_storage pm vf_new v') ->
+  vertex_storage Gsh pm pg vf ef vs2
+  |-- vertex_storage Gsh pm pg vf_new ef vs2.
 Proof.
   intros.
   rewrite <- cons_app in H.
@@ -1094,6 +1111,48 @@ Proof.
   unfold not;intros; apply H1;left;auto.
 Qed.
 
+Lemma edge_storage_app_r: forall es1 es2 Gsh pg v ef ef_new,
+  elis_prop pg v (es1 ++ es2) ->
+  (forall e', ~ List.In e' es1 -> edge_field_storage Gsh ef e' --||-- edge_field_storage Gsh ef_new e') ->
+  edge_storage Gsh pg ef es2
+  |-- edge_storage Gsh pg ef_new es2.
+Proof.
+  intros es1 es2. revert es1. 
+  induction es2;intros.
+  - simpl. refl.
+  - assert (~ In a es1). 
+    { pose proof H as [H4 H5].
+      apply NoDup_remove_2 in H5.
+      unfold not;intros.
+      apply H5.
+      apply in_or_app.
+      tauto. }
+    pose proof H0 a H1.
+    rewrite app_cons_assoc in H.
+    simpl.
+    rewrite H2.
+    asrt_simpl.
+    quick_entailer!.
+    eapply IHes2;eauto.
+    intros. eapply H0. 
+    unfold not. intros.
+    apply H5. apply in_or_app. tauto.
+Qed.
+
+Lemma edge_storage_hd: forall e es2 Gsh pg v ef ef_new,
+  elis_prop pg v (e:: es2) ->
+  (forall e', e' <> e ->  edge_field_storage Gsh ef e' --||-- edge_field_storage Gsh ef_new e') ->
+  edge_storage Gsh pg ef es2
+  |-- edge_storage Gsh pg ef_new es2.
+Proof.
+  intros.
+  rewrite <- cons_app in H.
+  eapply edge_storage_app_r;eauto.
+  simpl;intros; eapply H0.
+  unfold not;intros; apply H1;left;auto.
+Qed.
+
+End model_lemmas.
 
 (* Ltac fold_field_storage' v vsh new_field := 
   match goal with 
@@ -1206,28 +1265,25 @@ Ltac fold_graphrep' Gsh v vs es :=
     end. *)
 
 Section graph_subst_rules.
+Context {E_Order:Edge_Order}.
+Context {Vertex_field: Type}.
+Context {Edge_field: Type}.
+Context `{V_field_M:@Vertex_Field_M Vertex_field}.
+Context `{E_field_M:@Edge_Field_M Edge_field}.
 
-
-Lemma  subst_local_fieldstorage:  forall pm V_field v x n, 
- subst_local x n (field_storage pm V_field v) --||-- field_storage pm V_field v.
-Proof.
-  unfold field_storage;intros.
-  erewrite ! subst_local_pv.
-  apply logic_equiv_refl.
-Qed.
-
-Lemma  subst_local_AVertex:  forall Gpm Vpm  V_field pedge v x n, subst_local x n (AVertex Gpm Vpm V_field pedge v) --||-- AVertex Gpm Vpm V_field pedge v.
+Lemma  subst_local_AVertex :  forall Gpm Vpm  V_field pedge v x n, subst_local x n (AVertex Gpm Vpm V_field pedge v) --||-- AVertex Gpm Vpm V_field pedge v.
 Proof.
   unfold AVertex;intros.
   rewrite ! subst_local_sepcon.
-  rewrite ! subst_local_fieldstorage.
+  rewrite ! subst_local_vertex_field_storage.
   erewrite ! subst_local_pv.
   apply logic_equiv_refl.
 Qed.
 
-Lemma  subst_local_edgestorage:  forall Gpm G l x n, subst_local x n (edge_storage Gpm G l) --||-- edge_storage Gpm G l.
+
+Lemma  subst_local_edgestorage:  forall Gpm G ef l x n, subst_local x n (edge_storage Gpm G ef l) --||-- edge_storage Gpm G ef l.
 Proof.
-  intros Gpm G l;revert G.
+  intros Gpm G ef l;revert G.
   induction l;intros.
   - simpl.
     rewrite subst_local_emp.
@@ -1235,15 +1291,16 @@ Proof.
   - simpl.
     rewrite ! subst_local_and.
     erewrite ! subst_local_sepcon.
+    rewrite ! subst_local_edge_field_storage.
     erewrite ! subst_local_pv.
     rewrite ! subst_local_pure.
     erewrite IHl.
     apply logic_equiv_refl.
 Qed.
 
-Lemma  subst_local_edgeseg:  forall Gpm G l pend x n, subst_local x n (edge_seg Gpm G l pend) --||-- edge_seg Gpm G l pend.
+Lemma  subst_local_edgeseg :  forall Gpm G ef l pend x n, subst_local x n (edge_seg Gpm G ef l pend) --||-- edge_seg Gpm G ef l pend.
 Proof.
-  intros Gpm G l;revert G.
+  intros Gpm G ef l;revert G.
   induction l;intros.
   - simpl.
     rewrite subst_local_emp.
@@ -1251,6 +1308,7 @@ Proof.
   - simpl.
   rewrite ! subst_local_and.
   erewrite ! subst_local_sepcon.
+  rewrite ! subst_local_edge_field_storage.
   erewrite ! subst_local_pv.
   rewrite ! subst_local_pure.
   erewrite IHl.
@@ -1258,9 +1316,9 @@ Proof.
 Qed.
 
 
-Lemma  subst_local_vertexstorage {E_Order : Edge_Order}:  forall Gpm Vpm G vf l x n, subst_local x n (vertex_storage Gpm Vpm G vf l) --||-- vertex_storage Gpm Vpm G vf l.
+Lemma  subst_local_vertexstorage :  forall Gpm Vpm G vf ef l x n, subst_local x n (vertex_storage Gpm Vpm G vf ef l) --||-- vertex_storage Gpm Vpm G vf ef l.
 Proof.
-  intros  Gpm Vpm  G vf l;revert G vf.
+  intros  Gpm Vpm  G vf ef l;revert G vf.
   induction l;intros.
   - simpl.
     rewrite subst_local_emp.
@@ -1278,7 +1336,7 @@ Proof.
     apply logic_equiv_refl.
 Qed.
 
-Lemma  subst_local_graphrep {E_Order : Edge_Order}:  forall  Gpm Vpm  G V_field x n, subst_local x n (graphrep Gpm Vpm G V_field) --||-- graphrep Gpm Vpm G V_field.
+Lemma  subst_local_graphrep:  forall  Gpm Vpm  G V_field E_field x n, subst_local x n (graphrep Gpm Vpm G V_field E_field) --||-- graphrep Gpm Vpm G V_field E_field.
 Proof.
   intros;unfold graphrep.
   rewrite subst_local_exp.
@@ -1289,7 +1347,7 @@ Proof.
   apply logic_equiv_refl.
 Qed.
 
-Lemma  subst_local_rest_of_graph {E_Order : Edge_Order}:  forall  Gpm Vpm  G V_field v x n, subst_local x n (rest_of_graph Gpm Vpm G V_field v) --||-- rest_of_graph Gpm Vpm G V_field v.
+Lemma  subst_local_rest_of_graph : forall  Gpm Vpm G V_field E_field v x n, subst_local x n (rest_of_graph Gpm Vpm G V_field E_field v) --||-- rest_of_graph Gpm Vpm G V_field E_field v.
 Proof.
   intros;unfold rest_of_graph.
   rewrite subst_local_exp.
@@ -1311,25 +1369,18 @@ Qed.
 (** ***************************************
  **********   Lemmas About substglobal *)
 
-Lemma  subst_global_fieldstorage:  forall Vpm V_field v x n, subst_global x n (field_storage Vpm V_field v) --||-- field_storage Vpm V_field v.
-Proof.
-  unfold field_storage;intros.
-  erewrite ! subst_global_pv.
-  apply logic_equiv_refl.
-Qed.
-
-Lemma  subst_global_AVertex:  forall Gpm Vpm  V_field pedge v x n, subst_global x n (AVertex Gpm Vpm V_field pedge v) --||-- AVertex Gpm Vpm V_field pedge v.
+Lemma  subst_global_AVertex : forall Gpm Vpm  V_field pedge v x n, subst_global x n (AVertex Gpm Vpm V_field pedge v) --||-- AVertex Gpm Vpm V_field pedge v.
 Proof.
   unfold AVertex;intros.
   rewrite ! subst_global_sepcon.
-  rewrite ! subst_global_fieldstorage.
+  rewrite ! subst_global_vertex_field_storage.
   erewrite ! subst_global_pv.
   apply logic_equiv_refl.
 Qed.
 
-Lemma  subst_global_edgestorage:  forall Gpm G l x n, subst_global x n (edge_storage Gpm G l) --||-- edge_storage Gpm G l.
+Lemma  subst_global_edgestorage:  forall Gpm G ef l x n, subst_global x n (edge_storage Gpm G ef l) --||-- edge_storage Gpm G ef l.
 Proof.
-  intros Gpm G l;revert G.
+  intros Gpm G ef l;revert G.
   induction l;intros.
   - simpl.
     rewrite subst_global_emp.
@@ -1337,14 +1388,15 @@ Proof.
   - simpl.
     rewrite ! subst_global_and. 
     erewrite ! subst_global_sepcon.
+    erewrite !subst_global_edge_field_storage.
     erewrite ! subst_global_pv.
     erewrite IHl.
     apply logic_equiv_refl.
 Qed.
 
-Lemma  subst_global_edgeseg:  forall Gpm G l pend x n, subst_global x n (edge_seg Gpm G l pend) --||-- edge_seg Gpm G l pend.
+Lemma  subst_global_edgeseg:  forall Gpm G ef l pend x n, subst_global x n (edge_seg Gpm G ef l pend) --||-- edge_seg Gpm G ef l pend.
 Proof.
-  intros Gpm G l;revert G.
+  intros Gpm G ef l;revert G.
   induction l;intros.
   - simpl.
     rewrite subst_global_emp.
@@ -1352,14 +1404,15 @@ Proof.
   - simpl.
     rewrite ! subst_global_and. 
     erewrite ! subst_global_sepcon.
+    erewrite !subst_global_edge_field_storage.
     erewrite ! subst_global_pv.
     erewrite IHl.
     apply logic_equiv_refl.
 Qed.
 
-Lemma  subst_global_vertexstorage {E_Order : Edge_Order}:  forall Gpm Vpm G vf l x n, subst_global x n (vertex_storage Gpm Vpm G vf l) --||-- vertex_storage Gpm Vpm G vf l.
+Lemma  subst_global_vertexstorage :  forall Gpm Vpm G vf ef l x n, subst_global x n (vertex_storage Gpm Vpm G vf ef l) --||-- vertex_storage Gpm Vpm G vf ef l.
 Proof.
-  intros Gpm Vpm G vf l;revert G vf.
+  intros Gpm Vpm G vf ef l;revert G vf.
   induction l;intros.
   - simpl.
     rewrite subst_global_emp.
@@ -1376,7 +1429,7 @@ Proof.
     apply logic_equiv_refl.
 Qed.
 
-Lemma  subst_global_graphrep {E_Order : Edge_Order}:  forall Gpm Vpm G V_field x n, subst_global x n (graphrep Gpm Vpm G V_field) --||-- graphrep Gpm Vpm G V_field.
+Lemma  subst_global_graphrep:  forall Gpm Vpm G V_field E_field x n, subst_global x n (graphrep Gpm Vpm G V_field E_field) --||-- graphrep Gpm Vpm G V_field E_field.
 Proof.
   intros;unfold graphrep.
   rewrite subst_global_exp.
@@ -1387,7 +1440,7 @@ Proof.
   apply logic_equiv_refl.
 Qed.
 
-Lemma  subst_global_rest_of_graph {E_Order : Edge_Order}:  forall  Gpm Vpm  G V_field v x n, subst_global x n (rest_of_graph Gpm Vpm G V_field v) --||-- rest_of_graph Gpm Vpm G V_field v.
+Lemma  subst_global_rest_of_graph:  forall  Gpm Vpm  G V_field E_field v x n, subst_global x n (rest_of_graph Gpm Vpm G V_field E_field v) --||-- rest_of_graph Gpm Vpm G V_field E_field v.
 Proof.
   intros;unfold rest_of_graph.
   rewrite subst_global_exp.
@@ -1408,40 +1461,38 @@ Qed.
 
 (** ***************************************
  **********   Lemmas About closed *)
-Lemma closedlvars_edge_storage: forall Gpm G l vs, 
- closed_wrt_lvars vs (edge_storage Gpm G l).
+Lemma closedlvars_edge_storage: forall Gpm G ef l vs, 
+ closed_wrt_lvars vs (edge_storage Gpm G ef l).
 Proof.
-  intros Gpm G l. induction l;intros.
-  - simpl. solve_closedlvars assumption.
+  intros Gpm G ef l. induction l;intros.
+  -  simpl. solve_closedlvars assumption.
   - cbn.
     solve_closedlvars assumption.
+    apply closedlvars_edge_field_storage.
     apply IHl.
 Qed. 
 
-Lemma closedlvars_edge_seg: forall Gpm G l pend vs, 
- closed_wrt_lvars vs (edge_seg Gpm G l pend).
+Lemma closedlvars_edge_seg: forall Gpm G ef l pend vs, 
+ closed_wrt_lvars vs (edge_seg Gpm G ef l pend).
 Proof.
-  intros Gpm G l. induction l;intros.
+  intros Gpm G ef l. induction l;intros.
   - simpl. solve_closedlvars assumption.
   - cbn.
     solve_closedlvars assumption.
+    apply closedlvars_edge_field_storage.
     apply IHl.
 Qed. 
 
-Lemma closedlvars_field_storage : forall Vpm V_field v vs, 
- closed_wrt_lvars vs (field_storage Vpm V_field v).
-Proof.
-  intros. unfold field_storage. solve_closedlvars assumption. Qed.
 
 Lemma closedlvars_AVertex: forall Gpm Vpm V_field pedge v vs, 
  closed_wrt_lvars vs (AVertex Gpm Vpm V_field pedge v).
 Proof.
-  intros. unfold AVertex. solve_closedlvars assumption. apply closedlvars_field_storage. Qed.
+  intros. unfold AVertex. solve_closedlvars assumption. apply closedlvars_vertex_field_storage. Qed.
 
-Lemma closedlvars_vertex_storage {E_Order : Edge_Order}:  forall Gpm Vpm G vf l vs, 
- closed_wrt_lvars vs (vertex_storage Gpm Vpm G vf l).
+Lemma closedlvars_vertex_storage :  forall Gpm Vpm G vf ef l vs, 
+ closed_wrt_lvars vs (vertex_storage Gpm Vpm G vf ef l).
 Proof.
-  intros Gpm Vpm G vf l. induction l;intros.
+  intros Gpm Vpm G vf ef l. induction l;intros.
   - simpl. solve_closedlvars assumption.
   - cbn.
     solve_closedlvars assumption.
@@ -1450,40 +1501,37 @@ Proof.
     apply IHl.
 Qed. 
 
-Lemma closedgvars_edge_storage: forall Gpm G l vs, 
- closed_wrt_gvars vs (edge_storage Gpm G l).
+Lemma closedgvars_edge_storage: forall Gpm G ef l vs, 
+ closed_wrt_gvars vs (edge_storage Gpm G ef l).
 Proof.
-  intros Gpm G l. induction l;intros.
+  intros Gpm G ef l. induction l;intros.
   - simpl. solve_closedgvars assumption.
   - cbn.
     solve_closedgvars assumption.
+    apply closedgvars_edge_field_storage.
     apply IHl.
 Qed. 
 
-Lemma closedgvars_edge_seg: forall Gpm G l pend vs, 
- closed_wrt_gvars vs (edge_seg Gpm G l pend).
+Lemma closedgvars_edge_seg : forall Gpm G ef l pend vs, 
+ closed_wrt_gvars vs (edge_seg Gpm G ef l pend).
 Proof.
-  intros Gpm G l. induction l;intros.
+  intros Gpm G ef l. induction l;intros.
   - simpl. solve_closedgvars assumption.
   - cbn.
     solve_closedgvars assumption.
+    apply closedgvars_edge_field_storage.
     apply IHl.
 Qed. 
-
-Lemma closedgvars_field_storage : forall Vpm V_field v vs, 
- closed_wrt_gvars vs (field_storage Vpm V_field v).
-Proof.
-  intros. unfold field_storage. solve_closedgvars assumption. Qed.
 
 Lemma closedgvars_AVertex: forall Gpm Vpm V_field pedge v vs, 
  closed_wrt_gvars vs (AVertex Gpm Vpm V_field pedge v).
 Proof.
-  intros. unfold AVertex. solve_closedgvars assumption. apply closedgvars_field_storage. Qed.
+  intros. unfold AVertex. solve_closedgvars assumption. apply closedgvars_vertex_field_storage. Qed.
 
-Lemma closedgvars_vertex_storage {E_Order : Edge_Order}:  forall Gpm Vpm G vf l vs, 
- closed_wrt_gvars vs (vertex_storage Gpm Vpm G vf l).
+Lemma closedgvars_vertex_storage:  forall Gpm Vpm G vf ef l vs, 
+ closed_wrt_gvars vs (vertex_storage Gpm Vpm G vf ef l).
 Proof.
-  intros Gpm Vpm G vf l. induction l;intros.
+  intros Gpm Vpm G vf ef l. induction l;intros.
   - simpl. solve_closedgvars assumption.
   - cbn.
     solve_closedgvars assumption.
@@ -1497,39 +1545,70 @@ End graph_subst_rules.
 
 Ltac graph_asrt_simpl := 
     repeat progress ( match goal with 
-    | |- context [subst_local ?x ?xv (field_storage ?vpm ?vf ?v) ] => erewrite (subst_local_fieldstorage vpm vf v x xv)
+    | |- context [subst_local ?x ?xv (vertex_field_storage ?vpm ?vf ?v) ] => erewrite (subst_local_vertex_field_storage vpm vf v x xv)
     | |- context [subst_local ?x ?xv (AVertex ?gpm ?vpm ?vf ?e ?v) ] => erewrite (subst_local_AVertex gpm vpm vf e v x xv)
-    | |- context [subst_local ?x ?xv (edge_storage ?gpm ?G ?l) ] => erewrite (subst_local_edgestorage gpm G l x xv)
-    | |- context [subst_local ?x ?xv (edge_seg ?gpm ?G ?l ?pend) ] => erewrite (subst_local_edgeseg gpm G l pend x xv)
-    | |- context [subst_local ?x ?xv (vertex_storage ?gpm ?vpm ?G ?vf ?l) ] => erewrite (subst_local_vertexstorage gpm vpm G vf l x xv)
-    | |- context [subst_local ?x ?xv (graphrep ?gpm ?vpm ?G ?vf) ] => erewrite (subst_local_graphrep gpm vpm G vf x xv)
-    | |- context [subst_local ?x ?xv (rest_of_graph ?gpm ?vpm ?G ?vf ?v)] => erewrite (subst_local_rest_of_graph gpm vpm G vf v x xv)
-    | |- context [subst_global ?x ?xv (field_storage ?vpm ?vf ?v) ] => erewrite (subst_global_fieldstorage vpm vf v x xv)
+    | |- context [subst_local ?x ?xv (edge_field_storage ?pm ?vf ?v) ] => erewrite (subst_local_edge_field_storage pm vf v x xv)
+    | |- context [subst_local ?x ?xv (edge_storage ?gpm ?G ?ef ?l) ] => erewrite (subst_local_edgestorage gpm G ef l x xv)
+    | |- context [subst_local ?x ?xv (edge_seg ?gpm ?G ?ef ?l ?pend) ] => erewrite (subst_local_edgeseg gpm G ef l pend x xv)
+    | |- context [subst_local ?x ?xv (vertex_storage ?gpm ?vpm ?G ?vf ?ef ?l) ] => erewrite (subst_local_vertexstorage gpm vpm G vf ef l x xv)
+    | |- context [subst_local ?x ?xv (graphrep ?gpm ?vpm ?G ?vf ?ef) ] => erewrite (subst_local_graphrep gpm vpm G vf ef x xv)
+    | |- context [subst_local ?x ?xv (rest_of_graph ?gpm ?vpm ?G ?vf ?ef ?v)] => erewrite (subst_local_rest_of_graph gpm vpm G vf ef v x xv)
+    | |- context [subst_global ?x ?xv (vertex_field_storage ?vpm ?vf ?v) ] => erewrite (subst_global_vertex_field_storage vpm vf v x xv)
+    | |- context [subst_global ?x ?xv (edge_field_storage ?pm ?vf ?v) ] => erewrite (subst_global_edge_field_storage pm vf v x xv)
     | |- context [subst_global ?x ?xv (AVertex ?gpm ?vpm ?vf ?e ?v) ] => erewrite (subst_global_AVertex gpm vpm vf e v x xv)
-    | |- context [subst_global ?x ?xv (edge_storage ?gpm ?G ?l) ] => erewrite (subst_global_edgestorage gpm G l x xv)
-    | |- context [subst_global ?x ?xv (edge_seg ?gpm ?G ?l ?pend) ] => erewrite (subst_global_edgeseg gpm G l pend x xv)
-    | |- context [subst_global ?x ?xv (vertex_storage ?gpm ?vpm ?G ?vf ?l) ] => erewrite (subst_global_vertexstorage gpm vpm G vf l x xv)
-    | |- context [subst_global ?x ?xv (graphrep ?gpm ?vpm ?G ?vf) ] => erewrite (subst_global_graphrep gpm vpm G vf x xv)
-    | |- context [subst_global ?x ?xv (rest_of_graph ?gpm ?vpm ?G ?vf ?v)] => erewrite (subst_global_rest_of_graph gpm vpm G vf v x xv)
+    | |- context [subst_global ?x ?xv (edge_storage ?gpm ?G ?ef ?l) ] => erewrite (subst_global_edgestorage gpm G ef l x xv)
+    | |- context [subst_global ?x ?xv (edge_seg ?gpm ?G ?ef ?l ?pend) ] => erewrite (subst_global_edgeseg gpm G ef l pend x xv)
+    | |- context [subst_global ?x ?xv (vertex_storage ?gpm ?vpm ?G ?vf ?ef ?l) ] => erewrite (subst_global_vertexstorage gpm vpm G vf ef l x xv)
+    | |- context [subst_global ?x ?xv (graphrep ?gpm ?vpm ?G ?vf ?ef) ] => erewrite (subst_global_graphrep gpm vpm G vf ef x xv)
+    | |- context [subst_global ?x ?xv (rest_of_graph ?gpm ?vpm ?G ?vf ?ef ?v)] => erewrite (subst_global_rest_of_graph gpm vpm G vf ef v x xv)
     end).
 
 Ltac graph_closedlvars := 
     match goal with 
-    | |- closed_wrt_lvars ?vs (field_storage ?vpm ?vf ?v) => apply (closedlvars_field_storage vpm vf v vs)
+    | |- closed_wrt_lvars ?vs (vertex_field_storage ?vpm ?vf ?v) => apply (closedlvars_vertex_field_storage vpm vf v vs)
+    | |- closed_wrt_lvars ?vs (edge_field_storage ?pm ?vf ?v) => apply (closedlvars_edge_field_storage pm vf v vs)
     | |- closed_wrt_lvars ?vs (AVertex ?gpm ?vpm ?vf ?e ?v) => apply closedlvars_AVertex
-    | |- closed_wrt_lvars ?vs (edge_storage ?gpm ?G ?l) => apply closedlvars_edge_storage
-    | |- closed_wrt_lvars ?vs (edge_seg ?gpm ?G ?l ?pend) => apply closedlvars_edge_seg
-    | |- closed_wrt_lvars ?vs (vertex_storage ?gpm ?vpm ?G ?vf ?l) => apply closedlvars_vertex_storage
+    | |- closed_wrt_lvars ?vs (edge_storage ?gpm ?G ?ef ?l) => apply closedlvars_edge_storage
+    | |- closed_wrt_lvars ?vs (edge_seg ?gpm ?G ?ef ?l ?pend) => apply closedlvars_edge_seg
+    | |- closed_wrt_lvars ?vs (vertex_storage ?gpm ?vpm ?G ?vf ?ef ?l) => apply closedlvars_vertex_storage
     end.
 
 Ltac graph_closedgvars := 
     match goal with 
-    | |- closed_wrt_gvars ?vs (field_storage ?vpm ?vf ?v) => apply (closedgvars_field_storage vpm vf v vs)
+    | |- closed_wrt_gvars ?vs (vertex_field_storage ?vpm ?vf ?v) => apply (closedgvars_vertex_field_storage vpm vf v vs)
+    | |- closed_wrt_gvars ?vs (edge_field_storage ?pm ?vf ?v) => apply (closedgvars_edge_field_storage pm vf v vs)
     | |- closed_wrt_gvars ?vs (AVertex ?gpm ?vpm ?vf ?e ?v) => apply closedgvars_AVertex
-    | |- closed_wrt_gvars ?vs (edge_storage ?gpm ?G ?l) => apply closedgvars_edge_storage
-    | |- closed_wrt_gvars ?vs (edge_seg ?gpm ?G ?l ?pend) => apply closedgvars_edge_seg
-    | |- closed_wrt_gvars ?vs (vertex_storage ?gpm ?vpm ?G ?vf ?l) => apply closedgvars_vertex_storage
+    | |- closed_wrt_gvars ?vs (edge_storage ?gpm ?G ?ef ?l) => apply closedgvars_edge_storage
+    | |- closed_wrt_gvars ?vs (edge_seg ?gpm ?G ?ef ?l ?pend) => apply closedgvars_edge_seg
+    | |- closed_wrt_gvars ?vs (vertex_storage ?gpm ?vpm ?G ?vf ?ef ?l) => apply closedgvars_vertex_storage
     end.
     
+
+Module NoEdgeField_Graph.
+
+Instance NoEdgeField_M : @Edge_Field_M unit:=
+  {
+    edge_field_storage pm ef (v : Z) := emp;
+    subst_local_edge_field_storage :=
+      fun pm ef v => subst_local_emp;
+    subst_global_edge_field_storage :=
+      fun pm ef v => subst_global_emp;
+    closedlvars_edge_field_storage := fun pm ef e => closedlvars_emp;
+    closedgvars_edge_field_storage := fun pm ef e => closedgvars_emp;
+  }.
+
+Lemma singleton_eseg_noef pm G: forall  (x y: Z),
+  G.(vvalid) (G.(dst) x) -> isvalidptr x ->
+  data_at_t_edge_node pm ((G.(dst) x),y) x
+  |-- edge_seg pm G tt (x::nil) y.
+Proof.
+  intros.
+  unfold edge_seg.
+  unfold edge_field_storage. simpl.
+  quick_entailer!.
+Qed.
+
+End NoEdgeField_Graph.
+
 
 
